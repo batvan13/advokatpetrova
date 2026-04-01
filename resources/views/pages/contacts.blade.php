@@ -10,18 +10,18 @@
         <div class="mx-auto max-w-6xl px-4">
             <div class="max-w-2xl">
 
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900">
+                <h1 class="font-playfair text-3xl font-bold tracking-tight text-petrova-deep">
                     {{ $hero?->title ?? 'Контакти' }}
                 </h1>
 
                 @if($hero?->subtitle)
-                    <p class="mt-6 text-lg text-gray-600">
+                    <p class="mt-6 text-lg leading-relaxed text-petrova-mid">
                         {{ $hero->subtitle }}
                     </p>
                 @endif
 
                 @if($hero?->content)
-                    <p class="mt-4 text-base text-gray-500 leading-relaxed">
+                    <p class="mt-4 text-base leading-relaxed text-petrova-deep/85">
                         {{ $hero->content }}
                     </p>
                 @endif
@@ -29,7 +29,7 @@
                 @if($hero?->button_text && $hero?->button_url)
                     <div class="mt-8">
                         <a href="{{ section_url($hero->button_url) }}"
-                           class="inline-flex rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800">
+                           class="inline-flex rounded-lg bg-petrova-gold px-6 py-3 text-sm font-semibold text-petrova-deep shadow-none transition hover:bg-petrova-gold-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-white">
                             {{ $hero->button_text }}
                         </a>
                     </div>
@@ -50,46 +50,46 @@
 
                 {{-- Left: contact details --}}
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Информация</h2>
+                    <h2 class="font-playfair text-lg font-semibold text-petrova-deep">Информация</h2>
 
                     @if($hasContact)
-                        <ul class="mt-6 space-y-4 text-sm text-gray-600">
+                        <ul class="mt-6 space-y-4 text-sm text-petrova-mid">
                             @if($phone)
                                 <li>
-                                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Телефон</span><br>
-                                    <a href="{{ $tel }}" class="hover:text-gray-900 transition-colors">{{ $phone }}</a>
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-petrova-secondary">Телефон</span><br>
+                                    <a href="{{ $tel }}" class="text-petrova-deep transition-colors hover:text-petrova-gold-hover">{{ $phone }}</a>
                                 </li>
                             @endif
                             @if($email)
                                 <li>
-                                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Имейл</span><br>
-                                    <a href="mailto:{{ $email }}" class="hover:text-gray-900 transition-colors">{{ $email }}</a>
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-petrova-secondary">Имейл</span><br>
+                                    <a href="mailto:{{ $email }}" class="text-petrova-deep transition-colors hover:text-petrova-gold-hover">{{ $email }}</a>
                                 </li>
                             @endif
                             @if($address)
                                 <li>
-                                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Адрес</span><br>
-                                    <span class="whitespace-pre-line">{{ $address }}</span>
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-petrova-secondary">Адрес</span><br>
+                                    <span class="whitespace-pre-line text-petrova-deep">{{ $address }}</span>
                                 </li>
                             @endif
                         </ul>
                     @else
-                        <p class="mt-6 text-sm text-gray-400">Контактната информация ще бъде добавена скоро.</p>
+                        <p class="mt-6 text-sm text-petrova-secondary">Контактната информация ще бъде добавена скоро.</p>
                     @endif
 
                     @if($hasSocial)
-                        <div class="mt-6 flex gap-4 text-sm text-gray-500">
+                        <div class="mt-6 flex gap-4 text-sm text-petrova-secondary">
                             @if($facebook)
                                 <a href="{{ $facebook }}" target="_blank" rel="noopener"
-                                   class="hover:text-gray-900 transition-colors">Facebook</a>
+                                   class="transition-colors hover:text-petrova-deep">Facebook</a>
                             @endif
                             @if($instagram)
                                 <a href="{{ $instagram }}" target="_blank" rel="noopener"
-                                   class="hover:text-gray-900 transition-colors">Instagram</a>
+                                   class="transition-colors hover:text-petrova-deep">Instagram</a>
                             @endif
                             @if($youtube)
                                 <a href="{{ $youtube }}" target="_blank" rel="noopener"
-                                   class="hover:text-gray-900 transition-colors">YouTube</a>
+                                   class="transition-colors hover:text-petrova-deep">YouTube</a>
                             @endif
                         </div>
                     @endif
@@ -97,22 +97,22 @@
 
                 {{-- Right: inquiry form --}}
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Изпратете запитване</h2>
+                    <h2 class="font-playfair text-lg font-semibold text-petrova-deep">Изпратете запитване</h2>
 
                     @if(! $email)
 
-                        <p class="mt-6 text-sm text-gray-400">
+                        <p class="mt-6 text-sm text-petrova-secondary">
                             Формулярът за контакт не е конфигуриран.
                             Моля, свържете се с нас директно по телефон или имейл.
                         </p>
 
                     @elseif(is_string(session('inquiry_success')) && session('inquiry_success') !== '')
 
-                        <div class="mt-6 rounded-lg border border-gray-200 bg-white px-6 py-8 text-center">
-                            <p class="text-sm font-semibold text-gray-900">{{ session('inquiry_success') }}</p>
-                            <p class="mt-1 text-sm text-gray-500">Благодарим ви. Ще се свържем с вас скоро.</p>
+                        <div class="mt-6 rounded-lg border border-petrova-deep/10 bg-white px-6 py-8 text-center">
+                            <p class="text-sm font-semibold text-petrova-deep">{{ session('inquiry_success') }}</p>
+                            <p class="mt-1 text-sm text-petrova-mid">Благодарим ви. Ще се свържем с вас скоро.</p>
                             <a href="{{ url()->current() }}"
-                               class="mt-4 inline-block text-sm text-gray-400 hover:text-gray-700 transition-colors underline underline-offset-2">
+                               class="mt-4 inline-block text-sm text-petrova-secondary underline underline-offset-2 transition-colors hover:text-petrova-deep">
                                 Изпрати ново запитване
                             </a>
                         </div>
@@ -142,7 +142,7 @@
                             </div>
 
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                                <label for="name" class="mb-1 block text-sm font-medium text-petrova-deep">
                                     Име <span class="text-red-400">*</span>
                                 </label>
                                 <input
@@ -151,7 +151,7 @@
                                     name="name"
                                     value="{{ old('name') }}"
                                     placeholder="Вашето Име"
-                                    class="w-full rounded-lg border {{ $errors->has('name') ? 'border-red-400' : 'border-gray-200' }} bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                    class="w-full rounded-lg border bg-white px-4 py-3 text-sm text-petrova-deep placeholder:text-petrova-secondary/50 focus:border-petrova-gold/35 focus:outline-none focus:ring-2 focus:ring-petrova-gold/35 {{ $errors->has('name') ? 'border-red-400' : 'border-petrova-deep/15' }}"
                                 >
                                 @error('name')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -159,7 +159,7 @@
                             </div>
 
                             <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                                <label for="email" class="mb-1 block text-sm font-medium text-petrova-deep">
                                     Имейл <span class="text-red-400">*</span>
                                 </label>
                                 <input
@@ -168,7 +168,7 @@
                                     name="email"
                                     value="{{ old('email') }}"
                                     placeholder="example@email.com"
-                                    class="w-full rounded-lg border {{ $errors->has('email') ? 'border-red-400' : 'border-gray-200' }} bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                    class="w-full rounded-lg border bg-white px-4 py-3 text-sm text-petrova-deep placeholder:text-petrova-secondary/50 focus:border-petrova-gold/35 focus:outline-none focus:ring-2 focus:ring-petrova-gold/35 {{ $errors->has('email') ? 'border-red-400' : 'border-petrova-deep/15' }}"
                                 >
                                 @error('email')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -176,8 +176,8 @@
                             </div>
 
                             <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Телефон <span class="text-xs font-normal text-gray-400">(по желание)</span>
+                                <label for="phone" class="mb-1 block text-sm font-medium text-petrova-deep">
+                                    Телефон <span class="text-xs font-normal text-petrova-secondary">(по желание)</span>
                                 </label>
                                 <input
                                     type="tel"
@@ -185,7 +185,7 @@
                                     name="phone"
                                     value="{{ old('phone') }}"
                                     placeholder="+359 88 123 4567"
-                                    class="w-full rounded-lg border {{ $errors->has('phone') ? 'border-red-400' : 'border-gray-200' }} bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                    class="w-full rounded-lg border bg-white px-4 py-3 text-sm text-petrova-deep placeholder:text-petrova-secondary/50 focus:border-petrova-gold/35 focus:outline-none focus:ring-2 focus:ring-petrova-gold/35 {{ $errors->has('phone') ? 'border-red-400' : 'border-petrova-deep/15' }}"
                                 >
                                 @error('phone')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -193,7 +193,7 @@
                             </div>
 
                             <div>
-                                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">
+                                <label for="message" class="mb-1 block text-sm font-medium text-petrova-deep">
                                     Съобщение <span class="text-red-400">*</span>
                                 </label>
                                 <textarea
@@ -201,7 +201,7 @@
                                     name="message"
                                     rows="4"
                                     placeholder="Опишете вашето запитване..."
-                                    class="w-full rounded-lg border {{ $errors->has('message') ? 'border-red-400' : 'border-gray-200' }} bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                    class="w-full rounded-lg border bg-white px-4 py-3 text-sm text-petrova-deep placeholder:text-petrova-secondary/50 focus:border-petrova-gold/35 focus:outline-none focus:ring-2 focus:ring-petrova-gold/35 {{ $errors->has('message') ? 'border-red-400' : 'border-petrova-deep/15' }}"
                                 >{{ old('message') }}</textarea>
                                 @error('message')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -210,7 +210,7 @@
 
                             <button
                                 type="submit"
-                                class="inline-flex rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+                                class="inline-flex rounded-lg bg-petrova-gold px-6 py-3 text-sm font-semibold text-petrova-deep shadow-none transition hover:bg-petrova-gold-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50"
                             >
                                 Изпрати
                             </button>
@@ -224,34 +224,5 @@
             </div>
         </div>
     </section>
-
-    {{-- Optional content block --}}
-    @if($content?->title || $content?->subtitle || $content?->content)
-        <section class="bg-white py-16">
-            <div class="mx-auto max-w-6xl px-4">
-                <div class="max-w-3xl">
-
-                    @if($content?->title)
-                        <h2 class="text-2xl font-bold tracking-tight text-gray-900">
-                            {{ $content->title }}
-                        </h2>
-                    @endif
-
-                    @if($content?->subtitle)
-                        <p class="mt-4 text-lg text-gray-600">
-                            {{ $content->subtitle }}
-                        </p>
-                    @endif
-
-                    @if($content?->content)
-                        <p class="mt-4 text-base text-gray-500 leading-relaxed">
-                            {{ $content->content }}
-                        </p>
-                    @endif
-
-                </div>
-            </div>
-        </section>
-    @endif
 
 @endsection
