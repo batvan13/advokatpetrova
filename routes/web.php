@@ -35,6 +35,7 @@ Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
+Route::get('/consultation/success', [PageController::class, 'consultationSuccess'])->name('consultation.success');
 Route::get('/consultation', [PageController::class, 'consultation'])->name('consultation');
 Route::post('/contact', [InquiryController::class, 'submit'])->name('inquiry.submit')->middleware('throttle:contact-form');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

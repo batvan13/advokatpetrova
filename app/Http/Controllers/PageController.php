@@ -66,6 +66,11 @@ class PageController extends Controller
         ]);
     }
 
+    public function consultationSuccess()
+    {
+        return view('pages.consultation-success');
+    }
+
     public function services()
     {
         return view('pages.services', [
