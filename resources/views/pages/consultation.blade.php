@@ -98,6 +98,12 @@
                         <li>Фокус върху един основен въпрос</li>
                         <li>Обобщение след срещата</li>
                     </ul>
+                    <div class="mt-8">
+                        <a href="{{ route('contacts') }}"
+                           class="inline-flex w-full items-center justify-center rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 sm:w-auto">
+                            Заявете консултация
+                        </a>
+                    </div>
                 </article>
 
                 <article class="rounded-xl border border-gray-900 bg-white p-6 shadow-sm ring-1 ring-gray-900">
@@ -108,6 +114,12 @@
                         <li>По-подробен анализ</li>
                         <li>Препоръки за следващи стъпки</li>
                     </ul>
+                    <div class="mt-8">
+                        <a href="{{ route('contacts') }}"
+                           class="inline-flex w-full items-center justify-center rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 sm:w-auto">
+                            Заявете консултация
+                        </a>
+                    </div>
                 </article>
 
             </div>
