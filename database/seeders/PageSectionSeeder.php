@@ -128,6 +128,25 @@ class PageSectionSeeder extends Seeder
                 'content' => null,
                 'meta' => null,
             ],
+            [
+                'page' => 'consultation',
+                'section' => 'hero',
+                'title' => 'Платена онлайн консултация',
+                'subtitle' => 'Резервирайте удобен час и получете фокусиран отговор от специалист.',
+                'content' => 'След заявка ще получите потвърждение и детайли за провеждане на срещата онлайн.',
+                'meta' => [
+                    'button_text' => 'Към контакти',
+                    'button_url' => 'contacts',
+                ],
+            ],
+            [
+                'page' => 'consultation',
+                'section' => 'content',
+                'title' => null,
+                'subtitle' => null,
+                'content' => null,
+                'meta' => null,
+            ],
         ];
 
         foreach ($sections as $section) {

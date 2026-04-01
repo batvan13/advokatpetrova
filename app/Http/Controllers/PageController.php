@@ -58,6 +58,14 @@ class PageController extends Controller
         ]);
     }
 
+    public function consultation()
+    {
+        return view('pages.consultation', [
+            'hero' => page_section('consultation', 'hero'),
+            'content' => page_section('consultation', 'content'),
+        ]);
+    }
+
     public function services()
     {
         return view('pages.services', [
