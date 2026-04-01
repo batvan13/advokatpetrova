@@ -11,15 +11,15 @@
     $showGalleryFooterLink = \App\Models\GalleryItem::active()->exists();
 @endphp
 
-<footer class="border-t border-white/10 bg-[#0a1628]">
-    <div class="relative mx-auto max-w-6xl px-4 py-14 text-sm text-slate-300">
+<footer class="border-t border-white/10 bg-petrova-main font-playfair">
+    <div class="relative mx-auto max-w-6xl px-4 py-14 text-sm text-petrova-secondary">
 
         <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
 
             {{-- Column 1: brand + social + decoration --}}
             <div class="relative">
                 <svg
-                    class="pointer-events-none absolute -right-4 bottom-0 h-32 w-32 text-white/[0.04] lg:right-0"
+                    class="pointer-events-none absolute -right-4 bottom-0 h-32 w-32 text-petrova-primary/[0.06] lg:right-0"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 120 120"
                     fill="none"
@@ -32,11 +32,11 @@
                 </svg>
 
                 <a href="{{ route('home') }}" class="group relative z-10 inline-flex flex-col leading-tight">
-                    <span class="text-lg font-bold tracking-tight text-white transition-colors group-hover:text-amber-200">
+                    <span class="text-lg font-bold tracking-tight text-petrova-primary transition-colors group-hover:text-petrova-gold-hover">
                         {{ setting('site_name', 'Website') }}
                     </span>
                     @if (setting('site_tagline'))
-                        <span class="mt-1 text-xs font-normal text-slate-400">
+                        <span class="mt-1 text-xs font-normal text-petrova-secondary">
                             {{ setting('site_tagline') }}
                         </span>
                     @endif
@@ -49,7 +49,7 @@
                                 href="{{ $facebook }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="text-slate-400 transition-colors hover:text-amber-400 focus:outline-none focus-visible:text-amber-400 focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded"
+                                class="text-petrova-secondary transition-colors hover:text-petrova-gold focus:outline-none focus-visible:text-petrova-gold focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded"
                                 aria-label="Facebook"
                             >
                                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -64,7 +64,7 @@
                                 href="{{ $instagram }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="text-slate-400 transition-colors hover:text-amber-400 focus:outline-none focus-visible:text-amber-400 focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded"
+                                class="text-petrova-secondary transition-colors hover:text-petrova-gold focus:outline-none focus-visible:text-petrova-gold focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded"
                                 aria-label="Instagram"
                             >
                                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -80,39 +80,39 @@
 
             {{-- Column 2: Полезна информация --}}
             <div>
-                <p class="text-xs font-semibold uppercase tracking-widest text-amber-500">
+                <p class="text-xs font-semibold uppercase tracking-widest text-petrova-gold">
                     Полезна информация
                 </p>
                 <ul class="mt-5 space-y-3">
                     <li>
-                        <a href="{{ route('home') }}" class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded">
+                        <a href="{{ route('home') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             Начало
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('about') }}" class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded">
+                        <a href="{{ route('about') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             За нас
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('services') }}" class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded">
+                        <a href="{{ route('services') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             Услуги
                         </a>
                     </li>
                     @if ($showGalleryFooterLink)
                         <li>
-                            <a href="{{ route('gallery') }}" class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded">
+                            <a href="{{ route('gallery') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                                 Галерия
                             </a>
                         </li>
                     @endif
                     <li>
-                        <a href="{{ route('blog') }}" class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded">
+                        <a href="{{ route('blog') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             Блог
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('contacts') }}" class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded">
+                        <a href="{{ route('contacts') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             Контакти
                         </a>
                     </li>
@@ -121,7 +121,7 @@
 
             {{-- Column 3: Услуги --}}
             <div>
-                <p class="text-xs font-semibold uppercase tracking-widest text-amber-500">
+                <p class="text-xs font-semibold uppercase tracking-widest text-petrova-gold">
                     Услуги
                 </p>
                 <ul class="mt-5 space-y-3">
@@ -129,7 +129,7 @@
                         <li>
                             <a
                                 href="{{ route('services.show', $service->slug) }}"
-                                class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded"
+                                class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded"
                             >
                                 {{ $service->title }}
                             </a>
@@ -140,7 +140,7 @@
 
             {{-- Column 4: Контакти + CTA --}}
             <div>
-                <p class="text-xs font-semibold uppercase tracking-widest text-amber-500">
+                <p class="text-xs font-semibold uppercase tracking-widest text-petrova-gold">
                     Контакти
                 </p>
                 <div class="mt-5 space-y-3">
@@ -148,7 +148,7 @@
                         <p>
                             <a
                                 href="{{ $tel }}"
-                                class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded"
+                                class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded"
                             >
                                 {{ $phone }}
                             </a>
@@ -158,21 +158,21 @@
                         <p>
                             <a
                                 href="mailto:{{ $email }}"
-                                class="transition-colors hover:text-white focus:outline-none focus-visible:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] rounded break-all"
+                                class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded break-all"
                             >
                                 {{ $email }}
                             </a>
                         </p>
                     @endif
                     @if ($address)
-                        <p class="whitespace-pre-line text-slate-400">
+                        <p class="whitespace-pre-line text-petrova-secondary/90">
                             {{ $address }}
                         </p>
                     @endif
                 </div>
                 <a
                     href="{{ route('consultation') }}"
-                    class="mt-6 inline-flex items-center justify-center rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]"
+                    class="mt-6 inline-flex items-center justify-center rounded-lg bg-petrova-gold px-4 py-2.5 text-sm font-semibold text-petrova-deep shadow-sm transition hover:bg-petrova-gold-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main"
                 >
                     Консултация
                 </a>
@@ -180,7 +180,7 @@
         </div>
 
         <div class="mt-14 border-t border-white/10 pt-8">
-            <p class="text-center text-xs text-slate-500 sm:text-left">
+            <p class="text-center text-xs text-petrova-secondary/70 sm:text-left">
                 © {{ date('Y') }} {{ setting('site_name', 'Website') }}
             </p>
         </div>

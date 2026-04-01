@@ -12,11 +12,11 @@
 @endphp
 
 <section
-    class="relative flex min-h-[60vh] items-center justify-center overflow-hidden bg-gradient-to-r from-slate-950 via-[#0f1729] to-[#0c1929]"
+    class="relative flex min-h-[60vh] items-center justify-center overflow-hidden bg-petrova-hero font-playfair"
 >
     {{-- Decorative layer (Mode A + B); non-interactive --}}
     <svg
-        class="pointer-events-none absolute inset-y-0 right-0 h-full w-[min(55vw,32rem)] text-white/[0.07]"
+        class="pointer-events-none absolute inset-y-0 right-0 h-full w-[min(55vw,32rem)] text-petrova-primary/[0.08]"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 400 720"
         preserveAspectRatio="xMaxYMid slice"
@@ -39,19 +39,19 @@
         <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
             <div class="mx-auto max-w-2xl">
                 @if ($heroTitle !== '')
-                    <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                    <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
                         {{ $heroTitle }}
                     </h1>
                 @endif
 
                 @if ($heroSubtitle !== '')
-                    <p class="mt-6 text-lg leading-8 text-slate-200">
+                    <p class="mt-6 text-lg leading-8 text-petrova-secondary">
                         {{ $heroSubtitle }}
                     </p>
                 @endif
 
                 @if ($heroContent !== '')
-                    <p class="mt-4 text-base leading-7 text-slate-300">
+                    <p class="mt-4 text-base leading-7 text-petrova-secondary/90">
                         {{ $heroContent }}
                     </p>
                 @endif
@@ -60,7 +60,7 @@
                     <div class="mt-8">
                         <a
                             href="{{ section_url($heroButtonUrl) }}"
-                            class="inline-flex rounded-lg border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                            class="inline-flex rounded-lg border border-petrova-gold/50 bg-petrova-deep/30 px-6 py-3 text-sm font-semibold text-petrova-primary backdrop-blur-sm transition hover:border-petrova-gold-hover hover:bg-petrova-mid/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep"
                         >
                             {{ $heroButtonText }}
                         </a>
