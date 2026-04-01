@@ -36,8 +36,8 @@
     </svg>
 
     @if ($hasHeroContent)
-        <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
-            <div class="mx-auto max-w-2xl">
+        <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16">
+            <div class="mx-auto w-full max-w-3xl text-center">
                 @if ($heroTitle !== '')
                     <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
                         {{ $heroTitle }}
