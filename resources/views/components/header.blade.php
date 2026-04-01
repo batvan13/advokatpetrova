@@ -1,95 +1,102 @@
-<header class="sticky top-0 z-50 border-b border-gray-200 bg-white">
+<header class="sticky top-0 z-50 border-b border-white/10 bg-[#0a1628]">
 
-    {{-- ── Top bar ─────────────────────────────────────────────── --}}
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+    {{-- ── Top bar (mobile: logo + hamburger | desktop: 3-zone grid) ── --}}
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
 
-        <a href="{{ route('home') }}" class="group flex flex-col leading-tight">
-            <span class="text-xl font-bold tracking-tight text-gray-900">
+        <a href="{{ route('home') }}" class="group flex min-w-0 flex-col leading-tight justify-self-start">
+            <span class="text-xl font-bold tracking-tight text-white">
                 {{ setting('site_name', 'Website') }}
             </span>
             @if(setting('site_tagline'))
-                <span class="text-xs text-gray-400 font-normal">
+                <span class="text-xs font-normal text-slate-400">
                     {{ setting('site_tagline') }}
                 </span>
             @endif
         </a>
 
-        {{-- Desktop nav --}}
-        <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        {{-- Desktop: centered nav (no consultation here) --}}
+        <nav class="hidden min-w-0 items-center justify-center gap-6 text-sm font-medium md:flex">
             <a href="{{ route('home') }}"
-               class="{{ request()->routeIs('home') ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900' }} transition-colors">
+               class="{{ request()->routeIs('home') ? 'font-semibold text-white' : 'text-slate-300 transition-colors hover:text-white' }}">
                 Начало
             </a>
             <a href="{{ route('about') }}"
-               class="{{ request()->routeIs('about') ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900' }} transition-colors">
+               class="{{ request()->routeIs('about') ? 'font-semibold text-white' : 'text-slate-300 transition-colors hover:text-white' }}">
                 За нас
             </a>
             <a href="{{ route('services') }}"
-               class="{{ request()->routeIs('services', 'services.show') ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900' }} transition-colors">
+               class="{{ request()->routeIs('services', 'services.show') ? 'font-semibold text-white' : 'text-slate-300 transition-colors hover:text-white' }}">
                 Услуги
             </a>
-            <a href="{{ route('consultation') }}"
-               class="{{ request()->routeIs('consultation') ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900' }} transition-colors">
-                Консултация
-            </a>
             <a href="{{ route('blog') }}"
-               class="{{ request()->routeIs('blog', 'blog.show') ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900' }} transition-colors">
+               class="{{ request()->routeIs('blog', 'blog.show') ? 'font-semibold text-white' : 'text-slate-300 transition-colors hover:text-white' }}">
                 Блог
             </a>
             <a href="{{ route('contacts') }}"
-               class="{{ request()->routeIs('contacts') ? 'border-gray-900 text-gray-900' : 'border-gray-300 text-gray-500 hover:border-gray-600 hover:text-gray-900' }} border rounded-full px-3 py-1 transition-colors">
+               class="{{ request()->routeIs('contacts') ? 'font-semibold text-white' : 'text-slate-300 transition-colors hover:text-white' }}">
                 Контакти
             </a>
         </nav>
 
-        {{-- Hamburger button (mobile only) --}}
-        <button id="mobile-menu-toggle"
-                class="md:hidden flex items-center justify-center w-9 h-9 rounded text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-                aria-label="Меню"
-                aria-expanded="false"
-                aria-controls="mobile-menu">
-            <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
-            </svg>
-            <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
+        <div class="flex shrink-0 items-center justify-end justify-self-end gap-3">
+            <a href="{{ route('consultation') }}"
+               class="{{ request()->routeIs('consultation')
+                    ? 'bg-amber-400 ring-2 ring-amber-200/90 ring-offset-2 ring-offset-[#0a1628]'
+                    : 'bg-amber-500 hover:bg-amber-400' }}
+                    hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] md:inline-flex md:items-center md:justify-center">
+                Консултация
+            </a>
+
+            <button id="mobile-menu-toggle"
+                    class="flex h-10 w-10 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white md:hidden"
+                    aria-label="Меню"
+                    aria-expanded="false"
+                    aria-controls="mobile-menu"
+                    type="button">
+                <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                </svg>
+                <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
 
     </div>
 
     {{-- ── Mobile menu panel ───────────────────────────────────── --}}
-    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white">
-        <nav class="mx-auto max-w-6xl px-4 py-3 flex flex-col gap-0.5 text-sm font-medium">
+    <div id="mobile-menu" class="hidden border-t border-white/10 bg-[#0a1628] md:hidden">
+        <nav class="mx-auto flex max-w-6xl flex-col gap-0.5 px-4 py-3 text-sm font-medium">
             <a href="{{ route('home') }}"
-               class="{{ request()->routeIs('home') ? 'text-gray-900 font-semibold bg-gray-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }} rounded px-3 py-2.5 transition-colors">
+               class="{{ request()->routeIs('home') ? 'bg-white/10 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} rounded-lg px-3 py-2.5 transition-colors">
                 Начало
             </a>
             <a href="{{ route('about') }}"
-               class="{{ request()->routeIs('about') ? 'text-gray-900 font-semibold bg-gray-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }} rounded px-3 py-2.5 transition-colors">
+               class="{{ request()->routeIs('about') ? 'bg-white/10 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} rounded-lg px-3 py-2.5 transition-colors">
                 За нас
             </a>
-                <a href="{{ route('services') }}"
-                   class="{{ request()->routeIs('services', 'services.show') ? 'text-gray-900 font-semibold bg-gray-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }} rounded px-3 py-2.5 transition-colors">
+            <a href="{{ route('services') }}"
+               class="{{ request()->routeIs('services', 'services.show') ? 'bg-white/10 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} rounded-lg px-3 py-2.5 transition-colors">
                 Услуги
             </a>
-            <a href="{{ route('consultation') }}"
-               class="{{ request()->routeIs('consultation') ? 'text-gray-900 font-semibold bg-gray-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }} rounded px-3 py-2.5 transition-colors">
-                Консултация
-            </a>
             <a href="{{ route('blog') }}"
-               class="{{ request()->routeIs('blog', 'blog.show') ? 'text-gray-900 font-semibold bg-gray-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }} rounded px-3 py-2.5 transition-colors">
+               class="{{ request()->routeIs('blog', 'blog.show') ? 'bg-white/10 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} rounded-lg px-3 py-2.5 transition-colors">
                 Блог
             </a>
-            <div class="px-3 py-2">
-                <a href="{{ route('contacts') }}"
-                   class="{{ request()->routeIs('contacts') ? 'border-gray-900 text-gray-900' : 'border-gray-300 text-gray-500 hover:border-gray-600 hover:text-gray-900' }} inline-block border rounded-full px-3 py-1 transition-colors">
-                    Контакти
-                </a>
-            </div>
+            <a href="{{ route('contacts') }}"
+               class="{{ request()->routeIs('contacts') ? 'bg-white/10 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} rounded-lg px-3 py-2.5 transition-colors">
+                Контакти
+            </a>
+            <a href="{{ route('consultation') }}"
+               class="{{ request()->routeIs('consultation')
+                    ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-200/90 ring-offset-2 ring-offset-[#0a1628]'
+                    : 'bg-amber-500 text-slate-950 hover:bg-amber-400' }}
+                    mx-0 mt-1 rounded-lg px-3 py-2.5 text-center font-semibold shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]">
+                Консултация
+            </a>
         </nav>
     </div>
 
