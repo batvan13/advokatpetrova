@@ -5,67 +5,51 @@
 
 @section('content')
 
-    {{-- Hero --}}
-    <section class="bg-white py-20">
-        <div class="mx-auto max-w-6xl px-4">
-            <div class="max-w-3xl">
+    <section class="bg-white">
+        <div class="mx-auto max-w-6xl px-4 py-16">
+            <div class="max-w-2xl text-left">
 
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900">
-                    {{ $hero?->title ?? 'За нас' }}
+                <h1 class="font-playfair text-3xl font-bold tracking-tight text-petrova-deep">
+                    @if(filled($hero?->title))
+                        {{ $hero->title }}
+                    @elseif(filled($content?->title))
+                        {{ $content->title }}
+                    @else
+                        За нас
+                    @endif
                 </h1>
 
                 @if($hero?->subtitle)
-                    <p class="mt-6 text-lg text-gray-600">
+                    <p class="mt-6 text-lg leading-relaxed text-petrova-mid">
                         {{ $hero->subtitle }}
                     </p>
                 @endif
 
                 @if($hero?->content)
-                    <p class="mt-4 text-base text-gray-500 leading-relaxed">
+                    <p class="mt-4 text-base leading-relaxed text-petrova-deep/85">
                         {{ $hero->content }}
                     </p>
                 @endif
 
-                @if($hero?->button_text && $hero?->button_url)
-                    <div class="mt-8">
-                        <a href="{{ section_url($hero->button_url) }}"
-                           class="inline-flex rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800">
-                            {{ $hero->button_text }}
-                        </a>
+                @if($content?->content)
+                    <div class="mt-6 text-base leading-relaxed text-petrova-deep/85
+                        [&_p]:mt-4 [&_p:first-child]:mt-0
+                        [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5
+                        [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
+                        [&_li]:mt-1
+                        [&_a]:font-medium [&_a]:text-petrova-deep [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:text-petrova-mid">
+                        {!! $content->content !!}
+                    </div>
+                @endif
+
+                @if(setting('contact_phone') || setting('contact_email') || setting('google_maps_url'))
+                    <div class="mt-12">
+                        @include('partials.action-buttons', ['variant' => 'light'])
                     </div>
                 @endif
 
             </div>
         </div>
     </section>
-
-    {{-- Content block — only rendered if section record exists and has data --}}
-    @if($content?->title || $content?->subtitle || $content?->content)
-        <section class="bg-gray-50 py-16">
-            <div class="mx-auto max-w-6xl px-4">
-                <div class="max-w-3xl">
-
-                    @if($content?->title)
-                        <h2 class="text-2xl font-bold tracking-tight text-gray-900">
-                            {{ $content->title }}
-                        </h2>
-                    @endif
-
-                    @if($content?->subtitle)
-                        <p class="mt-4 text-lg text-gray-600">
-                            {{ $content->subtitle }}
-                        </p>
-                    @endif
-
-                    @if($content?->content)
-                        <p class="mt-4 text-base text-gray-500 leading-relaxed">
-                            {{ $content->content }}
-                        </p>
-                    @endif
-
-                </div>
-            </div>
-        </section>
-    @endif
 
 @endsection

@@ -33,26 +33,7 @@
 
             <div class="mt-14 grid gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-10">
                 @foreach($homeServices as $service)
-                    <div class="rounded-lg border border-white/10 bg-petrova-deep/30 p-6 transition-colors duration-200 hover:border-petrova-gold/20">
-
-                        @if($service->icon)
-                            <p class="mb-3 text-xs font-mono tracking-wide text-petrova-gold/75">{{ $service->icon }}</p>
-                        @endif
-
-                        <h3 class="text-base font-semibold text-petrova-primary">
-                            <a href="{{ route('services.show', $service->slug) }}"
-                               class="transition-colors hover:text-petrova-gold-hover focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/40 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded-sm">
-                                {{ $service->title }}
-                            </a>
-                        </h3>
-
-                        @if($service->short_description)
-                            <p class="mt-2 text-sm leading-relaxed text-petrova-secondary">
-                                {{ $service->short_description }}
-                            </p>
-                        @endif
-
-                    </div>
+                    @include('partials.service-card', ['service' => $service])
                 @endforeach
             </div>
 
