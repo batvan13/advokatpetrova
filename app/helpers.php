@@ -3,6 +3,7 @@
 use App\Models\PageSection;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 if (! function_exists('setting')) {
 
@@ -70,4 +71,58 @@ if (! function_exists('page_section')) {
         return $sections[$page . '.' . $section] ?? null;
     }
 
+}
+
+if (! function_exists('admin_page_section_page_label')) {
+
+    /**
+     * Human-readable admin label for a PageSection "page" key (Bulgarian where mapped).
+     */
+    function admin_page_section_page_label(string $page): string
+    {
+        return match ($page) {
+            'home' => 'Начало',
+            'about' => 'За нас',
+            'services' => 'Услуги',
+            'gallery' => 'Галерия',
+            'contacts' => 'Контакти',
+            'consultation' => 'Онлайн консултация',
+            'practice' => 'Моята практика',
+            'terms' => 'Общи условия',
+            'cookie_policy' => 'Политика за бисквитки',
+            'privacy' => 'Политика за поверителност',
+            default => Str::title(str_replace('_', ' ', $page)),
+        };
+    }
+}
+
+if (! function_exists('admin_page_section_section_label')) {
+
+    /**
+     * Human-readable admin label for a PageSection "section" key (Bulgarian where mapped).
+     */
+    function admin_page_section_section_label(string $section): string
+    {
+        return match ($section) {
+            'hero' => 'Хедър',
+            'content' => 'Основно съдържание',
+            'services_preview' => 'Преглед: услуги',
+            'about_preview' => 'Преглед: за нас',
+            'gallery_preview' => 'Преглед: галерия',
+            'contact_preview' => 'Преглед: контакти',
+            'faq' => 'ЧЗВ',
+            default => Str::title(str_replace('_', ' ', $section)),
+        };
+    }
+}
+
+if (! function_exists('admin_page_section_caption')) {
+
+    /**
+     * Combined context line for admin (e.g. "Моята практика — Основно съдържание").
+     */
+    function admin_page_section_caption(string $page, string $section): string
+    {
+        return admin_page_section_page_label($page).' — '.admin_page_section_section_label($section);
+    }
 }

@@ -56,15 +56,15 @@
                             @php $currentPage = $section->page; @endphp
                             <tr class="bg-gray-50">
                                 <td colspan="4"
-                                    class="px-6 py-2 text-xs font-bold tracking-widest uppercase text-gray-400">
-                                    {{ ucfirst($section->page) }}
+                                    class="px-6 py-2 text-sm font-semibold text-gray-700">
+                                    {{ admin_page_section_page_label($section->page) }}
                                 </td>
                             </tr>
                         @endif
 
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 text-gray-400 font-mono text-xs">{{ $section->page }}</td>
-                            <td class="px-6 py-4 text-gray-500 font-mono text-xs">{{ $section->section }}</td>
+                            <td class="px-6 py-4 text-gray-900 text-sm">{{ admin_page_section_page_label($section->page) }}</td>
+                            <td class="px-6 py-4 text-gray-600 text-sm">{{ admin_page_section_section_label($section->section) }}</td>
                             <td class="px-6 py-4 font-medium text-gray-900">
                                 {{ $section->title ?: '—' }}
                             </td>

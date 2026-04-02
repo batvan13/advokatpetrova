@@ -8,8 +8,8 @@
     <div class="mb-8 flex items-center justify-between">
         <div>
             <h1 class="text-xl font-semibold text-gray-900">Редакция на секция</h1>
-            <p class="mt-1 text-sm text-gray-500 font-mono">
-                {{ $pageSection->page }} / {{ $pageSection->section }}
+            <p class="mt-1 text-sm text-gray-600">
+                {{ admin_page_section_caption($pageSection->page, $pageSection->section) }}
             </p>
         </div>
         <a href="{{ route('admin.sections.index') }}"
