@@ -87,9 +87,9 @@
                                 <a href="{{ $instagram }}" target="_blank" rel="noopener"
                                    class="transition-colors hover:text-petrova-deep">Instagram</a>
                             @endif
-                            @if($youtube)
-                                <a href="{{ $youtube }}" target="_blank" rel="noopener"
-                                   class="transition-colors hover:text-petrova-deep">YouTube</a>
+                            @if($linkedin)
+                                <a href="{{ $linkedin }}" target="_blank" rel="noopener"
+                                   class="transition-colors hover:text-petrova-deep">LinkedIn</a>
                             @endif
                         </div>
                     @endif

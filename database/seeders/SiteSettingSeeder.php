@@ -18,7 +18,7 @@ class SiteSettingSeeder extends Seeder
             'google_maps_url' => '',
             'facebook_url'    => '',
             'instagram_url'   => '',
-            'youtube_url'   => '',
+            'linkedin_url'  => '',
         ];
 
         foreach ($defaults as $key => $value) {

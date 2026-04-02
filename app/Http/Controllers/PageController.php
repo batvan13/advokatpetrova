@@ -166,7 +166,7 @@ class PageController extends Controller
         $address = setting('address');
         $facebook = setting('facebook_url');
         $instagram = setting('instagram_url');
-        $youtube = setting('youtube_url');
+        $linkedin = setting('linkedin_url');
 
         return view('pages.contacts', [
             'hero' => page_section('contacts', 'hero'),
@@ -177,9 +177,9 @@ class PageController extends Controller
             'tel' => $phone ? ('tel:'.preg_replace('/[^\d+]/', '', $phone)) : null,
             'facebook' => $facebook,
             'instagram' => $instagram,
-            'youtube' => $youtube,
+            'linkedin' => $linkedin,
             'hasContact' => (bool) ($email || $phone || $address),
-            'hasSocial' => (bool) ($facebook || $instagram || $youtube),
+            'hasSocial' => (bool) ($facebook || $instagram || $linkedin),
         ]);
     }
 

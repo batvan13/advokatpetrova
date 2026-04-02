@@ -219,22 +219,23 @@
                     @enderror
                 </div>
 
-                {{-- youtube_url --}}
+                {{-- linkedin_url --}}
                 <div>
-                    <label for="youtube_url" class="block text-sm font-medium text-gray-700 mb-1.5">
-                        YouTube
+                    <label for="linkedin_url" class="block text-sm font-medium text-gray-700 mb-1.5">
+                        LinkedIn
                     </label>
                     <input
                         type="url"
-                        id="youtube_url"
-                        name="youtube_url"
-                        value="{{ old('youtube_url', $settings->get('youtube_url')) }}"
-                        placeholder="https://youtube.com/@your-channel"
+                        id="linkedin_url"
+                        name="linkedin_url"
+                        value="{{ old('linkedin_url', $settings->get('linkedin_url')) }}"
+                        placeholder="https://www.linkedin.com/in/your-profile"
                         class="w-full px-3 py-2 border rounded text-sm text-gray-900 placeholder-gray-400
                                font-mono text-xs focus:outline-none focus:border-gray-500 transition-colors
-                               {{ $errors->has('youtube_url') ? 'border-red-300 bg-red-50' : 'border-gray-200' }}"
+                               {{ $errors->has('linkedin_url') ? 'border-red-300 bg-red-50' : 'border-gray-200' }}"
                     >
-                    @error('youtube_url')
+                    <p class="mt-1 text-xs text-gray-500">Профил или фирмена страница в LinkedIn.</p>
+                    @error('linkedin_url')
                         <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

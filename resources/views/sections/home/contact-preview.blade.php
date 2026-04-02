@@ -9,10 +9,10 @@
     $tel = $phone ? ('tel:' . preg_replace('/[^\d+]/', '', $phone)) : null;
     $facebook  = setting('facebook_url');
     $instagram = setting('instagram_url');
-    $youtube   = setting('youtube_url');
+    $linkedin  = setting('linkedin_url');
 
     $hasActions = $phone || $email || $mapsUrl;
-    $hasSocial  = $facebook || $instagram || $youtube;
+    $hasSocial  = $facebook || $instagram || $linkedin;
 @endphp
 
 <section class="border-t border-white/10 bg-petrova-deep py-20">
@@ -76,9 +76,9 @@
                             <a href="{{ $instagram }}" target="_blank" rel="noopener"
                                class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/40 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep rounded">Instagram</a>
                         @endif
-                        @if($youtube)
-                            <a href="{{ $youtube }}" target="_blank" rel="noopener"
-                               class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/40 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep rounded">YouTube</a>
+                        @if($linkedin)
+                            <a href="{{ $linkedin }}" target="_blank" rel="noopener"
+                               class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/40 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep rounded">LinkedIn</a>
                         @endif
                     </div>
                 @endif

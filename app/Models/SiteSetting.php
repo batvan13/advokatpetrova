@@ -17,7 +17,7 @@ class SiteSetting extends Model
         'google_maps_url',
         'facebook_url',
         'instagram_url',
-        'youtube_url',
+        'linkedin_url',
     ];
 
     public static function get(string $key, $default = null)
