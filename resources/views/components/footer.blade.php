@@ -17,7 +17,7 @@
         <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
 
             {{-- Column 1: brand + social + decoration --}}
-            <div class="relative">
+            <div class="relative min-w-0">
                 <svg
                     class="pointer-events-none absolute -right-4 bottom-0 h-32 w-32 text-petrova-primary/[0.06] lg:right-0"
                     xmlns="http://www.w3.org/2000/svg"
@@ -31,19 +31,29 @@
                     <circle cx="60" cy="60" r="20" stroke="currentColor" stroke-width="0.5" opacity="0.5" />
                 </svg>
 
-                <a href="{{ route('home') }}" class="group relative z-10 inline-flex flex-col leading-tight">
-                    <span class="text-lg font-bold tracking-tight text-petrova-primary transition-colors group-hover:text-petrova-gold-hover">
-                        {{ setting('site_name', 'Website') }}
-                    </span>
+                <div class="relative z-10 min-w-0 max-w-full mb-8">
+                    <a
+                        href="{{ route('home') }}"
+                        class="group block max-w-full rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main"
+                    >
+                        <img
+                            src="{{ asset('images/logo-gold.svg') }}"
+                            alt="{{ setting('site_name', 'Website') }}"
+                            width="224"
+                            height="100"
+                            decoding="async"
+                            class="block h-8 w-auto max-w-full object-contain object-left"
+                        />
+                    </a>
                     @if (setting('site_tagline'))
-                        <span class="mt-1 text-xs font-normal text-petrova-secondary">
+                        <p class="mt-2 text-xs font-normal text-petrova-secondary">
                             {{ setting('site_tagline') }}
-                        </span>
+                        </p>
                     @endif
-                </a>
+                </div>
 
                 @if ($facebook || $instagram)
-                    <div class="relative z-10 mt-6 flex items-center gap-4">
+                    <div class="relative z-10 flex items-center gap-4">
                         @if ($facebook)
                             <a
                                 href="{{ $facebook }}"
@@ -125,7 +135,7 @@
                     Услуги
                 </p>
                 <ul class="mt-5 space-y-3">
-                    @foreach ($footerServices as $service)
+                    @forelse ($footerServices as $service)
                         <li>
                             <a
                                 href="{{ route('services.show', $service->slug) }}"
@@ -134,7 +144,16 @@
                                 {{ $service->title }}
                             </a>
                         </li>
-                    @endforeach
+                    @empty
+                        <li>
+                            <a
+                                href="{{ route('services') }}"
+                                class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded"
+                            >
+                                Всички услуги
+                            </a>
+                        </li>
+                    @endforelse
                 </ul>
             </div>
 
