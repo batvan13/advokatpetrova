@@ -7,7 +7,7 @@
             <img
                 src="{{ asset('images/logo-white.svg') }}"
                 alt="{{ setting('site_name', 'Website') }}"
-                class="h-8 w-auto"
+                class="h-7 w-auto"
             />
         </a>
 
