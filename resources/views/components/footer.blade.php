@@ -174,7 +174,7 @@
                     href="{{ route('consultation') }}"
                     class="mt-6 inline-flex items-center justify-center rounded-lg bg-petrova-gold px-4 py-2.5 text-sm font-semibold text-petrova-deep shadow-sm transition hover:bg-petrova-gold-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main"
                 >
-                    Консултация
+                    Онлайн консултация
                 </a>
             </div>
         </div>

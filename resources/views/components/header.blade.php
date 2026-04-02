@@ -44,7 +44,7 @@
                     ? 'bg-petrova-gold-hover ring-2 ring-petrova-primary/50 ring-offset-2 ring-offset-petrova-main'
                     : 'bg-petrova-gold hover:bg-petrova-gold-hover' }}
                     hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-petrova-deep shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main md:inline-flex md:items-center md:justify-center">
-                Консултация
+                Онлайн консултация
             </a>
 
             <button id="mobile-menu-toggle"
@@ -95,7 +95,7 @@
                     ? 'bg-petrova-gold-hover text-petrova-deep ring-2 ring-petrova-primary/50 ring-offset-2 ring-offset-petrova-main'
                     : 'bg-petrova-gold text-petrova-deep hover:bg-petrova-gold-hover' }}
                     mx-0 mt-1 rounded-lg px-3 py-2.5 text-center font-semibold shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main">
-                Консултация
+                Онлайн консултация
             </a>
         </nav>
     </div>
