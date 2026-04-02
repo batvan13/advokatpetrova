@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Общи условия')
+@section('title', filled($contentSection?->title) ? $contentSection->title : 'Общи условия')
 @section('description', 'Общи условия за ползване на уебсайта и услугите.')
 
 @section('content')
@@ -10,8 +10,14 @@
             <div class="max-w-2xl text-left">
 
                 <h1 class="font-playfair text-3xl font-bold tracking-tight text-petrova-deep">
-                    Общи условия
+                    {{ filled($contentSection?->title) ? $contentSection->title : 'Общи условия' }}
                 </h1>
+
+                @if (filled($contentSection?->subtitle))
+                    <p class="mt-6 text-lg leading-relaxed text-petrova-mid">
+                        {{ $contentSection->subtitle }}
+                    </p>
+                @endif
 
                 <div class="mt-6 text-base leading-relaxed text-petrova-deep/85
                     [&_p]:mt-4 [&_p:first-child]:mt-0
@@ -19,12 +25,16 @@
                     [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
                     [&_li]:mt-1
                     [&_a]:font-medium [&_a]:text-petrova-deep [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:text-petrova-mid">
-                    <p>
-                        Тази страница е предназначена за публикуване на общите условия за ползване на сайта и свързаните услуги. Текстът следва да бъде прегледан и приет от правен съветник преди пускане в експлоатация.
-                    </p>
-                    <p>
-                        За въпроси, свързани с условията или услугите, моля използвайте страницата за контакти на сайта.
-                    </p>
+                    @if (filled($contentSection?->content))
+                        {!! $contentSection->content !!}
+                    @else
+                        <p>
+                            Тази страница е предназначена за публикуване на общите условия за ползване на сайта и свързаните услуги. Текстът следва да бъде прегледан и приет от правен съветник преди пускане в експлоатация.
+                        </p>
+                        <p>
+                            За въпроси, свързани с условията или услугите, моля използвайте страницата за контакти на сайта.
+                        </p>
+                    @endif
                 </div>
 
             </div>

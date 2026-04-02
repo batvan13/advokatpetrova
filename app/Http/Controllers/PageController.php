@@ -185,21 +185,29 @@ class PageController extends Controller
 
     public function practice()
     {
-        return view('pages.practice');
+        return view('pages.practice', [
+            'contentSection' => page_section('practice', 'content'),
+        ]);
     }
 
     public function terms()
     {
-        return view('pages.terms');
+        return view('pages.terms', [
+            'contentSection' => page_section('terms', 'content'),
+        ]);
     }
 
     public function cookiePolicy()
     {
-        return view('pages.cookie-policy');
+        return view('pages.cookie-policy', [
+            'contentSection' => page_section('cookie_policy', 'content'),
+        ]);
     }
 
     public function privacy()
     {
-        return view('pages.privacy');
+        return view('pages.privacy', [
+            'contentSection' => page_section('privacy', 'content'),
+        ]);
     }
 }
