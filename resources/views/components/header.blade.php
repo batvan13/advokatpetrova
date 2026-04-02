@@ -4,14 +4,11 @@
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
 
         <a href="{{ route('home') }}" class="group flex min-w-0 flex-col leading-tight justify-self-start">
-            <span class="text-xl font-bold tracking-tight text-petrova-primary">
-                {{ setting('site_name', 'Website') }}
-            </span>
-            @if(setting('site_tagline'))
-                <span class="text-xs font-normal text-petrova-secondary">
-                    {{ setting('site_tagline') }}
-                </span>
-            @endif
+            <img
+                src="{{ asset('images/logo-white.svg') }}"
+                alt="{{ setting('site_name', 'Website') }}"
+                class="h-9 w-auto"
+            />
         </a>
 
         {{-- Desktop: centered nav (no consultation here) --}}
