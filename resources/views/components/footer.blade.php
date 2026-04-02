@@ -8,7 +8,6 @@
     $instagram = setting('instagram_url');
 
     $footerServices = \App\Models\Service::active()->ordered()->get();
-    $showGalleryFooterLink = \App\Models\GalleryItem::active()->exists();
 @endphp
 
 <footer class="border-t border-white/10 bg-petrova-main font-playfair">
@@ -95,27 +94,10 @@
                 </p>
                 <ul class="mt-5 space-y-3">
                     <li>
-                        <a href="{{ route('home') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
-                            Начало
+                        <a href="{{ route('practice') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
+                            Моята практика
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('about') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
-                            За нас
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('services') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
-                            Услуги
-                        </a>
-                    </li>
-                    @if ($showGalleryFooterLink)
-                        <li>
-                            <a href="{{ route('gallery') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
-                                Галерия
-                            </a>
-                        </li>
-                    @endif
                     <li>
                         <a href="{{ route('blog') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             Блог
@@ -124,11 +106,6 @@
                     <li>
                         <a href="{{ route('contacts') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
                             Контакти
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('practice') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
-                            Моята практика
                         </a>
                     </li>
                     <li>
