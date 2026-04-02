@@ -126,6 +126,26 @@
                             Контакти
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('practice') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
+                            Моята практика
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('terms') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
+                            Общи условия
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('cookie_policy') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
+                            Политика за бисквитки
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('privacy') }}" class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main rounded">
+                            Политика за поверителност
+                        </a>
+                    </li>
                 </ul>
             </div>
 

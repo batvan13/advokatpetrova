@@ -16,6 +16,10 @@ class SitemapController extends Controller
             route('services'),
             route('blog'),
             route('contacts'),
+            route('practice'),
+            route('terms'),
+            route('cookie_policy'),
+            route('privacy'),
         ];
 
         foreach (Service::active()->ordered()->get() as $service) {

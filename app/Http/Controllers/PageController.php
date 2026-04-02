@@ -182,4 +182,24 @@ class PageController extends Controller
             'hasSocial' => (bool) ($facebook || $instagram || $youtube),
         ]);
     }
+
+    public function practice()
+    {
+        return view('pages.practice');
+    }
+
+    public function terms()
+    {
+        return view('pages.terms');
+    }
+
+    public function cookiePolicy()
+    {
+        return view('pages.cookie-policy');
+    }
+
+    public function privacy()
+    {
+        return view('pages.privacy');
+    }
 }
