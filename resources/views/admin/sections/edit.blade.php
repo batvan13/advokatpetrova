@@ -31,7 +31,7 @@
             <p class="text-gray-500">Тази секция е скрита за този проект.</p>
         </div>
     @else
-    <form action="{{ route('admin.sections.update', $pageSection) }}" method="POST" novalidate>
+    <form action="{{ route('admin.sections.update', $pageSection) }}" method="POST" enctype="multipart/form-data" novalidate>
         @csrf
         @method('PUT')
 
@@ -164,6 +164,224 @@
                     </div>
 
                 </div>
+
+                {{-- Section: Hero image + pills (home.hero only) --}}
+                @if ($pageSection->page === 'home' && $pageSection->section === 'hero')
+
+                    {{-- Hero image --}}
+                    <div class="px-8 py-6 space-y-5">
+
+                        <p class="text-xs font-bold tracking-widest uppercase text-gray-400">Снимка (герой)</p>
+
+                        @if ($pageSection->image_path)
+                            <div>
+                                <img
+                                    src="{{ asset('storage/' . $pageSection->image_path) }}"
+                                    alt="Текуща снимка"
+                                    class="h-28 w-auto rounded border border-gray-200 object-cover"
+                                >
+                                <p class="mt-1.5 text-xs text-gray-400">Текуща снимка. Качи нова, за да я замениш.</p>
+                            </div>
+                        @endif
+
+                        <div>
+                            <label for="hero_image" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                {{ $pageSection->image_path ? 'Нова снимка' : 'Снимка' }}
+                            </label>
+                            <input
+                                type="file"
+                                id="hero_image"
+                                name="image"
+                                accept="image/jpeg,image/png,image/webp"
+                                class="w-full text-sm text-gray-700 file:mr-4 file:px-4 file:py-2
+                                       file:rounded file:border-0 file:text-sm file:font-medium
+                                       file:bg-gray-900 file:text-white file:cursor-pointer
+                                       hover:file:bg-gray-700 transition-colors
+                                       {{ $errors->has('image') ? 'border border-red-300 bg-red-50 rounded' : '' }}"
+                            >
+                            <p class="mt-1.5 text-xs text-gray-400">JPG, PNG, WEBP — макс. 4 MB.</p>
+                            @error('image')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @if ($pageSection->image_path)
+                            <div>
+                                <input type="hidden" name="remove_image" value="0">
+                                <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        name="remove_image"
+                                        value="1"
+                                        {{ old('remove_image') ? 'checked' : '' }}
+                                        class="w-4 h-4 rounded border-gray-300 text-gray-900
+                                               focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                    >
+                                    <span class="text-sm text-gray-700">Изтрий текущата снимка</span>
+                                </label>
+                            </div>
+                        @endif
+
+                    </div>
+
+                    {{-- Pills --}}
+                    <div class="px-8 py-6 space-y-5">
+
+                        <p class="text-xs font-bold tracking-widest uppercase text-gray-400">Пилюли / Бадж бутони</p>
+                        <p class="text-xs text-gray-400 -mt-2">Всеки ред е отделен бадж под заглавието. URL е незадължителен.</p>
+
+                        @php
+                            $existingPills = old('meta.pills', $pageSection->pills ?? []);
+                        @endphp
+
+                        <div id="pills-container" class="space-y-3">
+                            @foreach ($existingPills as $i => $pill)
+                                <div class="pill-row flex items-center gap-3">
+                                    <input
+                                        type="text"
+                                        name="meta[pills][{{ $i }}][text]"
+                                        value="{{ $pill['text'] ?? '' }}"
+                                        placeholder="Текст на бадж"
+                                        class="flex-1 px-3 py-2 border border-gray-200 rounded text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                                    >
+                                    <input
+                                        type="text"
+                                        name="meta[pills][{{ $i }}][url]"
+                                        value="{{ $pill['url'] ?? '' }}"
+                                        placeholder="URL (незадължително)"
+                                        class="flex-1 px-3 py-2 border border-gray-200 rounded text-sm text-gray-900 placeholder-gray-400 font-mono focus:outline-none focus:border-gray-500 transition-colors"
+                                    >
+                                    <button
+                                        type="button"
+                                        class="pill-remove-btn flex-shrink-0 px-2 py-2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+                                        aria-label="Премахни ред"
+                                    >✕</button>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <button
+                            type="button"
+                            id="pill-add-btn"
+                            class="mt-1 text-sm text-gray-500 hover:text-gray-900 transition-colors border border-dashed border-gray-300 hover:border-gray-500 rounded px-4 py-2"
+                        >
+                            + Добави бадж
+                        </button>
+
+                        @error('meta.pills')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+
+                    </div>
+
+                    <template id="pill-row-template">
+                        <div class="pill-row flex items-center gap-3">
+                            <input
+                                type="text"
+                                name="meta[pills][__IDX__][text]"
+                                placeholder="Текст на бадж"
+                                class="flex-1 px-3 py-2 border border-gray-200 rounded text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                            >
+                            <input
+                                type="text"
+                                name="meta[pills][__IDX__][url]"
+                                placeholder="URL (незадължително)"
+                                class="flex-1 px-3 py-2 border border-gray-200 rounded text-sm text-gray-900 placeholder-gray-400 font-mono focus:outline-none focus:border-gray-500 transition-colors"
+                            >
+                            <button
+                                type="button"
+                                class="pill-remove-btn flex-shrink-0 px-2 py-2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+                                aria-label="Премахни ред"
+                            >✕</button>
+                        </div>
+                    </template>
+
+                    <script>
+                    (function () {
+                        var container = document.getElementById('pills-container');
+                        var addBtn    = document.getElementById('pill-add-btn');
+                        var template  = document.getElementById('pill-row-template');
+                        var index     = container.querySelectorAll('.pill-row').length;
+
+                        addBtn.addEventListener('click', function () {
+                            var clone = template.content.cloneNode(true);
+                            clone.querySelectorAll('[name]').forEach(function (el) {
+                                el.name = el.name.replace('__IDX__', index);
+                            });
+                            container.appendChild(clone);
+                            index++;
+                        });
+
+                        container.addEventListener('click', function (e) {
+                            var btn = e.target.closest('.pill-remove-btn');
+                            if (btn) {
+                                btn.closest('.pill-row').remove();
+                            }
+                        });
+                    }());
+                    </script>
+
+                @endif
+
+                {{-- Section: About preview image (home.about_preview only) --}}
+                @if ($pageSection->page === 'home' && $pageSection->section === 'about_preview')
+
+                    <div class="px-8 py-6 space-y-5">
+
+                        <p class="text-xs font-bold tracking-widest uppercase text-gray-400">Снимка</p>
+
+                        @if ($pageSection->image_path)
+                            <div>
+                                <img
+                                    src="{{ asset('storage/' . $pageSection->image_path) }}"
+                                    alt="Текуща снимка"
+                                    class="h-28 w-auto rounded border border-gray-200 object-cover"
+                                >
+                                <p class="mt-1.5 text-xs text-gray-400">Текуща снимка. Качи нова, за да я замениш.</p>
+                            </div>
+                        @endif
+
+                        <div>
+                            <label for="about_image" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                {{ $pageSection->image_path ? 'Нова снимка' : 'Снимка' }}
+                            </label>
+                            <input
+                                type="file"
+                                id="about_image"
+                                name="image"
+                                accept="image/jpeg,image/png,image/webp"
+                                class="w-full text-sm text-gray-700 file:mr-4 file:px-4 file:py-2
+                                       file:rounded file:border-0 file:text-sm file:font-medium
+                                       file:bg-gray-900 file:text-white file:cursor-pointer
+                                       hover:file:bg-gray-700 transition-colors
+                                       {{ $errors->has('image') ? 'border border-red-300 bg-red-50 rounded' : '' }}"
+                            >
+                            <p class="mt-1.5 text-xs text-gray-400">JPG, PNG, WEBP — макс. 4 MB.</p>
+                            @error('image')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @if ($pageSection->image_path)
+                            <div>
+                                <input type="hidden" name="remove_image" value="0">
+                                <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        name="remove_image"
+                                        value="1"
+                                        {{ old('remove_image') ? 'checked' : '' }}
+                                        class="w-4 h-4 rounded border-gray-300 text-gray-900
+                                               focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                    >
+                                    <span class="text-sm text-gray-700">Изтрий текущата снимка</span>
+                                </label>
+                            </div>
+                        @endif
+
+                    </div>
+
+                @endif
 
                 {{-- Actions --}}
                 <div class="px-8 py-5 bg-gray-50 rounded-b-xl flex items-center gap-4">

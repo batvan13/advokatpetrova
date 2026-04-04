@@ -64,7 +64,7 @@
 
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 text-gray-900 text-sm">{{ admin_page_section_page_label($section->page) }}</td>
-                            <td class="px-6 py-4 text-gray-600 text-sm">{{ admin_page_section_section_label($section->section) }}</td>
+                            <td class="px-6 py-4 text-gray-600 text-sm">{{ admin_page_section_section_label($section->section, $section->page) }}</td>
                             <td class="px-6 py-4 font-medium text-gray-900">
                                 {{ $section->title ?: '—' }}
                             </td>

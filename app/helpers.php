@@ -100,18 +100,28 @@ if (! function_exists('admin_page_section_section_label')) {
 
     /**
      * Human-readable admin label for a PageSection "section" key (Bulgarian where mapped).
+     * Pass the optional $page to get page-specific overrides.
      */
-    function admin_page_section_section_label(string $section): string
+    function admin_page_section_section_label(string $section, ?string $page = null): string
     {
+        // Page-specific overrides take priority over generic section labels.
+        if ($page === 'about' && $section === 'hero') {
+            return 'Хедър — страница';
+        }
+
+        if ($page === 'home' && $section === 'about_preview') {
+            return 'Начална страница — За нас (кратко представяне)';
+        }
+
         return match ($section) {
-            'hero' => 'Хедър',
-            'content' => 'Основно съдържание',
+            'hero'             => 'Хедър',
+            'content'          => 'Основен текст',
             'services_preview' => 'Преглед: услуги',
-            'about_preview' => 'Преглед: за нас',
-            'gallery_preview' => 'Преглед: галерия',
-            'contact_preview' => 'Преглед: контакти',
-            'faq' => 'ЧЗВ',
-            default => Str::title(str_replace('_', ' ', $section)),
+            'about_preview'    => 'За нас (кратко представяне)',
+            'gallery_preview'  => 'Преглед: галерия',
+            'contact_preview'  => 'Преглед: контакти',
+            'faq'              => 'ЧЗВ',
+            default            => Str::title(str_replace('_', ' ', $section)),
         };
     }
 }
@@ -119,10 +129,20 @@ if (! function_exists('admin_page_section_section_label')) {
 if (! function_exists('admin_page_section_caption')) {
 
     /**
-     * Combined context line for admin (e.g. "Моята практика — Основно съдържание").
+     * Combined context line shown as subtitle in the admin section edit screen.
+     * Specific page+section combos get a richer, editorial-friendly description.
      */
     function admin_page_section_caption(string $page, string $section): string
     {
-        return admin_page_section_page_label($page).' — '.admin_page_section_section_label($section);
+        return match (true) {
+            $page === 'about' && $section === 'hero'
+                => 'За нас — Хедър (горна част на страницата) · Кратко въведение: заглавие, подзаглавие и бутон за контакт.',
+            $page === 'about' && $section === 'content'
+                => 'За нас — Основен текст (съдържание под хедъра) · Тук е основното тяло на страницата с детайлно описание.',
+            $page === 'home' && $section === 'about_preview'
+                => 'Начална страница — За нас (кратко представяне) · Само за началната страница (/), не за отделната страница „За нас“. Кратък teaser. Качи снимка за split layout.',
+            default
+                => admin_page_section_page_label($page).' — '.admin_page_section_section_label($section),
+        };
     }
 }

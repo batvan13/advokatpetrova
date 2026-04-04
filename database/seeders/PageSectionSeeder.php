@@ -37,17 +37,6 @@ class PageSectionSeeder extends Seeder
             ],
             [
                 'page' => 'home',
-                'section' => 'about_preview',
-                'title' => 'За нас',
-                'subtitle' => 'Кратко представяне на бизнеса и неговите предимства.',
-                'content' => 'Работим с внимание към всеки детайл и индивидуален подход към всеки клиент.',
-                'meta' => [
-                    'button_text' => 'Научете повече',
-                    'button_url'  => 'about',
-                ],
-            ],
-            [
-                'page' => 'home',
                 'section' => 'gallery_preview',
                 'title' => 'Галерия',
                 'subtitle' => 'Снимки и видеа от нашата работа.',
@@ -203,6 +192,23 @@ class PageSectionSeeder extends Seeder
                 $values
             );
         }
+
+        // home.about_preview: insert defaults only when the row is missing — re-seed must not wipe CMS text/meta edits.
+        PageSection::firstOrCreate(
+            [
+                'page' => 'home',
+                'section' => 'about_preview',
+            ],
+            [
+                'title' => null,
+                'subtitle' => null,
+                'content' => null,
+                'meta' => [
+                    'button_text' => 'Научете повече',
+                    'button_url'  => 'about',
+                ],
+            ]
+        );
 
         foreach ($legalContentSections as $section) {
             PageSection::firstOrCreate(

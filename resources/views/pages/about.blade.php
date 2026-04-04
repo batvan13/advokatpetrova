@@ -25,7 +25,7 @@
                     </p>
                 @endif
 
-                @if($hero?->content)
+                @if($hero?->content && !filled($content?->content))
                     <p class="mt-4 text-base leading-relaxed text-petrova-deep/85">
                         {{ $hero->content }}
                     </p>
