@@ -5,56 +5,52 @@
 
 @section('content')
 
-    <section class="border-t border-petrova-deep/10 bg-petrova-primary py-20">
+    {{-- Hero: same structure as About (static banner + overlay + breadcrumb) --}}
+    <section
+        id="blog-top"
+        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden font-playfair md:scroll-mt-28"
+    >
+        <div
+            class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style="background-image: url('{{ asset('images/blog/banner-blog.webp') }}');"
+            role="presentation"
+        ></div>
+        <div
+            class="absolute inset-0 bg-gradient-to-b from-petrova-deep/88 via-petrova-deep/72 to-petrova-main/92"
+            aria-hidden="true"
+        ></div>
+
+        <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-20 text-left">
+            <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
+                Блог
+            </h1>
+
+            <p class="mt-6 max-w-2xl text-sm leading-relaxed text-petrova-secondary/80 sm:text-base">
+                <a
+                    href="{{ route('home') }}"
+                    class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/45 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep rounded"
+                >Начало</a>
+                <span aria-hidden="true"> / </span>
+                <span class="text-petrova-primary" aria-current="page">Блог</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="border-t border-white/10 bg-petrova-deep py-20">
         <div class="mx-auto max-w-6xl px-4">
 
-            <div class="max-w-2xl">
-                <h1 class="font-playfair text-3xl font-bold tracking-tight text-petrova-deep">
-                    Блог
-                </h1>
-                <p class="mt-4 text-lg leading-relaxed text-petrova-mid">
-                    Новини, съвети и полезна информация.
-                </p>
-            </div>
-
-            <div class="mt-12 space-y-10">
+            <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 @forelse ($posts as $post)
-                    <article class="rounded-lg border border-petrova-deep/10 bg-white/90 p-8 shadow-sm transition-shadow duration-200 hover:shadow-md">
-                        <p class="text-xs font-medium uppercase tracking-wide text-petrova-secondary">
-                            {{ $post->published_at->format('d.m.Y') }}
-                        </p>
-                        <h2 class="mt-2 font-playfair text-xl font-semibold tracking-tight text-petrova-deep">
-                            <a href="{{ route('blog.show', $post->slug) }}"
-                               class="transition-colors hover:text-petrova-gold-hover focus:outline-none focus-visible:text-petrova-gold-hover focus-visible:ring-2 focus-visible:ring-petrova-gold/35 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-primary rounded-sm">
-                                {{ $post->title }}
-                            </a>
-                        </h2>
-                        @if ($post->excerpt)
-                            <p class="mt-3 text-base leading-relaxed text-petrova-mid whitespace-pre-line">
-                                {{ $post->excerpt }}
-                            </p>
-                        @endif
-                        <div class="mt-4">
-                            <a href="{{ route('blog.show', $post->slug) }}"
-                               class="text-sm font-medium text-petrova-deep underline-offset-2 transition-colors hover:text-petrova-gold-hover hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-sm">
-                                Прочети повече →
-                            </a>
-                        </div>
-                    </article>
+                    @include('partials.blog-card', ['post' => $post])
                 @empty
-                    <div class="rounded-lg border border-dashed border-petrova-deep/20 bg-white/80 px-8 py-16 text-center">
-                        <p class="text-sm font-medium text-petrova-deep">Все още няма публикации</p>
-                        <p class="mt-2 text-sm text-petrova-secondary">Скоро ще добавим съдържание тук.</p>
-                        <a href="{{ route('home') }}"
-                           class="mt-6 inline-block text-sm font-medium text-petrova-deep underline-offset-2 transition-colors hover:text-petrova-gold-hover hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold/35 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-primary rounded-sm">
-                            Към началото
-                        </a>
+                    <div class="col-span-full text-center text-petrova-secondary">
+                        Няма публикации.
                     </div>
                 @endforelse
             </div>
 
             @if ($posts->hasPages())
-                <div class="mt-10">
+                <div class="mt-16 flex justify-center">
                     {{ $posts->links('pagination::tailwind') }}
                 </div>
             @endif

@@ -76,25 +76,6 @@
         </div>
     </section>
 
-    {{-- ── Contact CTA ─────────────────────────────────────────── --}}
-    <section class="bg-white py-16">
-        <div class="mx-auto max-w-6xl px-4">
-
-            <p class="text-lg font-semibold text-gray-900">Интересувате се от някоя от нашите услуги?</p>
-
-            <div class="mt-6">
-                @include('partials.action-buttons')
-            </div>
-
-            <p class="mt-4 text-sm text-gray-400">
-                или
-                <a href="{{ route('contacts') }}"
-                   class="underline underline-offset-2 hover:text-gray-700 transition-colors">
-                    изпратете запитване
-                </a>
-            </p>
-
-        </div>
-    </section>
+    @include('partials.consultation-promo-card')
 
 @endsection

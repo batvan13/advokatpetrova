@@ -30,7 +30,14 @@ class BlogController extends Controller
             $seoOgImage = url(Storage::disk('public')->url($post->featured_image));
         }
 
-        return view('pages.blog.show', compact('post', 'seoDescription', 'seoOgImage'));
+        $relatedPosts = Post::published()
+            ->where('id', '!=', $post->id)
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->limit(3)
+            ->get();
+
+        return view('pages.blog.show', compact('post', 'seoDescription', 'seoOgImage', 'relatedPosts'));
     }
 
     private function buildSeoDescription(Post $post): string
