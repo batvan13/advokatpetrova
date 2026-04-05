@@ -210,6 +210,19 @@ class PageSectionSeeder extends Seeder
             ]
         );
 
+        PageSection::firstOrCreate(
+            [
+                'page' => 'about',
+                'section' => 'team',
+            ],
+            [
+                'title' => 'Екип',
+                'subtitle' => null,
+                'content' => 'Запознайте се с част от екипа на кантората.',
+                'meta' => null,
+            ]
+        );
+
         foreach ($legalContentSections as $section) {
             PageSection::firstOrCreate(
                 [

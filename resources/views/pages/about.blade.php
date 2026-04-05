@@ -17,6 +17,17 @@
     $contentImageAlt = filled($content?->title)
         ? $content->title
         : ($heroTitle !== '' ? $heroTitle : 'За нас');
+
+    $teamTitle = trim((string) ($team?->title ?? ''));
+    $teamSubtitle = trim((string) ($team?->subtitle ?? ''));
+    $teamContentRaw = trim((string) ($team?->content ?? ''));
+    $teamContentIsHtml = $teamContentRaw !== ''
+        && preg_match('/<[a-z][^>]*>/i', $teamContentRaw) === 1;
+
+    $showTeamSection = $teamMembers->isNotEmpty()
+        || $teamTitle !== ''
+        || $teamSubtitle !== ''
+        || $teamContentRaw !== '';
 @endphp
 
     {{-- ── Hero: first /about implementation baseline + left align, subtle subtitle, no body/CTA ── --}}
@@ -151,69 +162,107 @@
         </div>
     </section>
 
-    {{-- ── Team: static cards + local assets ─────────────────────────────── --}}
-    <section
-        id="about-team"
-        class="scroll-mt-24 border-t border-white/10 bg-petrova-main py-16 lg:py-20 font-playfair md:scroll-mt-28"
-    >
-        <div class="mx-auto max-w-6xl px-4">
-            <h2 class="text-center text-3xl font-bold tracking-tight text-petrova-primary sm:text-4xl">
-                Екип
-            </h2>
-            <p class="mx-auto mt-4 max-w-2xl text-center text-base text-petrova-secondary/90">
-                Запознайте се с част от екипа на кантората.
-            </p>
+    @if ($showTeamSection)
+        {{-- ── Team: CMS intro (PageSection) + TeamMember cards ─────────────── --}}
+        <section
+            id="about-team"
+            class="scroll-mt-24 border-t border-white/10 bg-petrova-main py-16 lg:py-24 font-playfair md:scroll-mt-28"
+        >
+            <div class="mx-auto max-w-6xl px-4 sm:px-6">
+                <h2 class="text-center text-3xl font-bold tracking-tight text-petrova-primary sm:text-4xl">
+                    {{ $teamTitle !== '' ? $teamTitle : 'Екип' }}
+                </h2>
 
-            <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ([
-                    ['name' => 'Мария Петрова', 'role' => 'Управляващ партньор', 'phone' => '+359 888 123 456', 'email' => 'maria.petrova@example.bg'],
-                    ['name' => 'Георги Димитров', 'role' => 'Старши адвокат', 'phone' => '+359 888 234 567', 'email' => 'georgi.dimitrov@example.bg'],
-                    ['name' => 'Елена Стоянова', 'role' => 'Адвокат', 'phone' => '+359 888 345 678', 'email' => 'elena.stoyanova@example.bg'],
-                ] as $member)
-                    <article
-                        class="flex flex-col rounded-2xl border border-white/10 bg-petrova-deep/35 p-6 shadow-sm backdrop-blur-sm"
+                @if ($teamSubtitle !== '')
+                    <p
+                        class="mx-auto mt-3 max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-petrova-secondary/80 sm:text-xs"
                     >
-                        <img
-                            src="{{ asset('images/about/стр. За нас - Примерна снимка - Колеги-(Compressify.io).webp') }}"
-                            alt=""
-                            class="mb-5 aspect-[4/5] w-full rounded-xl object-cover"
-                            loading="lazy"
-                        >
-                        <h3 class="text-xl font-semibold tracking-tight text-petrova-primary">
-                            {{ $member['name'] }}
-                        </h3>
-                        <p class="mt-1 text-sm text-petrova-secondary">
-                            {{ $member['role'] }}
-                        </p>
+                        {{ $teamSubtitle }}
+                    </p>
+                @endif
 
-                        <div class="mt-5 space-y-3 border-t border-white/10 pt-5 text-sm text-petrova-secondary/95">
-                            <a
-                                href="tel:{{ preg_replace('/[^\d+]/', '', $member['phone']) }}"
-                                class="flex items-center gap-3 transition hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/50 rounded"
-                            >
-                                <img
-                                    src="{{ asset('images/about/Екип - Phone - Icon.svg') }}"
-                                    alt=""
-                                    class="h-5 w-5 shrink-0 opacity-90"
-                                >
-                                <span>{{ $member['phone'] }}</span>
-                            </a>
-                            <a
-                                href="mailto:{{ $member['email'] }}"
-                                class="flex items-center gap-3 break-all transition hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/50 rounded"
-                            >
-                                <img
-                                    src="{{ asset('images/about/Екип - Email - Icon.svg') }}"
-                                    alt=""
-                                    class="h-5 w-5 shrink-0 opacity-90"
-                                >
-                                <span>{{ $member['email'] }}</span>
-                            </a>
+                @if ($teamContentRaw !== '')
+                    @if ($teamContentIsHtml)
+                        <div
+                            class="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-petrova-secondary/90
+                                [&_p]:mt-3 [&_p:first-child]:mt-0"
+                        >
+                            {!! $teamContentRaw !!}
                         </div>
-                    </article>
-                @endforeach
+                    @else
+                        <p class="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-petrova-secondary/90">
+                            {{ $teamContentRaw }}
+                        </p>
+                    @endif
+                @endif
+
+                @if ($teamMembers->isNotEmpty())
+                    <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ($teamMembers as $member)
+                            <article
+                                class="flex flex-col rounded-2xl border border-white/10 bg-petrova-deep/40 p-6 shadow-sm backdrop-blur-sm ring-1 ring-white/[0.04]"
+                            >
+                                @if ($member->image_path)
+                                    <img
+                                        src="{{ asset('storage/' . $member->image_path) }}"
+                                        alt="{{ $member->name }}"
+                                        class="mb-5 aspect-[4/5] w-full rounded-xl object-cover"
+                                        loading="lazy"
+                                    >
+                                @else
+                                    <div
+                                        class="mb-5 flex aspect-[4/5] w-full items-center justify-center rounded-xl border border-dashed border-white/15 bg-petrova-deep/30 text-sm text-petrova-secondary/50"
+                                        aria-hidden="true"
+                                    >
+                                        —
+                                    </div>
+                                @endif
+
+                                <h3 class="text-xl font-semibold tracking-tight text-petrova-primary">
+                                    {{ $member->name }}
+                                </h3>
+                                @if (filled($member->position))
+                                    <p class="mt-1 text-sm text-petrova-secondary">
+                                        {{ $member->position }}
+                                    </p>
+                                @endif
+
+                                @if (filled($member->phone) || filled($member->email))
+                                    <div class="mt-5 space-y-3 border-t border-white/10 pt-5 text-sm text-petrova-secondary/95">
+                                        @if (filled($member->phone))
+                                            <a
+                                                href="tel:{{ preg_replace('/[^\d+]/', '', $member->phone) }}"
+                                                class="flex items-center gap-3 transition hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/50 rounded"
+                                            >
+                                                <img
+                                                    src="{{ asset('images/about/Екип - Phone - Icon.svg') }}"
+                                                    alt=""
+                                                    class="h-5 w-5 shrink-0 opacity-90"
+                                                >
+                                                <span>{{ $member->phone }}</span>
+                                            </a>
+                                        @endif
+                                        @if (filled($member->email))
+                                            <a
+                                                href="mailto:{{ $member->email }}"
+                                                class="flex items-center gap-3 break-all transition hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/50 rounded"
+                                            >
+                                                <img
+                                                    src="{{ asset('images/about/Екип - Email - Icon.svg') }}"
+                                                    alt=""
+                                                    class="h-5 w-5 shrink-0 opacity-90"
+                                                >
+                                                <span>{{ $member->email }}</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
 @endsection

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PageController;
@@ -88,6 +89,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/services/{service}/toggle', [ServiceController::class, 'toggle'])
             ->name('services.toggle');
         Route::resource('services', ServiceController::class)
+            ->except(['show']);
+
+        Route::patch('/team-members/{team_member}/toggle', [TeamMemberController::class, 'toggle'])
+            ->name('team-members.toggle');
+        Route::resource('team-members', TeamMemberController::class)
             ->except(['show']);
 
         Route::resource('posts', PostController::class)

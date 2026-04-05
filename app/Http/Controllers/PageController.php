@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GalleryItem;
 use App\Models\Service;
+use App\Models\TeamMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -55,6 +56,8 @@ class PageController extends Controller
         return view('pages.about', [
             'hero' => page_section('about', 'hero'),
             'content' => page_section('about', 'content'),
+            'team' => page_section('about', 'team'),
+            'teamMembers' => TeamMember::query()->active()->ordered()->get(),
         ]);
     }
 

@@ -113,6 +113,10 @@ if (! function_exists('admin_page_section_section_label')) {
             return 'Основно съдържание';
         }
 
+        if ($page === 'about' && $section === 'team') {
+            return 'Секция „Екип“ (заглавие и текст)';
+        }
+
         if ($page === 'home' && $section === 'about_preview') {
             return 'Начална страница — За нас (кратко представяне)';
         }
@@ -143,6 +147,8 @@ if (! function_exists('admin_page_section_caption')) {
                 => 'За нас — горен банер на страницата',
             $page === 'about' && $section === 'content'
                 => 'За нас — основно съдържание на страницата',
+            $page === 'about' && $section === 'team'
+                => 'За нас — заглавие и въведение за секцията „Екип“. Снимките и контактите на членовете се управляват от „Екип“ в админ менюто.',
             $page === 'home' && $section === 'about_preview'
                 => 'Начална страница — За нас (кратко представяне) · Само за началната страница (/), не за отделната страница „За нас“. Кратък teaser. Качи снимка за split layout.',
             default

@@ -49,6 +49,7 @@
 
             @php
                 $isAboutHero = $pageSection->page === 'about' && $pageSection->section === 'hero';
+                $isAboutTeam = $pageSection->page === 'about' && $pageSection->section === 'team';
             @endphp
 
             {{-- Form card --}}
@@ -126,7 +127,7 @@
 
                 </div>
 
-                @unless ($isAboutHero)
+                @unless ($isAboutHero || $isAboutTeam)
                 {{-- Section: Бутон --}}
                 <div class="px-8 py-6 space-y-5">
 
@@ -178,6 +179,11 @@
 
                 </div>
                 @endunless
+
+                @if ($isAboutTeam)
+                    <input type="hidden" name="meta[button_text]" value="{{ e(old('meta.button_text', (string) (($pageSection->meta ?? [])['button_text'] ?? ''))) }}">
+                    <input type="hidden" name="meta[button_url]" value="{{ e(old('meta.button_url', (string) (($pageSection->meta ?? [])['button_url'] ?? ''))) }}">
+                @endif
 
                 {{-- Section: Hero image + pills (home.hero only) --}}
                 @if ($pageSection->page === 'home' && $pageSection->section === 'hero')
