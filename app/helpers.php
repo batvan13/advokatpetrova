@@ -106,7 +106,11 @@ if (! function_exists('admin_page_section_section_label')) {
     {
         // Page-specific overrides take priority over generic section labels.
         if ($page === 'about' && $section === 'hero') {
-            return 'Хедър — страница';
+            return 'Горен банер (hero)';
+        }
+
+        if ($page === 'about' && $section === 'content') {
+            return 'Основно съдържание';
         }
 
         if ($page === 'home' && $section === 'about_preview') {
@@ -136,9 +140,9 @@ if (! function_exists('admin_page_section_caption')) {
     {
         return match (true) {
             $page === 'about' && $section === 'hero'
-                => 'За нас — Хедър (горна част на страницата) · Кратко въведение: заглавие, подзаглавие и бутон за контакт.',
+                => 'За нас — горен банер на страницата',
             $page === 'about' && $section === 'content'
-                => 'За нас — Основен текст (съдържание под хедъра) · Тук е основното тяло на страницата с детайлно описание.',
+                => 'За нас — основно съдържание на страницата',
             $page === 'home' && $section === 'about_preview'
                 => 'Начална страница — За нас (кратко представяне) · Само за началната страница (/), не за отделната страница „За нас“. Кратък teaser. Качи снимка за split layout.',
             default

@@ -11,36 +11,25 @@
     $hasCta   = $sectionButtonText !== '' && $sectionButtonUrl !== '';
     $hasImage = $sectionImagePath !== null && $sectionImagePath !== '';
 
-    // If the preview section has no text of its own, pull from the About page data.
-    // home.about_preview text fields act as an override; about.hero / about.content are the fallback.
-    $hasPreviewText = $sectionTitle !== '' || $sectionSubtitle !== '' || $sectionContent !== '';
-
-    if (! $hasPreviewText) {
-        $aboutHero    = page_section('about', 'hero');
-        $aboutContent = page_section('about', 'content');
-
-        if ($sectionTitle === '') {
-            $sectionTitle = trim((string) ($aboutHero?->title ?? $aboutContent?->title ?? ''));
-        }
-
-        if ($sectionSubtitle === '') {
-            $sectionSubtitle = trim((string) ($aboutHero?->subtitle ?? ''));
-        }
-
-        if ($sectionContent === '') {
-            $rawBody = trim((string) ($aboutContent?->content ?? ''));
-            if ($rawBody !== '') {
-                $sectionContent = \Illuminate\Support\Str::limit(strip_tags($rawBody), 200);
-            }
+    // Title/subtitle: page_section('home','about_preview') only — no about.hero / about.content fallback.
+    // Content: primary = home.about_preview.content; if empty only, plain excerpt from about.content.content.
+    if ($sectionContent === '') {
+        $aboutBodySection = page_section('about', 'content');
+        $rawBody          = trim((string) ($aboutBodySection?->content ?? ''));
+        if ($rawBody !== '') {
+            $sectionContent = \Illuminate\Support\Str::limit(strip_tags($rawBody), 200);
         }
     }
 
     $hasContent = $sectionTitle !== '' || $sectionSubtitle !== '' || $sectionContent !== '' || $hasCta;
+
+    $previewContentIsHtml = $sectionContent !== ''
+        && preg_match('/<[a-z][^>]*>/i', $sectionContent) === 1;
 @endphp
 
 @if ($hasContent || $hasImage)
 
-<section class="overflow-hidden bg-petrova-main font-playfair">
+<section class="overflow-hidden bg-petrova-main font-playfair text-petrova-secondary">
 
     @if ($hasImage)
 
@@ -63,9 +52,23 @@
                     @endif
 
                     @if ($sectionContent !== '')
-                        <p class="mt-4 text-base leading-relaxed text-petrova-secondary/85">
-                            {{ $sectionContent }}
-                        </p>
+                        @if ($previewContentIsHtml)
+                            <div class="mt-4 text-base leading-relaxed text-petrova-secondary/85
+                                [&_p]:mt-4 [&_p:first-child]:mt-0 [&_p]:!text-petrova-secondary/85
+                                [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5
+                                [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
+                                [&_li]:mt-1 [&_li]:!text-petrova-secondary/85
+                                [&_strong]:!text-petrova-primary [&_b]:!text-petrova-primary [&_em]:!text-petrova-secondary/90
+                                [&_h3]:!text-petrova-primary [&_h4]:!text-petrova-primary
+                                [&_span]:!text-petrova-secondary/85
+                                [&_a]:!font-medium [&_a]:!text-petrova-secondary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:!text-petrova-primary">
+                                {!! $sectionContent !!}
+                            </div>
+                        @else
+                            <div class="mt-4 text-base leading-relaxed !text-petrova-secondary/85 whitespace-pre-line">
+                                {{ $sectionContent }}
+                            </div>
+                        @endif
                     @endif
 
                     @if ($hasCta)
@@ -112,9 +115,23 @@
                 @endif
 
                 @if ($sectionContent !== '')
-                    <p class="mt-4 text-base leading-relaxed text-petrova-secondary/85">
-                        {{ $sectionContent }}
-                    </p>
+                    @if ($previewContentIsHtml)
+                        <div class="mt-4 text-base leading-relaxed text-petrova-secondary/85
+                            [&_p]:mt-4 [&_p:first-child]:mt-0 [&_p]:!text-petrova-secondary/85
+                            [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5
+                            [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
+                            [&_li]:mt-1 [&_li]:!text-petrova-secondary/85
+                            [&_strong]:!text-petrova-primary [&_b]:!text-petrova-primary [&_em]:!text-petrova-secondary/90
+                            [&_h3]:!text-petrova-primary [&_h4]:!text-petrova-primary
+                            [&_span]:!text-petrova-secondary/85
+                            [&_a]:!font-medium [&_a]:!text-petrova-secondary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:!text-petrova-primary">
+                            {!! $sectionContent !!}
+                        </div>
+                    @else
+                        <div class="mt-4 text-base leading-relaxed !text-petrova-secondary/85 whitespace-pre-line">
+                            {{ $sectionContent }}
+                        </div>
+                    @endif
                 @endif
 
                 @if ($hasCta)

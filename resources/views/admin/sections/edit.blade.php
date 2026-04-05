@@ -47,6 +47,10 @@
             </div>
         @endif
 
+            @php
+                $isAboutHero = $pageSection->page === 'about' && $pageSection->section === 'hero';
+            @endphp
+
             {{-- Form card --}}
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm divide-y divide-gray-100">
 
@@ -75,6 +79,13 @@
                         @enderror
                     </div>
 
+                    @if ($isAboutHero)
+                        {{-- Preserve DB values: default update() always writes subtitle/content/meta --}}
+                        <input type="hidden" name="subtitle" value="{{ e(old('subtitle', (string) ($pageSection->subtitle ?? ''))) }}">
+                        <input type="hidden" name="content" value="{{ e(old('content', (string) ($pageSection->content ?? ''))) }}">
+                        <input type="hidden" name="meta[button_text]" value="{{ e(old('meta.button_text', (string) ($pageSection->meta['button_text'] ?? ''))) }}">
+                        <input type="hidden" name="meta[button_url]" value="{{ e(old('meta.button_url', (string) ($pageSection->meta['button_url'] ?? ''))) }}">
+                    @else
                     {{-- Subtitle --}}
                     <div>
                         <label for="subtitle" class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -111,9 +122,11 @@
                             <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
+                    @endif
 
                 </div>
 
+                @unless ($isAboutHero)
                 {{-- Section: Бутон --}}
                 <div class="px-8 py-6 space-y-5">
 
@@ -164,6 +177,7 @@
                     </div>
 
                 </div>
+                @endunless
 
                 {{-- Section: Hero image + pills (home.hero only) --}}
                 @if ($pageSection->page === 'home' && $pageSection->section === 'hero')
