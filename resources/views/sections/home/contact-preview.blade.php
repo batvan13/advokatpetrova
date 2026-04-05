@@ -4,14 +4,13 @@
     $email    = setting('contact_email');
     $phone    = setting('contact_phone');
     $address  = setting('address');
-    $mapsUrl  = setting('google_maps_url');
 
     $tel = $phone ? ('tel:' . preg_replace('/[^\d+]/', '', $phone)) : null;
     $facebook  = setting('facebook_url');
     $instagram = setting('instagram_url');
     $linkedin  = setting('linkedin_url');
 
-    $hasActions = $phone || $email || $mapsUrl;
+    $hasActions = $phone || $email;
     $hasSocial  = $facebook || $instagram || $linkedin;
 @endphp
 
