@@ -5,14 +5,45 @@
 
 @section('content')
 
-    <section class="border-t border-white/10 bg-petrova-main py-20 font-playfair">
+    {{-- Hero: same structure as About (static banner + overlay + breadcrumb) --}}
+    <section
+        id="services-top"
+        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden font-playfair md:scroll-mt-28"
+    >
+        <div
+            class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style="background-image: url('{{ asset('images/services/banner-services.webp') }}');"
+            role="presentation"
+        ></div>
+        <div
+            class="absolute inset-0 bg-gradient-to-b from-petrova-deep/88 via-petrova-deep/72 to-petrova-main/92"
+            aria-hidden="true"
+        ></div>
+
+        <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-20 text-left">
+            <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
+                Услуги
+            </h1>
+
+            <p class="mt-6 max-w-2xl text-sm leading-relaxed text-petrova-secondary/80 sm:text-base">
+                <a
+                    href="{{ route('home') }}"
+                    class="transition-colors hover:text-petrova-primary focus:outline-none focus-visible:text-petrova-primary focus-visible:ring-2 focus-visible:ring-petrova-gold/45 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep rounded"
+                >Начало</a>
+                <span aria-hidden="true"> / </span>
+                <span class="text-petrova-primary" aria-current="page">Услуги</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="border-t border-petrova-gold/25 bg-petrova-main py-20 font-playfair">
         <div class="mx-auto max-w-6xl px-4">
 
-            {{-- Page heading --}}
+            {{-- Page heading (CMS) — h2 so hero keeps sole h1 --}}
             <div class="max-w-2xl">
-                <h1 class="text-3xl font-bold tracking-tight text-petrova-primary">
+                <h2 class="text-3xl font-bold tracking-tight text-petrova-primary">
                     {{ $page?->title ?? 'Нашите услуги' }}
-                </h1>
+                </h2>
 
                 @if($page?->subtitle)
                     <p class="mt-4 text-lg leading-relaxed text-petrova-secondary">
