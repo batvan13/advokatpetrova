@@ -155,14 +155,17 @@
                 {{-- google_maps_url --}}
                 <div>
                     <label for="google_maps_url" class="block text-sm font-medium text-gray-700 mb-1.5">
-                        Google Maps линк
+                        Google Maps embed линк
                     </label>
+                    <p class="mb-1.5 text-xs text-gray-500">
+                        Поставете embed линк от Google Maps (Share → Embed a map). Стандартен Google Maps линк няма да покаже вградена карта.
+                    </p>
                     <input
                         type="url"
                         id="google_maps_url"
                         name="google_maps_url"
                         value="{{ old('google_maps_url', $settings->get('google_maps_url')) }}"
-                        placeholder="https://maps.google.com/?q=..."
+                        placeholder="https://www.google.com/maps/embed?pb=..."
                         class="w-full px-3 py-2 border rounded text-sm text-gray-900 placeholder-gray-400
                                font-mono text-xs focus:outline-none focus:border-gray-500 transition-colors
                                {{ $errors->has('google_maps_url') ? 'border-red-300 bg-red-50' : 'border-gray-200' }}"

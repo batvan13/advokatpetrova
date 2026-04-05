@@ -156,3 +156,107 @@ if (! function_exists('admin_page_section_caption')) {
         };
     }
 }
+
+/*
+ * Maps helpers — contacts page
+ * maps_iframe_src: само истински Google Maps embed URL (path съдържа /maps/embed)
+ * maps_fallback_href: за други UI при нужда; contacts ползва само maps_iframe_src()
+ */
+if (! function_exists('maps_iframe_src')) {
+
+    /**
+     * Normalize a Google Maps URL for use as an iframe src. Returns null if unsafe or invalid.
+     * Does not accept HTML or iframe markup — URL strings only.
+     */
+    function maps_iframe_src(?string $url): ?string
+    {
+        if ($url === null) {
+            return null;
+        }
+
+        $url = trim($url);
+
+        if ($url === '') {
+            return null;
+        }
+
+        if (str_contains($url, '<') || stripos($url, 'iframe') !== false) {
+            return null;
+        }
+
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if (! is_string($scheme) || strtolower($scheme) !== 'https') {
+            return null;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+        if (! is_string($host) || $host === '') {
+            return null;
+        }
+
+        $hostLower = strtolower($host);
+        $isGoogleHost = $hostLower === 'google.com' || str_ends_with($hostLower, '.google.com');
+        if (! $isGoogleHost) {
+            return null;
+        }
+
+        $path = (string) (parse_url($url, PHP_URL_PATH) ?? '');
+        if (str_contains($path, '/maps/embed')) {
+            return $url;
+        }
+
+        return null;
+    }
+}
+
+if (! function_exists('maps_fallback_href')) {
+
+    /**
+     * Safe href for “Open in Google Maps” when the value is not an embed URL.
+     * Stricter than arbitrary strings: valid URL + known Maps-related hosts only.
+     */
+    function maps_fallback_href(?string $url): ?string
+    {
+        if ($url === null) {
+            return null;
+        }
+
+        $url = trim($url);
+
+        if ($url === '') {
+            return null;
+        }
+
+        if (str_contains($url, '<') || stripos($url, 'iframe') !== false) {
+            return null;
+        }
+
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if (! is_string($scheme) || strtolower($scheme) !== 'https') {
+            return null;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+        if (! is_string($host) || $host === '') {
+            return null;
+        }
+
+        $hostLower = strtolower($host);
+        $isGoogleHost = $hostLower === 'google.com' || str_ends_with($hostLower, '.google.com');
+        $isGooGl = $hostLower === 'goo.gl' || str_ends_with($hostLower, '.goo.gl');
+
+        if (! $isGoogleHost && ! $isGooGl) {
+            return null;
+        }
+
+        return $url;
+    }
+}

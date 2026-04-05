@@ -24,7 +24,7 @@ class SettingController extends Controller
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:30'],
             'address'         => ['nullable', 'string'],
-            'google_maps_url' => ['nullable', 'url', 'max:255'],
+            'google_maps_url' => ['nullable', 'string', 'max:1000'],
             'facebook_url'    => ['nullable', 'url', 'max:255'],
             'instagram_url'   => ['nullable', 'url', 'max:255'],
             'linkedin_url'    => ['nullable', 'url', 'max:255'],
