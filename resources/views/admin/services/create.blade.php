@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.services.store') }}" method="POST" novalidate>
+    <form action="{{ route('admin.services.store') }}" method="POST" enctype="multipart/form-data" novalidate>
         @csrf
         @include('admin.services._form', [
             'submitLabel' => 'Запази услугата',

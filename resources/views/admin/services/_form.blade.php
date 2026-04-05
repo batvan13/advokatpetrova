@@ -119,6 +119,56 @@
 
     </div>
 
+    {{-- ── Секция: Изображение ───────────────────────────────── --}}
+    <div class="px-8 py-6 space-y-5">
+
+        <p class="text-xs font-bold tracking-widest uppercase text-gray-400">Изображение</p>
+
+        <div>
+            <label for="service_image" class="block text-sm font-medium text-gray-700 mb-1.5">
+                Основно изображение
+            </label>
+            <input
+                type="file"
+                id="service_image"
+                name="image"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+                       file:text-sm file:font-medium file:bg-gray-900 file:text-white hover:file:bg-gray-700"
+            >
+            @error('image')
+                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+            @enderror
+            <p class="mt-1.5 text-xs text-gray-400">JPG, PNG или WebP, до 4 MB. Запазва се като WebP.</p>
+        </div>
+
+        @isset($service)
+            @if($service->image)
+                <div class="rounded-lg border border-gray-200 p-4 space-y-3">
+                    <p class="text-xs text-gray-500">Текущо изображение</p>
+                    <img
+                        src="{{ asset('storage/' . $service->image) }}"
+                        alt=""
+                        class="max-h-40 rounded border border-gray-100 object-contain"
+                    >
+                    <input type="hidden" name="remove_image" value="0">
+                    <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            name="remove_image"
+                            value="1"
+                            @checked(old('remove_image', false))
+                            class="w-4 h-4 rounded border-gray-300 text-gray-900
+                                   focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        >
+                        <span class="text-sm text-gray-700">Премахни текущото изображение</span>
+                    </label>
+                </div>
+            @endif
+        @endisset
+
+    </div>
+
     {{-- ── Секция: Настройки ────────────────────────────────── --}}
     <div class="px-8 py-6 space-y-5">
 

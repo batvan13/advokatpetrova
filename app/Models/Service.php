@@ -16,6 +16,7 @@ class Service extends Model
         'full_description',
         'faq',
         'icon',
+        'image',
         'is_active',
         'sort_order',
     ];

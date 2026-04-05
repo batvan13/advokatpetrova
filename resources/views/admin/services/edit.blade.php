@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.services.update', $service) }}" method="POST" novalidate>
+    <form action="{{ route('admin.services.update', $service) }}" method="POST" enctype="multipart/form-data" novalidate>
         @csrf
         @method('PUT')
         @include('admin.services._form', [
