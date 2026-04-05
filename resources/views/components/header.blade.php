@@ -19,7 +19,7 @@
             </a>
             <a href="{{ route('about') }}"
                class="{{ request()->routeIs('about') ? 'font-semibold text-petrova-primary' : 'text-petrova-secondary transition-colors hover:text-petrova-primary' }}">
-                За нас
+                Екип
             </a>
             <a href="{{ route('services') }}"
                class="{{ request()->routeIs('services', 'services.show') ? 'font-semibold text-petrova-primary' : 'text-petrova-secondary transition-colors hover:text-petrova-primary' }}">
@@ -73,7 +73,7 @@
             </a>
             <a href="{{ route('about') }}"
                class="{{ request()->routeIs('about') ? 'bg-white/10 font-semibold text-petrova-primary' : 'text-petrova-secondary hover:bg-white/5 hover:text-petrova-primary' }} rounded-lg px-3 py-2.5 transition-colors">
-                За нас
+                Екип
             </a>
             <a href="{{ route('services') }}"
                class="{{ request()->routeIs('services', 'services.show') ? 'bg-white/10 font-semibold text-petrova-primary' : 'text-petrova-secondary hover:bg-white/5 hover:text-petrova-primary' }} rounded-lg px-3 py-2.5 transition-colors">
