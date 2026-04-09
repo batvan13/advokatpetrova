@@ -1,169 +1,63 @@
-@php
-    $hero = page_section('home', 'hero');
-
-    $heroTitle       = trim((string) ($hero?->title      ?? ''));
-    $heroSubtitle    = trim((string) ($hero?->subtitle   ?? ''));
-    $heroContent     = trim((string) ($hero?->content    ?? ''));
-    $heroButtonText  = trim((string) ($hero?->button_text ?? ''));
-    $heroButtonUrl   = trim((string) ($hero?->button_url  ?? ''));
-    $heroPills       = $hero?->pills       ?? [];
-    $heroImagePath   = $hero?->image_path  ?? null;
-
-    $hasCta          = $heroButtonText !== '' && $heroButtonUrl !== '';
-    $hasImage        = $heroImagePath !== null && $heroImagePath !== '';
-    $hasHeroContent  = $heroTitle !== '' || $heroSubtitle !== '' || $heroContent !== ''
-                       || $hasCta || ! empty($heroPills);
-@endphp
-
-<section
-    class="relative flex min-h-[60vh] items-center justify-center overflow-hidden bg-petrova-hero font-playfair"
->
-
-    @if ($hasImage)
-
-        {{-- ── SPLIT LAYOUT (image present) ─────────────────────────────── --}}
-        <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 sm:py-20">
-            <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-
-                {{-- Left column: text + pills + CTA --}}
-                <div>
-                    @if ($heroTitle !== '')
-                        <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
-                            {{ $heroTitle }}
-                        </h1>
-                    @endif
-
-                    @if ($heroSubtitle !== '')
-                        <p class="mt-6 text-lg leading-8 text-petrova-secondary">
-                            {{ $heroSubtitle }}
-                        </p>
-                    @endif
-
-                    @if ($heroContent !== '')
-                        <p class="mt-4 text-base leading-7 text-petrova-secondary/90">
-                            {{ $heroContent }}
-                        </p>
-                    @endif
-
-                    @if (! empty($heroPills))
-                        <div class="mt-6 flex flex-wrap gap-2">
-                            @foreach ($heroPills as $pill)
-                                @if ($pill['url'] !== '')
-                                    <a
-                                        href="{{ section_url($pill['url']) }}"
-                                        class="inline-flex items-center rounded-full border border-petrova-gold/40 px-4 py-1.5 text-xs font-medium text-petrova-gold transition hover:border-petrova-gold hover:bg-petrova-gold/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep"
-                                    >{{ $pill['text'] }}</a>
-                                @else
-                                    <span
-                                        class="inline-flex items-center rounded-full border border-petrova-gold/40 px-4 py-1.5 text-xs font-medium text-petrova-gold"
-                                    >{{ $pill['text'] }}</span>
-                                @endif
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if ($hasCta)
-                        <div class="mt-8">
-                            <a
-                                href="{{ section_url($heroButtonUrl) }}"
-                                class="inline-flex rounded-lg border border-petrova-gold/50 bg-petrova-deep/30 px-6 py-3 text-sm font-semibold text-petrova-primary backdrop-blur-sm transition hover:border-petrova-gold-hover hover:bg-petrova-mid/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep"
-                            >
-                                {{ $heroButtonText }}
-                            </a>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Right column: hero image --}}
-                <div class="flex justify-center lg:justify-end">
+<section class="bg-petrova-deep py-16 lg:py-20">
+    <div class="mx-auto w-full max-w-[1400px] px-6 lg:px-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            <div class="pt-6 lg:pt-10">
+                <h1 class="font-playfair italic text-petrova-gold text-5xl lg:text-6xl xl:text-[64px] leading-[1.1] mb-6">
+                    Защитаваме Вашите права.<br>
+                    Пазим Вашето бъдеще.
+                </h1>
+                <p class="text-white/70 text-sm mb-4">
+                    Екипът на Адвокатска кантора Петрова предлага:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-sm text-white/70 mb-8">
+                    <li>Безплатна адвокатска помощ при случаи на домашно насилие</li>
+                    <li>Безплатни консултации за материално затруднени лица всеки четвъртък, от 11:00 ч. до 12:00 ч.</li>
+                </ul>
+                <a
+                    href="{{ route('contacts') }}"
+                    class="inline-flex items-center justify-between bg-petrova-gold text-petrova-deep text-sm font-semibold px-8 py-3.5 min-w-[280px] hover:bg-petrova-gold-hover transition no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep"
+                >
+                    <span class="shrink-0 whitespace-nowrap">Свържете се с нас</span>
+                    <svg class="shrink-0 ml-4" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="w-full">
+                <div class="overflow-hidden rounded-tl-[10px] rounded-tr-[220px] rounded-br-[10px] rounded-bl-[10px]">
                     <img
-                        src="{{ asset('storage/' . $heroImagePath) }}"
-                        alt="{{ $heroTitle ?: 'Hero' }}"
-                        class="h-auto w-full max-w-sm rounded-2xl object-cover shadow-2xl lg:max-w-none"
+                        src="{{ asset('images/home/hero.webp') }}"
+                        alt="Hero"
+                        class="w-full h-[420px] lg:h-[500px] object-cover"
+                        width="800"
+                        height="500"
                         loading="eager"
                     >
                 </div>
-
             </div>
         </div>
 
-    @elseif ($hasHeroContent)
-
-        {{-- ── FALLBACK LAYOUT (no image — centered text) ────────────────── --}}
-
-        {{-- Decorative layer: shown only in fallback --}}
-        <svg
-            class="pointer-events-none absolute inset-y-0 right-0 h-full w-[min(55vw,32rem)] text-petrova-primary/[0.08]"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 400 720"
-            preserveAspectRatio="xMaxYMid slice"
-            aria-hidden="true"
-            focusable="false"
-        >
-            <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-                <path d="M420 0 C280 120 200 240 380 360 C520 480 360 600 200 720" />
-                <path d="M440 40 C300 160 220 280 400 400 C540 520 380 640 220 720" opacity="0.85" />
-                <path d="M460 80 C320 200 240 320 420 440 C560 560 400 680 240 720" opacity="0.7" />
-                <path d="M400 0 C260 140 180 280 360 420 C500 540 340 660 180 720" opacity="0.55" />
-            </g>
-            <g fill="currentColor" opacity="0.04">
-                <circle cx="320" cy="180" r="120" />
-                <circle cx="360" cy="420" r="90" />
-            </g>
-        </svg>
-
-        <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16">
-            <div class="mx-auto w-full max-w-3xl text-center">
-
-                @if ($heroTitle !== '')
-                    <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
-                        {{ $heroTitle }}
-                    </h1>
-                @endif
-
-                @if ($heroSubtitle !== '')
-                    <p class="mt-6 text-lg leading-8 text-petrova-secondary">
-                        {{ $heroSubtitle }}
+        <div class="border-t border-white/10 mt-10 py-6">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="flex flex-wrap gap-2.5">
+                    <span class="inline-flex items-center rounded-full border border-white/30 text-white/70 text-xs px-4 py-1.5">Бизнес и сделки</span>
+                    <span class="inline-flex items-center rounded-full border border-white/30 text-white/70 text-xs px-4 py-1.5">Имоти и строителство</span>
+                    <span class="inline-flex items-center rounded-full border border-white/30 text-white/70 text-xs px-4 py-1.5">Регулации и защита</span>
+                    <span class="inline-flex items-center rounded-full border border-white/30 text-white/70 text-xs px-4 py-1.5">Съдебни спорове</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <p class="text-white/60 text-xs max-w-[280px] text-right">
+                        Ние уважаваме и изслушваме внимателно нашите клиенти, подхождаме с ангажираност и искрена грижа.
                     </p>
-                @endif
-
-                @if ($heroContent !== '')
-                    <p class="mt-4 text-base leading-7 text-petrova-secondary/90">
-                        {{ $heroContent }}
-                    </p>
-                @endif
-
-                @if (! empty($heroPills))
-                    <div class="mt-6 flex flex-wrap justify-center gap-2">
-                        @foreach ($heroPills as $pill)
-                            @if ($pill['url'] !== '')
-                                <a
-                                    href="{{ section_url($pill['url']) }}"
-                                    class="inline-flex items-center rounded-full border border-petrova-gold/40 px-4 py-1.5 text-xs font-medium text-petrova-gold transition hover:border-petrova-gold hover:bg-petrova-gold/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep"
-                                >{{ $pill['text'] }}</a>
-                            @else
-                                <span
-                                    class="inline-flex items-center rounded-full border border-petrova-gold/40 px-4 py-1.5 text-xs font-medium text-petrova-gold"
-                                >{{ $pill['text'] }}</span>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
-
-                @if ($hasCta)
-                    <div class="mt-8">
-                        <a
-                            href="{{ section_url($heroButtonUrl) }}"
-                            class="inline-flex rounded-lg border border-petrova-gold/50 bg-petrova-deep/30 px-6 py-3 text-sm font-semibold text-petrova-primary backdrop-blur-sm transition hover:border-petrova-gold-hover hover:bg-petrova-mid/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-deep"
+                    <a href="#">
+                        <img
+                            src="{{ asset('images/shared/Back to TOP - Button.svg') }}"
+                            alt="Back to top"
+                            class="w-12 h-12 flex-shrink-0"
                         >
-                            {{ $heroButtonText }}
-                        </a>
-                    </div>
-                @endif
-
+                    </a>
+                </div>
             </div>
         </div>
-
-    @endif
-
+    </div>
 </section>

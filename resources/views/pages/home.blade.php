@@ -6,7 +6,8 @@
 @section('content')
     @include('sections.home.hero')
     @include('sections.home.services-preview')
+    @include('sections.home.banner')
     @include('sections.home.about-preview')
-    @include('sections.home.contact-preview')
+    @include('sections.home.blog-preview')
     @include('sections.home.faq')
 @endsection

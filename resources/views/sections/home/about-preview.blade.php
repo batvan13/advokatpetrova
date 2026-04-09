@@ -29,127 +29,162 @@
 
 @if ($hasContent || $hasImage)
 
-<section class="overflow-hidden bg-petrova-main font-playfair text-petrova-secondary">
+<section class="bg-white py-16 lg:py-20">
+    <div class="mx-auto w-full max-w-[1400px] px-6 lg:px-12">
 
-    @if ($hasImage)
+        {{-- TOP ROW: text left / image right --}}
+        <div class="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:items-start">
 
-        {{-- ── SPLIT LAYOUT (image present) ──────────────────────────── --}}
-        <div class="grid min-h-[360px] grid-cols-1 lg:min-h-[440px] lg:grid-cols-2">
-
-            {{-- Left: text content --}}
-            <div class="flex items-center px-8 py-16 lg:px-16 lg:py-20">
-                <div class="max-w-xl">
-                    @if ($sectionTitle !== '')
-                        <h2 class="text-3xl font-bold leading-tight tracking-tight text-petrova-primary sm:text-4xl lg:text-5xl">
-                            {{ $sectionTitle }}
-                        </h2>
-                    @endif
-
-                    @if ($sectionSubtitle !== '')
-                        <p class="mt-6 text-lg leading-relaxed text-petrova-secondary">
-                            {{ $sectionSubtitle }}
-                        </p>
-                    @endif
-
-                    @if ($sectionContent !== '')
-                        @if ($previewContentIsHtml)
-                            <div class="mt-4 text-base leading-relaxed text-petrova-secondary/85
-                                [&_p]:mt-4 [&_p:first-child]:mt-0 [&_p]:!text-petrova-secondary/85
-                                [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5
-                                [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
-                                [&_li]:mt-1 [&_li]:!text-petrova-secondary/85
-                                [&_strong]:!text-petrova-primary [&_b]:!text-petrova-primary [&_em]:!text-petrova-secondary/90
-                                [&_h3]:!text-petrova-primary [&_h4]:!text-petrova-primary
-                                [&_span]:!text-petrova-secondary/85
-                                [&_a]:!font-medium [&_a]:!text-petrova-secondary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:!text-petrova-primary">
-                                {!! $sectionContent !!}
-                            </div>
-                        @else
-                            <div class="mt-4 text-base leading-relaxed !text-petrova-secondary/85 whitespace-pre-line">
-                                {{ $sectionContent }}
-                            </div>
-                        @endif
-                    @endif
-
-                    @if ($hasCta)
-                        <div class="mt-8">
-                            <a
-                                href="{{ section_url($sectionButtonUrl) }}"
-                                class="inline-flex rounded-lg border border-petrova-gold/50 bg-petrova-deep/30 px-6 py-3 text-sm font-semibold text-petrova-primary backdrop-blur-sm transition hover:border-petrova-gold-hover hover:bg-petrova-mid/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main"
-                            >
-                                {{ $sectionButtonText }}
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Right: image fills full cell to edge --}}
-            <div class="relative min-h-[280px] lg:min-h-0">
-                <img
-                    src="{{ asset('storage/' . $sectionImagePath) }}"
-                    alt="{{ $sectionTitle ?: 'За нас' }}"
-                    class="absolute inset-0 h-full w-full object-cover"
-                    loading="lazy"
-                >
-            </div>
-
-        </div>
-
-    @else
-
-        {{-- ── FALLBACK LAYOUT (no image — text on dark background) ───── --}}
-        <div class="mx-auto max-w-6xl px-4 py-20">
-            <div class="max-w-3xl">
-
-                @if ($sectionTitle !== '')
-                    <h2 class="text-3xl font-bold leading-tight tracking-tight text-petrova-primary sm:text-4xl lg:text-5xl">
-                        {{ $sectionTitle }}
-                    </h2>
-                @endif
+            {{-- Left: eyebrow + heading + content + CTA --}}
+            <div class="flex flex-col">
 
                 @if ($sectionSubtitle !== '')
-                    <p class="mt-6 text-lg leading-relaxed text-petrova-secondary">
+                    <p class="mb-5 font-sans text-sm font-normal text-[#0D1A30]/50 tracking-wide">
                         {{ $sectionSubtitle }}
                     </p>
+                @else
+                    <p class="mb-5 font-sans text-sm font-normal text-[#0D1A30]/50 tracking-wide">
+                        Нашите ценности
+                    </p>
+                @endif
+
+                @if ($sectionTitle !== '')
+                    <h2 class="font-playfair text-4xl font-normal italic leading-tight text-[#0D1A30] lg:text-[2.75rem] lg:leading-[1.15] mb-8">
+                        {!! nl2br(e($sectionTitle)) !!}
+                    </h2>
+                @else
+                    <h2 class="font-playfair text-4xl font-normal italic leading-tight text-[#0D1A30] lg:text-[2.75rem] lg:leading-[1.15] mb-8">
+                        Основни принципи,<br>които определят нашата<br>практика
+                    </h2>
                 @endif
 
                 @if ($sectionContent !== '')
                     @if ($previewContentIsHtml)
-                        <div class="mt-4 text-base leading-relaxed text-petrova-secondary/85
-                            [&_p]:mt-4 [&_p:first-child]:mt-0 [&_p]:!text-petrova-secondary/85
+                        <div class="mb-8 font-sans text-sm leading-relaxed text-[#0D1A30]/60
+                            [&_p]:mt-4 [&_p:first-child]:mt-0
                             [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5
                             [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
-                            [&_li]:mt-1 [&_li]:!text-petrova-secondary/85
-                            [&_strong]:!text-petrova-primary [&_b]:!text-petrova-primary [&_em]:!text-petrova-secondary/90
-                            [&_h3]:!text-petrova-primary [&_h4]:!text-petrova-primary
-                            [&_span]:!text-petrova-secondary/85
-                            [&_a]:!font-medium [&_a]:!text-petrova-secondary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:!text-petrova-primary">
+                            [&_li]:mt-1
+                            [&_strong]:text-[#0D1A30] [&_b]:text-[#0D1A30]
+                            [&_a]:underline [&_a]:underline-offset-2">
                             {!! $sectionContent !!}
                         </div>
                     @else
-                        <div class="mt-4 text-base leading-relaxed !text-petrova-secondary/85 whitespace-pre-line">
+                        <p class="mb-8 font-sans text-sm leading-relaxed text-[#0D1A30]/60 whitespace-pre-line">
                             {{ $sectionContent }}
-                        </div>
+                        </p>
                     @endif
                 @endif
 
                 @if ($hasCta)
-                    <div class="mt-8">
+                    <div>
                         <a
                             href="{{ section_url($sectionButtonUrl) }}"
-                            class="inline-flex rounded-lg border border-petrova-gold/50 bg-petrova-deep/30 px-6 py-3 text-sm font-semibold text-petrova-primary backdrop-blur-sm transition hover:border-petrova-gold-hover hover:bg-petrova-mid/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-main"
+                            class="inline-flex items-center justify-between bg-petrova-gold text-petrova-deep font-sans text-sm font-semibold px-6 py-3 min-w-[200px] hover:bg-petrova-gold-hover transition no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold/60 focus-visible:ring-offset-2"
                         >
-                            {{ $sectionButtonText }}
+                            <span class="shrink-0 whitespace-nowrap">{{ $sectionButtonText }}</span>
+                            <svg class="shrink-0 ml-4" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
                         </a>
                     </div>
                 @endif
 
             </div>
+
+            {{-- Right: static homepage composition image + values grid below --}}
+            <div class="w-full flex flex-col gap-8">
+
+                <div class="overflow-hidden rounded-lg">
+                    <img
+                        src="{{ asset('images/home/Homepage - IMG.webp') }}"
+                        alt=""
+                        class="h-[320px] w-full object-cover lg:h-[400px]"
+                        width="700"
+                        height="400"
+                        loading="lazy"
+                        aria-hidden="true"
+                    >
+                </div>
+
+                {{-- PRINCIPLES GRID — static, 2×2, under the image --}}
+                <div class="grid grid-cols-2 gap-x-8 gap-y-8">
+
+                    {{-- 1. Изграждане на взаимоотношения --}}
+                    <div>
+                        <img
+                            src="{{ asset('images/home/Начална страница - Изграждане на взаимоотношения - Icon.svg') }}"
+                            alt=""
+                            class="mb-3 h-8 w-auto"
+                            aria-hidden="true"
+                            loading="lazy"
+                        >
+                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                            Изграждане на взаимоотношения
+                        </h3>
+                        <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
+                            Вярваме, че чрез истинско разбиране на нашите клиенти и техните индивидуални нужди създаваме партньорства, които водят до взаимни успехи и развитие.
+                        </p>
+                    </div>
+
+                    {{-- 2. Уважение --}}
+                    <div>
+                        <img
+                            src="{{ asset('images/home/Начална страница - Уважение - Icon.svg') }}"
+                            alt=""
+                            class="mb-3 h-8 w-auto"
+                            aria-hidden="true"
+                            loading="lazy"
+                        >
+                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                            Уважение
+                        </h3>
+                        <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
+                            Уважението е в основата на всичките ни взаимоотношения. Към всеки — клиент, колега или партньор — подхождаме с внимание, коректност и професионализъм.
+                        </p>
+                    </div>
+
+                    {{-- 3. Постигане на резултати --}}
+                    <div>
+                        <img
+                            src="{{ asset('images/home/Начална страница - Постигане на резултати - Icon.svg') }}"
+                            alt=""
+                            class="mb-3 h-8 w-auto"
+                            aria-hidden="true"
+                            loading="lazy"
+                        >
+                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                            Постигане на резултати
+                        </h3>
+                        <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
+                            Съчетаваме правна експертиза, отдаденост и постоянство, за да надминем очакванията на всеки клиент.
+                        </p>
+                    </div>
+
+                    {{-- 4. Резултати --}}
+                    <div>
+                        <img
+                            src="{{ asset('images/home/Начална страница - Резултати - Icon.svg') }}"
+                            alt=""
+                            class="mb-3 h-8 w-auto"
+                            aria-hidden="true"
+                            loading="lazy"
+                        >
+                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                            Резултати
+                        </h3>
+                        <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
+                            Независимо колко сложен е Вашият казус, ние работим целенасочено и неуморно, за да постигнем най-добрия възможен резултат, съобразен с Вашата конкретна ситуация.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
-    @endif
-
+    </div>
 </section>
 
 @endif

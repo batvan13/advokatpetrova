@@ -59,10 +59,10 @@
     $sectionTitleRaw = trim((string) ($section?->title ?? ''));
 @endphp
 
-<section class="bg-[#EDE8E0] py-16 lg:py-24">
-    <div class="mx-auto w-full max-w-7xl px-6 lg:px-16">
-        <div class="mb-10 flex flex-col gap-6 md:mb-12 md:flex-row md:items-end md:justify-between lg:mb-16">
-            <h2 class="max-w-[22rem] font-playfair text-3xl font-normal italic leading-tight tracking-tight text-[#0F172A] md:max-w-[28rem] md:text-4xl lg:max-w-none lg:text-[2.75rem] lg:leading-[1.12]">
+<section class="bg-[#E3DBCA] py-16 lg:py-20">
+    <div class="mx-auto w-full max-w-[1400px] px-6 lg:px-12">
+        <div class="mb-8 flex flex-col gap-5 md:mb-10 md:flex-row md:items-end md:justify-between">
+            <h2 class="max-w-[22rem] font-playfair text-3xl font-normal italic leading-tight text-[#0F172A] md:max-w-[28rem] md:text-4xl lg:max-w-none">
                 @if ($sectionTitleRaw !== '')
                     {!! nl2br(e($sectionTitleRaw)) !!}
                 @else
@@ -71,10 +71,10 @@
             </h2>
             <a
                 href="{{ $headerHref }}"
-                class="inline-flex shrink-0 items-center gap-3 self-start rounded-lg bg-[#0F172A] px-6 py-3.5 font-sans text-sm font-medium leading-none text-[#EDE8E0] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#EDE8E0] md:self-auto"
+                class="inline-flex shrink-0 items-center gap-3 self-start rounded-sm bg-[#0D1A30] px-5 py-2.5 font-sans text-sm font-medium leading-none text-[#E3DBCA] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D1A30]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#E3DBCA] md:self-auto"
             >
                 <span>{{ $headerButtonLabel }}</span>
-                <svg class="h-3.5 w-3.5 shrink-0 text-[#EDE8E0]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="14" height="14">
+                <svg class="h-3 w-3 shrink-0 text-[#E3DBCA]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
                     <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </a>
@@ -83,7 +83,7 @@
         @if ($homeServices->isEmpty())
             <p class="font-sans text-sm leading-relaxed text-[#64748B]">Все още няма добавени услуги.</p>
         @else
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
                 @foreach ($homeServices as $service)
                     @php
                         $description = $service->short_description;
@@ -98,33 +98,33 @@
                     @endphp
                     <a
                         href="{{ route('services.show', $service->slug) }}"
-                        class="flex h-full flex-col overflow-hidden rounded-xl border border-[#D6D0C4] bg-white no-underline shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[#EDE8E0]"
+                        class="flex h-full flex-col overflow-hidden rounded-sm border border-[#C8C2B6] bg-[#E3DBCA] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D1A30]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[#E3DBCA]"
                     >
                         <div
-                            class="relative h-[190px] w-full shrink-0 overflow-hidden bg-[#E8E4DC] rounded-tl-[12px] rounded-tr-[28px] rounded-br-[12px] rounded-bl-[12px]"
+                            class="relative h-[230px] w-full shrink-0 overflow-hidden bg-[#E8E4DC] rounded-tl-[6px] rounded-tr-[80px] rounded-br-[6px] rounded-bl-[6px]"
                         >
                             <img
                                 src="{{ $cardImage }}"
                                 alt="{{ $service->title }}"
                                 width="376"
-                                height="190"
+                                height="230"
                                 class="h-full w-full object-cover"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="flex flex-col p-5">
-                            <div class="mb-3 flex items-start justify-between gap-3">
-                                <h3 class="min-w-0 flex-1 font-playfair text-xl font-normal italic leading-snug text-[#0F172A] lg:text-2xl">
+                        <div class="flex flex-col p-4">
+                            <div class="mb-2 flex items-start justify-between gap-2">
+                                <h3 class="min-w-0 flex-1 font-playfair text-xl font-normal italic leading-snug text-[#0F172A]">
                                     {{ $service->title }}
                                 </h3>
                                 <span class="mt-1 shrink-0 text-[#0F172A]" aria-hidden="true">
-                                    <svg class="h-[18px] w-[18px]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                         <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </span>
                             </div>
                             @if ($cardExcerpt !== '')
-                                <p class="font-sans text-sm leading-relaxed text-[#475569]">
+                                <p class="font-sans text-xs leading-relaxed text-[#0D1A30]">
                                     {{ $cardExcerpt }}
                                 </p>
                             @endif
