@@ -73,6 +73,14 @@
                 Настройки
             </a>
 
+            <a href="{{ route('admin.consultation-services.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.consultation-services.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Консултации
+            </a>
+
             <a href="{{ route('admin.inquiries.index') }}"
                class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
                       {{ request()->routeIs('admin.inquiries.*')

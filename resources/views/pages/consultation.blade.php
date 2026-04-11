@@ -5,141 +5,300 @@
 
 @section('content')
 
-<div class="consultation-page">
+<div class="consultation-page font-playfair">
 
-    {{-- 1. Hero --}}
-    <section class="bg-white py-20">
-        <div class="mx-auto max-w-6xl px-4">
-            <div class="max-w-3xl">
+    {{-- ── Hero ──────────────────────────────────────────────────── --}}
+    <section class="relative overflow-hidden">
 
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900">
-                    {{ $hero?->title ?? 'Онлайн консултация' }}
-                </h1>
+        {{-- Background image --}}
+        <div
+            class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style="background-image: url('{{ asset('images/consultation/landing_background.webp') }}');"
+            role="presentation"
+        ></div>
 
-                @if($hero?->subtitle)
-                    <p class="mt-6 text-lg text-gray-600">
-                        {{ $hero->subtitle }}
-                    </p>
-                @endif
+        {{-- Dark overlay --}}
+        <div
+            class="absolute inset-0 bg-gradient-to-b from-petrova-deep/90 via-petrova-deep/80 to-petrova-main/95"
+            aria-hidden="true"
+        ></div>
 
-                @if($hero?->content)
-                    <p class="mt-4 text-base text-gray-500 leading-relaxed">
-                        {{ $hero->content }}
-                    </p>
-                @endif
+        <div class="relative z-10 mx-auto max-w-6xl px-4 pt-16 pb-10">
+
+            {{-- Breadcrumb --}}
+            <nav class="mb-8 flex items-center gap-2 text-sm text-petrova-secondary/70" aria-label="Breadcrumb">
+                <a href="{{ route('home') }}" class="hover:text-petrova-primary transition-colors">
+                    <svg class="inline w-4 h-4 mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                    Начало
+                </a>
+                <span aria-hidden="true">/</span>
+                <span class="text-petrova-secondary/50">Онлайн консултация</span>
+            </nav>
+
+            {{-- Page title --}}
+            <h1 class="text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
+                Онлайн консултация
+            </h1>
+
+            {{-- Trust badges --}}
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+
+                <div class="flex items-center gap-2.5 rounded border border-petrova-gold/30 bg-petrova-deep/60 px-4 py-2.5 text-sm text-petrova-secondary">
+                    <svg class="h-4 w-4 flex-shrink-0 text-petrova-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Подходяща за конкретни въпроси и бързи казуси
+                </div>
+
+                <div class="flex items-center gap-2.5 rounded border border-petrova-gold/30 bg-petrova-deep/60 px-4 py-2.5 text-sm text-petrova-secondary">
+                    <svg class="h-4 w-4 flex-shrink-0 text-petrova-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Спестява време и излишни разходи
+                </div>
+
+                <div class="flex items-center gap-2.5 rounded border border-petrova-gold/30 bg-petrova-deep/60 px-4 py-2.5 text-sm text-petrova-secondary">
+                    <svg class="h-4 w-4 flex-shrink-0 text-petrova-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Провежда се изцяло онлайн — удобно и сигурно
+                </div>
 
             </div>
-        </div>
-    </section>
 
-    {{-- 2. Optional intro (CMS) --}}
-    @if($content?->title || $content?->subtitle || $content?->content)
-        <section class="bg-gray-50 py-12 border-t border-gray-100">
-            <div class="mx-auto max-w-6xl px-4">
-                <div class="max-w-3xl">
+            {{-- ── Consultation cards ──────────────────────────────────── --}}
+            <div class="mt-10 pb-16 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
-                    @if($content?->title)
-                        <h2 class="text-xl font-semibold tracking-tight text-gray-900">
-                            {{ $content->title }}
+                {{-- PHONE --}}
+                @php $phone = $consultationPricing['phone'] ?? null; @endphp
+                <article class="flex flex-col rounded-lg border border-petrova-gold/20 bg-white/95 p-5 shadow-lg">
+
+                    <div class="flex items-start gap-3">
+                        <img src="{{ asset('images/consultation/icon_phone.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
+                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                            Телефонна<br>консултация
                         </h2>
+                    </div>
+
+                    <p class="mt-2 text-sm font-semibold italic text-petrova-gold">
+                        Кратки въпроси и спешни казуси
+                    </p>
+
+                    <p class="mt-2 text-sm leading-relaxed text-gray-600">
+                        Говорете директно с адвокат и получете бърз отговор на Вашия въпрос.
+                    </p>
+
+                    <p class="mt-2 text-xs text-gray-500">Продължителност: до 30 минути</p>
+
+                    <div class="mt-4 flex-1 flex items-end">
+                        @if ($phone)
+                            <p class="text-2xl font-bold italic tracking-tight text-petrova-main">
+                                {{ number_format((float) $phone->price_eur, 2, ',', '.') }}&nbsp;€
+                                @if ($phone->show_bgn_price)
+                                    / {{ number_format((float) $phone->price_bgn, 2, ',', '.') }}&nbsp;лв.
+                                @endif
+                            </p>
+                        @endif
+                    </div>
+
+                    <div class="mt-5">
+                        <a href="{{ route('contacts') }}"
+                           class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
+                            Запазете час
+                        </a>
+                    </div>
+
+                </article>
+
+                {{-- CHAT --}}
+                @php $chat = $consultationPricing['chat'] ?? null; @endphp
+                <article class="flex flex-col rounded-lg border border-petrova-gold/20 bg-white/95 p-5 shadow-lg">
+
+                    <div class="flex items-start gap-3">
+                        <img src="{{ asset('images/consultation/icon_chat.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
+                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                            Онлайн чат<br>консултация
+                        </h2>
+                    </div>
+
+                    <p class="mt-2 text-sm font-semibold italic text-petrova-gold">
+                        За изясняване на бързи въпроси
+                    </p>
+
+                    <p class="mt-2 text-sm leading-relaxed text-gray-600">
+                        Обсъдете Вашия казус в реално време чрез писмен чат.
+                    </p>
+
+                    <p class="mt-2 text-xs text-gray-500">Продължителност: до 30 минути</p>
+
+                    <div class="mt-4 flex-1 flex items-end">
+                        @if ($chat)
+                            <p class="text-2xl font-bold italic tracking-tight text-petrova-main">
+                                {{ number_format((float) $chat->price_eur, 2, ',', '.') }}&nbsp;€
+                                @if ($chat->show_bgn_price)
+                                    / {{ number_format((float) $chat->price_bgn, 2, ',', '.') }}&nbsp;лв.
+                                @endif
+                            </p>
+                        @endif
+                    </div>
+
+                    <div class="mt-5">
+                        <a href="{{ route('contacts') }}"
+                           class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
+                            Запазете час
+                        </a>
+                    </div>
+
+                </article>
+
+                {{-- WRITTEN --}}
+                @php $written = $consultationPricing['written'] ?? null; @endphp
+                <article class="flex flex-col rounded-lg border border-petrova-gold/20 bg-white/95 p-5 shadow-lg">
+
+                    <div class="flex items-start gap-3">
+                        <img src="{{ asset('images/consultation/icon_written.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
+                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                            Писмена<br>консултация
+                        </h2>
+                    </div>
+
+                    <p class="mt-2 text-sm font-semibold italic text-petrova-gold">
+                        По-сложни случаи и документи
+                    </p>
+
+                    <p class="mt-2 text-sm leading-relaxed text-gray-600">
+                        Изпратете Вашия казус и получете подробен правен анализ по имейл.
+                    </p>
+
+                    <p class="mt-2 text-xs text-gray-500">Получаване на отговор: до 48 часа</p>
+
+                    <div class="mt-4 flex-1 flex items-end">
+                        @if ($written)
+                            <p class="text-2xl font-bold italic tracking-tight text-petrova-main">
+                                {{ number_format((float) $written->price_eur, 2, ',', '.') }}&nbsp;€
+                                @if ($written->show_bgn_price)
+                                    / {{ number_format((float) $written->price_bgn, 2, ',', '.') }}&nbsp;лв.
+                                @endif
+                            </p>
+                        @endif
+                    </div>
+
+                    <div class="mt-5">
+                        <a href="{{ route('contacts') }}"
+                           class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
+                            Изпратете запитване
+                        </a>
+                    </div>
+
+                </article>
+
+                {{-- VIDEO --}}
+                @php $video = $consultationPricing['video'] ?? null; @endphp
+                <article class="flex flex-col rounded-lg border border-petrova-gold/20 bg-white/95 p-5 shadow-lg">
+
+                    <div class="flex items-start gap-3">
+                        <img src="{{ asset('images/consultation/icon_video_viber.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
+                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                            (Viber) Видео<br>консултация
+                        </h2>
+                    </div>
+
+                    <p class="mt-2 text-sm font-semibold italic text-petrova-gold">
+                        Подробно обсъждане на казуси
+                    </p>
+
+                    <p class="mt-2 text-sm leading-relaxed text-gray-600">
+                        Лична Видео консултация с адвокат, провеждана директно през Viber
+                    </p>
+
+                    <p class="mt-2 text-xs text-gray-500">Продължителност: 30 или 60 минути</p>
+
+                    {{-- Price display — switches with toggle --}}
+                    @if ($video)
+                        <div class="mt-4 flex-1 flex items-end">
+                            <p class="text-2xl font-bold italic tracking-tight text-petrova-main" id="video-price-display">
+                                {{-- Populated by JS on load --}}
+                            </p>
+                        </div>
+
+                        {{-- Duration toggle --}}
+                        <div class="mt-3 flex gap-2" role="group" aria-label="Продължителност">
+                            <button
+                                type="button"
+                                id="video-btn-30"
+                                class="flex-1 rounded px-3 py-2 text-sm font-semibold transition"
+                                data-eur="{{ number_format((float) $video->price_eur, 2, ',', '.') }}"
+                                data-bgn="{{ number_format((float) $video->price_bgn, 2, ',', '.') }}"
+                                data-show-bgn="{{ $video->show_bgn_price ? '1' : '0' }}"
+                            >
+                                30 минути
+                            </button>
+                            <button
+                                type="button"
+                                id="video-btn-60"
+                                class="flex-1 rounded px-3 py-2 text-sm font-semibold transition"
+                                data-eur="{{ number_format((float) $video->price_eur_60, 2, ',', '.') }}"
+                                data-bgn="{{ number_format((float) $video->price_bgn_60, 2, ',', '.') }}"
+                                data-show-bgn="{{ $video->show_bgn_price ? '1' : '0' }}"
+                            >
+                                60 минути
+                            </button>
+                        </div>
                     @endif
 
-                    @if($content?->subtitle)
-                        <p class="mt-3 text-base text-gray-600">
-                            {{ $content->subtitle }}
-                        </p>
-                    @endif
+                    <div class="mt-5">
+                        <a href="{{ route('contacts') }}"
+                           class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
+                            Запазете час
+                        </a>
+                    </div>
 
-                    @if($content?->content)
-                        <p class="mt-3 text-sm text-gray-500 leading-relaxed">
-                            {{ $content->content }}
-                        </p>
-                    @endif
+                </article>
 
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- 3. Trust chips (static) --}}
-    <section class="bg-white py-10 border-t border-gray-100">
-        <div class="mx-auto max-w-6xl px-4">
-            <div class="flex flex-wrap gap-2">
-                <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
-                    Поверителност
-                </span>
-                <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
-                    Онлайн среща
-                </span>
-                <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
-                    Ясен процес
-                </span>
-                <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
-                    Потвърждение по имейл
-                </span>
             </div>
         </div>
     </section>
-
-    {{-- 4. Pricing cards (static) --}}
-    <section class="bg-gray-50 py-16 border-t border-gray-100">
-        <div class="mx-auto max-w-6xl px-4">
-            <h2 class="text-lg font-semibold text-gray-900 mb-8 max-w-3xl">
-                Пакети
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-
-                <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <h3 class="text-base font-semibold text-gray-900">Стандартна консултация</h3>
-                    <p class="mt-2 text-2xl font-bold tracking-tight text-gray-900">60 лв.</p>
-                    <p class="mt-1 text-sm text-gray-500">Еднократна сесия до 30 мин.</p>
-                    <ul class="mt-5 space-y-2 text-sm text-gray-600 list-disc list-inside">
-                        <li>Фокус върху един основен въпрос</li>
-                        <li>Обобщение след срещата</li>
-                    </ul>
-                    <div class="mt-8">
-                        <a href="{{ route('contacts') }}"
-                           class="inline-flex w-full items-center justify-center rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 sm:w-auto">
-                            Заявете консултация
-                        </a>
-                    </div>
-                </article>
-
-                <article class="rounded-xl border border-gray-900 bg-white p-6 shadow-sm ring-1 ring-gray-900">
-                    <h3 class="text-base font-semibold text-gray-900">Разширена консултация</h3>
-                    <p class="mt-2 text-2xl font-bold tracking-tight text-gray-900">120 лв.</p>
-                    <p class="mt-1 text-sm text-gray-500">До 60 мин., по-сложен казус</p>
-                    <ul class="mt-5 space-y-2 text-sm text-gray-600 list-disc list-inside">
-                        <li>По-подробен анализ</li>
-                        <li>Препоръки за следващи стъпки</li>
-                    </ul>
-                    <div class="mt-8">
-                        <a href="{{ route('contacts') }}"
-                           class="inline-flex w-full items-center justify-center rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 sm:w-auto">
-                            Заявете консултация
-                        </a>
-                    </div>
-                </article>
-
-            </div>
-        </div>
-    </section>
-
-    {{-- 5. CTA from hero meta only --}}
-    @if($hero?->button_text && $hero?->button_url)
-        <section class="bg-white py-16 border-t border-gray-100">
-            <div class="mx-auto max-w-6xl px-4">
-                <div class="max-w-3xl">
-                    <a href="{{ section_url($hero->button_url) }}"
-                       class="inline-flex rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800">
-                        {{ $hero->button_text }}
-                    </a>
-                </div>
-            </div>
-        </section>
-    @endif
 
 </div>
+
+@push('scripts')
+<script>
+(function () {
+    var btn30    = document.getElementById('video-btn-30');
+    var btn60    = document.getElementById('video-btn-60');
+    var display  = document.getElementById('video-price-display');
+
+    if (!btn30 || !btn60 || !display) return;
+
+    var activeClass   = ['bg-petrova-gold', 'text-petrova-deep'];
+    var inactiveClass = ['bg-gray-100', 'text-gray-600', 'hover:bg-gray-200'];
+
+    function setActive(activeBtn, inactiveBtn) {
+        activeClass.forEach(function (c) {
+            activeBtn.classList.add(c);
+            inactiveBtn.classList.remove(c);
+        });
+        inactiveClass.forEach(function (c) {
+            inactiveBtn.classList.add(c);
+            activeBtn.classList.remove(c);
+        });
+
+        var eur     = activeBtn.dataset.eur;
+        var bgn     = activeBtn.dataset.bgn;
+        var showBgn = activeBtn.dataset.showBgn === '1';
+
+        display.textContent = eur + '\u00A0€' + (showBgn ? ' / ' + bgn + '\u00A0лв.' : '');
+    }
+
+    btn30.addEventListener('click', function () { setActive(btn30, btn60); });
+    btn60.addEventListener('click', function () { setActive(btn60, btn30); });
+
+    // Default: 30 min active on load
+    setActive(btn30, btn60);
+}());
+</script>
+@endpush
 
 @endsection

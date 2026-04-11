@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConsultationService;
 use App\Models\GalleryItem;
 use App\Models\Service;
 use App\Models\TeamMember;
@@ -63,9 +64,15 @@ class PageController extends Controller
 
     public function consultation()
     {
+        $consultationPricing = ConsultationService::query()
+            ->whereIn('type', ConsultationService::TYPES)
+            ->get()
+            ->keyBy('type');
+
         return view('pages.consultation', [
-            'hero' => page_section('consultation', 'hero'),
-            'content' => page_section('consultation', 'content'),
+            'hero'                => page_section('consultation', 'hero'),
+            'content'             => page_section('consultation', 'content'),
+            'consultationPricing' => $consultationPricing,
         ]);
     }
 

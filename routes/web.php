@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\ConsultationServiceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -107,5 +108,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('inquiries', [AdminInquiryController::class, 'index'])->name('inquiries.index');
         Route::get('inquiries/{inquiry}', [AdminInquiryController::class, 'show'])->name('inquiries.show');
         Route::post('inquiries/{inquiry}/resend', [AdminInquiryController::class, 'resend'])->name('inquiries.resend');
+
+        Route::resource('consultation-services', ConsultationServiceController::class)
+            ->only(['index', 'edit', 'update'])
+            ->parameters(['consultation-services' => 'consultationService']);
     });
 });
