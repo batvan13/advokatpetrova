@@ -8,13 +8,13 @@ use App\Models\PhoneConsultationBooking;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class PhoneConsultationController extends Controller
+class ViberConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability
@@ -24,24 +24,26 @@ class PhoneConsultationController extends Controller
 
     public function show()
     {
-        $pricing = ConsultationService::where('type', 'phone')->first();
+        $pricing = ConsultationService::where('type', 'video')->first();
 
-        return view('pages.phone-consultation', compact('pricing'));
+        return view('pages.viber-consultation', compact('pricing'));
     }
 
     // ── Slots JSON endpoint ───────────────────────────────────────────
 
     /**
-     * GET /consultation/phone/slots?date=YYYY-MM-DD
+     * GET /consultation/viber/slots?date=YYYY-MM-DD&duration=30|60
      */
     public function slots(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'date' => ['required', 'date_format:Y-m-d'],
+            'date'     => ['required', 'date_format:Y-m-d'],
+            'duration' => ['required', 'integer', 'in:30,60'],
         ]);
 
-        $date  = Carbon::createFromFormat('Y-m-d', $validated['date'], 'Europe/Sofia');
-        $today = Carbon::now('Europe/Sofia')->startOfDay();
+        $duration = (int) $validated['duration'];
+        $date     = Carbon::createFromFormat('Y-m-d', $validated['date'], 'Europe/Sofia');
+        $today    = Carbon::now('Europe/Sofia')->startOfDay();
 
         if ($date->lt($today)) {
             return response()->json(['slots' => []]);
@@ -51,19 +53,18 @@ class PhoneConsultationController extends Controller
             return response()->json(['slots' => []]);
         }
 
-        $slots = $this->availability->slotsForDate($date);
+        // Generate all theoretical start times for the requested duration.
+        $slots = $this->availability->slotsForDate($date, $duration);
 
-        // Filter out slots occupied by any blocking-status booking in EITHER table.
-        // Phone and Viber share the same time resource.
         $dateStr = $date->toDateString();
 
+        // Collect all 30-min grid blocks occupied by phone bookings.
         $phoneBlocked = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
             ->map(fn ($s) => Carbon::parse($s, 'Europe/Sofia')->format('H:i'));
 
-        // A 60-minute Viber booking occupies two consecutive 30-min blocks.
-        // We collect all 30-min grid times covered by each Viber booking.
+        // Collect all 30-min grid blocks occupied by viber bookings.
         $viberBlocked = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->get(['starts_at', 'ends_at'])
@@ -84,11 +85,25 @@ class PhoneConsultationController extends Controller
             ->pluck('starts_at')
             ->map(fn ($s) => Carbon::parse($s, 'Europe/Sofia')->format('H:i'));
 
-        $blockedStarts = $phoneBlocked->merge($viberBlocked)->merge($chatBlocked)->flip();
+        $blockedGrid = $phoneBlocked->merge($viberBlocked)->merge($chatBlocked)->flip();
 
+        // For a 60-min slot the start time is only valid if BOTH the start
+        // block AND the next 30-min block are free.
         $available = array_filter(
             array_map(fn (Carbon $s) => $s->format('H:i'), $slots),
-            fn (string $t) => ! isset($blockedStarts[$t])
+            function (string $t) use ($blockedGrid, $duration) {
+                if (isset($blockedGrid[$t])) {
+                    return false;
+                }
+                if ($duration === 60) {
+                    // Check the second 30-min block as well.
+                    $next = Carbon::createFromFormat('H:i', $t)->addMinutes(30)->format('H:i');
+                    if (isset($blockedGrid[$next])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         );
 
         return response()->json(['slots' => array_values($available)]);
@@ -97,12 +112,12 @@ class PhoneConsultationController extends Controller
     // ── Submit booking ────────────────────────────────────────────────
 
     /**
-     * POST /consultation/phone
+     * POST /consultation/viber
      */
     public function submit(Request $request)
     {
-        // ── Validate all fields ──────────────────────────────────────
         $data = $request->validate([
+            'duration'       => ['required', 'integer', 'in:30,60'],
             'selected_date'  => ['required', 'date_format:Y-m-d'],
             'selected_slot'  => ['required', 'date_format:H:i'],
             'first_name'     => ['required', 'string', 'max:255'],
@@ -113,6 +128,8 @@ class PhoneConsultationController extends Controller
             'payment_method' => ['required', 'in:card,easypay,epay'],
             'consent'        => ['accepted'],
         ], [
+            'duration.required'       => 'Моля, изберете продължителност.',
+            'duration.in'             => 'Невалидна продължителност.',
             'selected_date.required'  => 'Моля, изберете ден.',
             'selected_date.date_format' => 'Невалидна дата.',
             'selected_slot.required'  => 'Моля, изберете час.',
@@ -127,13 +144,15 @@ class PhoneConsultationController extends Controller
             'consent.accepted'        => 'Трябва да се съгласите с Политиката за поверителност.',
         ]);
 
+        $duration = (int) $data['duration'];
+
         // ── Build slot datetimes ─────────────────────────────────────
         $startsAt = Carbon::createFromFormat(
             'Y-m-d H:i',
             $data['selected_date'] . ' ' . $data['selected_slot'],
             'Europe/Sofia'
         );
-        $endsAt = $startsAt->copy()->addMinutes(30);
+        $endsAt = $startsAt->copy()->addMinutes($duration);
 
         // ── Guard: slot must not be in the past ──────────────────────
         if ($startsAt->isPast()) {
@@ -143,7 +162,7 @@ class PhoneConsultationController extends Controller
         }
 
         // ── Guard: slot must be a valid generated slot ───────────────
-        $validSlots = $this->availability->slotsForDate($startsAt->copy()->startOfDay());
+        $validSlots = $this->availability->slotsForDate($startsAt->copy()->startOfDay(), $duration);
         $validTimes = array_map(fn (Carbon $s) => $s->format('H:i'), $validSlots);
 
         if (! in_array($data['selected_slot'], $validTimes, true)) {
@@ -152,33 +171,42 @@ class PhoneConsultationController extends Controller
             ]);
         }
 
-        // ── Snapshot pricing (outside transaction — read-only, safe) ─
-        $pricing = ConsultationService::where('type', 'phone')->first();
+        // ── Snapshot pricing (outside transaction — read-only) ───────
+        // Viber uses the 'video' consultation service pricing.
+        $pricing = ConsultationService::where('type', 'video')->first();
+
+        // Pick the correct price based on duration.
+        $priceEur = $duration === 60
+            ? ($pricing?->price_eur_60 ?? $pricing?->price_eur ?? 0)
+            : ($pricing?->price_eur ?? 0);
+
+        $priceBgn = $duration === 60
+            ? ($pricing?->price_bgn_60 ?? $pricing?->price_bgn)
+            : ($pricing?->price_bgn);
 
         // ── Atomic conflict check + create ───────────────────────────
-        // Defence-in-depth: three layers against double-booking.
+        // Three-layer defence identical to phone booking:
+        // Layer 1: lockForUpdate inside transaction (serialises concurrent requests with existing rows).
+        // Layer 2: No UNIQUE index on starts_at here because Viber can have 30 or 60 min durations
+        //          and a 60-min booking occupies two 30-min blocks — a simple starts_at unique
+        //          index would not prevent a phone 30-min booking at the same starts_at.
+        //          Cross-table uniqueness is enforced by the overlap query below.
+        // Layer 3: QueryException catch for any unexpected DB integrity error.
         //
-        // Layer 1 — lockForUpdate inside a transaction: serialises concurrent
-        //   requests that find existing overlapping rows (common case).
-        //
-        // Layer 2 — UNIQUE index on starts_at (pcb_unique_starts_at): the
-        //   database-level hard stop. Fires when two requests race on an
-        //   empty result set (no prior booking for this slot), where
-        //   lockForUpdate cannot acquire a gap lock.
-        //
-        // Layer 3 — QueryException catch: converts the duplicate-key
-        //   IntegrityConstraintViolation (SQLSTATE 23000) into the same
-        //   user-facing validation error instead of a 500.
+        // Remaining pragmatic risk: two concurrent Viber submits for the same slot on an empty
+        // result set may both pass lockForUpdate (gap lock not guaranteed in InnoDB REPEATABLE READ).
+        // This is documented in the output section I) REMAINING RISKS.
         try {
-            $booking = DB::transaction(function () use ($data, $startsAt, $endsAt, $pricing) {
+            $booking = DB::transaction(function () use ($data, $duration, $startsAt, $endsAt, $pricing, $priceEur, $priceBgn) {
 
-                // Check conflict against BOTH phone and viber bookings (shared resource).
+                // Check phone bookings for overlap.
                 $phoneConflict = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
                     ->lockForUpdate()
                     ->exists();
 
+                // Check viber bookings for overlap.
                 $viberConflict = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
@@ -198,34 +226,32 @@ class PhoneConsultationController extends Controller
                     ]);
                 }
 
-                return PhoneConsultationBooking::create([
-                    'first_name'     => $data['first_name'],
-                    'last_name'      => $data['last_name'],
-                    'email'          => $data['email'],
-                    'phone'          => $data['phone'],
-                    'description'    => $data['description'] ?? null,
-                    'starts_at'      => $startsAt,
-                    'ends_at'        => $endsAt,
-                    'payment_method' => $data['payment_method'],
-                    'status'         => PhoneConsultationBooking::STATUS_BOOKED,
-                    'price_eur'      => $pricing?->price_eur ?? 0,
-                    'price_bgn'      => $pricing?->price_bgn,
-                    'show_bgn_price' => $pricing?->show_bgn_price ?? false,
+                return ViberConsultationBooking::create([
+                    'first_name'       => $data['first_name'],
+                    'last_name'        => $data['last_name'],
+                    'email'            => $data['email'],
+                    'phone'            => $data['phone'],
+                    'description'      => $data['description'] ?? null,
+                    'duration_minutes' => $duration,
+                    'starts_at'        => $startsAt,
+                    'ends_at'          => $endsAt,
+                    'payment_method'   => $data['payment_method'],
+                    'status'           => ViberConsultationBooking::STATUS_BOOKED,
+                    'price_eur'        => $priceEur,
+                    'price_bgn'        => $priceBgn,
+                    'show_bgn_price'   => $pricing?->show_bgn_price ?? false,
                 ]);
             });
         } catch (QueryException $e) {
-            // SQLSTATE 23000 = Integrity constraint violation (duplicate key).
-            // Triggered by the UNIQUE index on starts_at when two concurrent
-            // requests both pass the lockForUpdate check on an empty result set.
             if ($e->getCode() === '23000') {
                 throw ValidationException::withMessages([
                     'selected_slot' => 'Избраният час вече е зает. Моля, изберете друг.',
                 ]);
             }
-            throw $e; // re-throw unrelated DB errors
+            throw $e;
         }
 
-        return redirect()->route('phone-consultation.success', [
+        return redirect()->route('viber-consultation.success', [
             'token' => $booking->public_token,
         ]);
     }
@@ -238,12 +264,12 @@ class PhoneConsultationController extends Controller
             abort(404);
         }
 
-        $booking = PhoneConsultationBooking::where('public_token', $token)->first();
+        $booking = ViberConsultationBooking::where('public_token', $token)->first();
 
         if (! $booking) {
             abort(404);
         }
 
-        return view('pages.phone-consultation-success', compact('booking'));
+        return view('pages.viber-consultation-success', compact('booking'));
     }
 }

@@ -145,7 +145,7 @@
                     </div>
 
                     <div class="mt-5">
-                        <a href="{{ route('contacts') }}"
+                        <a href="{{ route('chat-consultation.show') }}"
                            class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
                             Запазете час
                         </a>
@@ -249,7 +249,7 @@
                     @endif
 
                     <div class="mt-5">
-                        <a href="{{ route('contacts') }}"
+                        <a href="{{ route('viber-consultation.show') }}"
                            class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
                             Запазете час
                         </a>

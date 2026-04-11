@@ -97,6 +97,22 @@
                 Тел. консултации
             </a>
 
+            <a href="{{ route('admin.viber-bookings.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.viber-bookings.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Viber консултации
+            </a>
+
+            <a href="{{ route('admin.chat-bookings.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.chat-bookings.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Чат консултации
+            </a>
+
             <a href="{{ route('admin.working-hours.index') }}"
                class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
                       {{ request()->routeIs('admin.working-hours.*')

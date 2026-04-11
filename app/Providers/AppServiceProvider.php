@@ -54,5 +54,15 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('phone-consultation', fn (Request $request) =>
             Limit::perMinutes(10, 5)->by($request->ip())
         );
+
+        // 5 viber consultation booking submissions per 10 minutes per IP
+        RateLimiter::for('viber-consultation', fn (Request $request) =>
+            Limit::perMinutes(10, 5)->by($request->ip())
+        );
+
+        // 5 chat consultation booking submissions per 10 minutes per IP
+        RateLimiter::for('chat-consultation', fn (Request $request) =>
+            Limit::perMinutes(10, 5)->by($request->ip())
+        );
     }
 }

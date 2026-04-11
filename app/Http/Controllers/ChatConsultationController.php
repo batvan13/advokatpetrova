@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChatConsultationBooking;
+use App\Models\ChatSession;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class PhoneConsultationController extends Controller
+class ChatConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability
@@ -24,15 +25,17 @@ class PhoneConsultationController extends Controller
 
     public function show()
     {
-        $pricing = ConsultationService::where('type', 'phone')->first();
+        $pricing = ConsultationService::where('type', 'chat')->first();
 
-        return view('pages.phone-consultation', compact('pricing'));
+        return view('pages.chat-consultation', compact('pricing'));
     }
 
     // ── Slots JSON endpoint ───────────────────────────────────────────
 
     /**
-     * GET /consultation/phone/slots?date=YYYY-MM-DD
+     * GET /consultation/chat/slots?date=YYYY-MM-DD
+     *
+     * Chat is always 30 minutes — no duration parameter needed.
      */
     public function slots(Request $request): JsonResponse
     {
@@ -51,19 +54,16 @@ class PhoneConsultationController extends Controller
             return response()->json(['slots' => []]);
         }
 
-        $slots = $this->availability->slotsForDate($date);
-
-        // Filter out slots occupied by any blocking-status booking in EITHER table.
-        // Phone and Viber share the same time resource.
+        $slots   = $this->availability->slotsForDate($date);
         $dateStr = $date->toDateString();
 
+        // Collect blocked 30-min grid positions from all three booking tables.
         $phoneBlocked = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
             ->map(fn ($s) => Carbon::parse($s, 'Europe/Sofia')->format('H:i'));
 
-        // A 60-minute Viber booking occupies two consecutive 30-min blocks.
-        // We collect all 30-min grid times covered by each Viber booking.
+        // Viber bookings may span 30 or 60 min — expand to grid blocks.
         $viberBlocked = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->get(['starts_at', 'ends_at'])
@@ -78,7 +78,6 @@ class PhoneConsultationController extends Controller
                 return $times;
             });
 
-        // Chat bookings are always 30 min — each occupies exactly one grid block.
         $chatBlocked = ChatConsultationBooking::whereIn('status', ChatConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
@@ -97,11 +96,10 @@ class PhoneConsultationController extends Controller
     // ── Submit booking ────────────────────────────────────────────────
 
     /**
-     * POST /consultation/phone
+     * POST /consultation/chat
      */
     public function submit(Request $request)
     {
-        // ── Validate all fields ──────────────────────────────────────
         $data = $request->validate([
             'selected_date'  => ['required', 'date_format:Y-m-d'],
             'selected_slot'  => ['required', 'date_format:H:i'],
@@ -113,18 +111,18 @@ class PhoneConsultationController extends Controller
             'payment_method' => ['required', 'in:card,easypay,epay'],
             'consent'        => ['accepted'],
         ], [
-            'selected_date.required'  => 'Моля, изберете ден.',
+            'selected_date.required'    => 'Моля, изберете ден.',
             'selected_date.date_format' => 'Невалидна дата.',
-            'selected_slot.required'  => 'Моля, изберете час.',
+            'selected_slot.required'    => 'Моля, изберете час.',
             'selected_slot.date_format' => 'Невалиден час.',
-            'first_name.required'     => 'Моля, въведете Вашето име.',
-            'last_name.required'      => 'Моля, въведете Вашата фамилия.',
-            'email.required'          => 'Моля, въведете имейл адрес.',
-            'email.email'             => 'Моля, въведете валиден имейл адрес.',
-            'phone.required'          => 'Моля, въведете телефонен номер.',
-            'payment_method.required' => 'Моля, изберете метод на плащане.',
-            'payment_method.in'       => 'Невалиден метод на плащане.',
-            'consent.accepted'        => 'Трябва да се съгласите с Политиката за поверителност.',
+            'first_name.required'       => 'Моля, въведете Вашето име.',
+            'last_name.required'        => 'Моля, въведете Вашата фамилия.',
+            'email.required'            => 'Моля, въведете имейл адрес.',
+            'email.email'               => 'Моля, въведете валиден имейл адрес.',
+            'phone.required'            => 'Моля, въведете телефонен номер.',
+            'payment_method.required'   => 'Моля, изберете метод на плащане.',
+            'payment_method.in'         => 'Невалиден метод на плащане.',
+            'consent.accepted'          => 'Трябва да се съгласите с Политиката за поверителност.',
         ]);
 
         // ── Build slot datetimes ─────────────────────────────────────
@@ -133,7 +131,7 @@ class PhoneConsultationController extends Controller
             $data['selected_date'] . ' ' . $data['selected_slot'],
             'Europe/Sofia'
         );
-        $endsAt = $startsAt->copy()->addMinutes(30);
+        $endsAt = $startsAt->copy()->addMinutes(ChatConsultationBooking::DURATION_MINUTES);
 
         // ── Guard: slot must not be in the past ──────────────────────
         if ($startsAt->isPast()) {
@@ -152,16 +150,27 @@ class PhoneConsultationController extends Controller
             ]);
         }
 
-        // ── Snapshot pricing (outside transaction — read-only, safe) ─
-        $pricing = ConsultationService::where('type', 'phone')->first();
+        // ── Snapshot pricing (outside transaction — read-only) ───────
+        $pricing = ConsultationService::where('type', 'chat')->first();
 
-        // ── Atomic conflict check + create ───────────────────────────
-        // Defence-in-depth: three layers against double-booking.
+        // ── Fail-fast: pricing row must exist and have a positive price ─
+        // A missing or zero-price row means the admin has not configured
+        // the chat consultation service. Proceeding would create a booking
+        // with price = 0, which is a silent business logic error.
+        // Abort with a controlled 503-style abort rather than a 500 or a
+        // silent €0 booking. No user-facing form error is appropriate here
+        // because this is a configuration problem, not a user input problem.
+        if (! $pricing || $pricing->price_eur <= 0) {
+            abort(503, 'Chat consultation pricing is not configured.');
+        }
+
+        // ── Atomic conflict check + create booking + bootstrap session ─
+        // Three-layer defence against double-booking:
         //
         // Layer 1 — lockForUpdate inside a transaction: serialises concurrent
         //   requests that find existing overlapping rows (common case).
         //
-        // Layer 2 — UNIQUE index on starts_at (pcb_unique_starts_at): the
+        // Layer 2 — UNIQUE index on starts_at (ccb_unique_starts_at): the
         //   database-level hard stop. Fires when two requests race on an
         //   empty result set (no prior booking for this slot), where
         //   lockForUpdate cannot acquire a gap lock.
@@ -172,7 +181,6 @@ class PhoneConsultationController extends Controller
         try {
             $booking = DB::transaction(function () use ($data, $startsAt, $endsAt, $pricing) {
 
-                // Check conflict against BOTH phone and viber bookings (shared resource).
                 $phoneConflict = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
@@ -185,7 +193,6 @@ class PhoneConsultationController extends Controller
                     ->lockForUpdate()
                     ->exists();
 
-                // Check chat bookings for overlap (shared resource).
                 $chatConflict = ChatConsultationBooking::whereIn('status', ChatConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
@@ -198,7 +205,7 @@ class PhoneConsultationController extends Controller
                     ]);
                 }
 
-                return PhoneConsultationBooking::create([
+                $booking = ChatConsultationBooking::create([
                     'first_name'     => $data['first_name'],
                     'last_name'      => $data['last_name'],
                     'email'          => $data['email'],
@@ -207,25 +214,33 @@ class PhoneConsultationController extends Controller
                     'starts_at'      => $startsAt,
                     'ends_at'        => $endsAt,
                     'payment_method' => $data['payment_method'],
-                    'status'         => PhoneConsultationBooking::STATUS_BOOKED,
-                    'price_eur'      => $pricing?->price_eur ?? 0,
-                    'price_bgn'      => $pricing?->price_bgn,
-                    'show_bgn_price' => $pricing?->show_bgn_price ?? false,
+                    'status'         => ChatConsultationBooking::STATUS_BOOKED,
+                    'price_eur'      => $pricing->price_eur,
+                    'price_bgn'      => $pricing->price_bgn,
+                    'show_bgn_price' => $pricing->show_bgn_price,
                 ]);
+
+                // Bootstrap session record atomically with the booking.
+                // Phase starts as 'waiting'; no session transitions in Phase 3A.
+                ChatSession::create([
+                    'booking_id' => $booking->id,
+                    'phase'      => ChatSession::DEFAULT_PHASE,
+                    'started_at' => null,
+                    'ended_at'   => null,
+                ]);
+
+                return $booking;
             });
         } catch (QueryException $e) {
-            // SQLSTATE 23000 = Integrity constraint violation (duplicate key).
-            // Triggered by the UNIQUE index on starts_at when two concurrent
-            // requests both pass the lockForUpdate check on an empty result set.
             if ($e->getCode() === '23000') {
                 throw ValidationException::withMessages([
                     'selected_slot' => 'Избраният час вече е зает. Моля, изберете друг.',
                 ]);
             }
-            throw $e; // re-throw unrelated DB errors
+            throw $e;
         }
 
-        return redirect()->route('phone-consultation.success', [
+        return redirect()->route('chat-consultation.success', [
             'token' => $booking->public_token,
         ]);
     }
@@ -238,12 +253,14 @@ class PhoneConsultationController extends Controller
             abort(404);
         }
 
-        $booking = PhoneConsultationBooking::where('public_token', $token)->first();
+        $booking = ChatConsultationBooking::with('session')
+            ->where('public_token', $token)
+            ->first();
 
         if (! $booking) {
             abort(404);
         }
 
-        return view('pages.phone-consultation-success', compact('booking'));
+        return view('pages.chat-consultation-success', compact('booking'));
     }
 }

@@ -13,14 +13,18 @@ class ConsultationAvailabilityService
     private const TIMEZONE     = 'Europe/Sofia';
 
     /**
-     * Return theoretical 30-minute slot start times for the given date.
+     * Return theoretical slot start times for the given date.
+     *
+     * $durationMinutes controls the slot length and therefore the cutoff:
+     *   - 30 (default): last valid start = end_time - 30 min
+     *   - 60:           last valid start = end_time - 60 min
      *
      * Returns an array of Carbon instances (in Europe/Sofia timezone),
      * or an empty array when the day is closed or falls inside a closure.
      *
      * @return Carbon[]
      */
-    public function slotsForDate(Carbon|string $date): array
+    public function slotsForDate(Carbon|string $date, int $durationMinutes = self::SLOT_MINUTES): array
     {
         $day = Carbon::parse($date, self::TIMEZONE)->startOfDay();
 
@@ -44,7 +48,8 @@ class ConsultationAvailabilityService
         return $this->generateSlots(
             $day,
             $workingHours->start_time,
-            $workingHours->end_time
+            $workingHours->end_time,
+            $durationMinutes
         );
     }
 
@@ -64,17 +69,23 @@ class ConsultationAvailabilityService
     }
 
     /**
-     * Generate slot start times from start_time to (end_time - SLOT_MINUTES).
+     * Generate slot start times from start_time to (end_time - $durationMinutes).
+     *
+     * The grid step is always 30 minutes (SLOT_MINUTES).
+     * The cutoff depends on the requested duration so that no slot overflows
+     * the working day:
+     *   - 30 min: last start = end_time - 30 min
+     *   - 60 min: last start = end_time - 60 min
      *
      * @return Carbon[]
      */
-    private function generateSlots(Carbon $day, string $startTime, string $endTime): array
+    private function generateSlots(Carbon $day, string $startTime, string $endTime, int $durationMinutes = self::SLOT_MINUTES): array
     {
         [$sh, $sm] = array_map('intval', explode(':', $startTime));
         [$eh, $em] = array_map('intval', explode(':', $endTime));
 
         $cursor  = $day->copy()->setTime($sh, $sm, 0);
-        $cutoff  = $day->copy()->setTime($eh, $em, 0)->subMinutes(self::SLOT_MINUTES);
+        $cutoff  = $day->copy()->setTime($eh, $em, 0)->subMinutes($durationMinutes);
 
         $slots = [];
 

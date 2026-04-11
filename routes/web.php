@@ -4,7 +4,9 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\ConsultationClosureController;
 use App\Http\Controllers\Admin\ConsultationServiceController;
 use App\Http\Controllers\Admin\ConsultationWorkingHoursController;
+use App\Http\Controllers\Admin\ChatBookingController;
 use App\Http\Controllers\Admin\PhoneBookingController;
+use App\Http\Controllers\Admin\ViberBookingController;
 use App\Http\Controllers\Admin\WrittenConsultationRequestController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
@@ -20,7 +22,9 @@ use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ChatConsultationController;
 use App\Http\Controllers\PhoneConsultationController;
+use App\Http\Controllers\ViberConsultationController;
 use App\Http\Controllers\WrittenConsultationController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +57,14 @@ Route::get('/consultation/phone', [PhoneConsultationController::class, 'show'])-
 Route::get('/consultation/phone/slots', [PhoneConsultationController::class, 'slots'])->name('phone-consultation.slots')->middleware('throttle:60,1');
 Route::post('/consultation/phone', [PhoneConsultationController::class, 'submit'])->name('phone-consultation.submit')->middleware('throttle:phone-consultation');
 Route::get('/consultation/phone/success/{token}', [PhoneConsultationController::class, 'success'])->name('phone-consultation.success');
+Route::get('/consultation/viber', [ViberConsultationController::class, 'show'])->name('viber-consultation.show');
+Route::get('/consultation/viber/slots', [ViberConsultationController::class, 'slots'])->name('viber-consultation.slots')->middleware('throttle:60,1');
+Route::post('/consultation/viber', [ViberConsultationController::class, 'submit'])->name('viber-consultation.submit')->middleware('throttle:viber-consultation');
+Route::get('/consultation/viber/success/{token}', [ViberConsultationController::class, 'success'])->name('viber-consultation.success');
+Route::get('/consultation/chat', [ChatConsultationController::class, 'show'])->name('chat-consultation.show');
+Route::get('/consultation/chat/slots', [ChatConsultationController::class, 'slots'])->name('chat-consultation.slots')->middleware('throttle:60,1');
+Route::post('/consultation/chat', [ChatConsultationController::class, 'submit'])->name('chat-consultation.submit')->middleware('throttle:chat-consultation');
+Route::get('/consultation/chat/success/{token}', [ChatConsultationController::class, 'success'])->name('chat-consultation.success');
 Route::get('/consultation/written', [WrittenConsultationController::class, 'show'])->name('written-consultation.show');
 Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
 Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
@@ -135,6 +147,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('phone-bookings', [PhoneBookingController::class, 'index'])->name('phone-bookings.index');
         Route::get('phone-bookings/{phoneBooking}', [PhoneBookingController::class, 'show'])->name('phone-bookings.show');
+
+        Route::get('viber-bookings', [ViberBookingController::class, 'index'])->name('viber-bookings.index');
+        Route::get('viber-bookings/{viberBooking}', [ViberBookingController::class, 'show'])->name('viber-bookings.show');
+
+        Route::get('chat-bookings', [ChatBookingController::class, 'index'])->name('chat-bookings.index');
+        Route::get('chat-bookings/{chatBooking}', [ChatBookingController::class, 'show'])->name('chat-bookings.show');
 
         Route::get('written-consultations', [WrittenConsultationRequestController::class, 'index'])->name('written-consultations.index');
         Route::get('written-consultations/{writtenConsultationRequest}', [WrittenConsultationRequestController::class, 'show'])->name('written-consultations.show');
