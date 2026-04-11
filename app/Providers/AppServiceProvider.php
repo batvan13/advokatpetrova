@@ -44,5 +44,15 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('contact-form', fn (Request $request) =>
             Limit::perMinutes(10, 5)->by($request->ip())
         );
+
+        // 5 written consultation submissions per 10 minutes per IP
+        RateLimiter::for('written-consultation', fn (Request $request) =>
+            Limit::perMinutes(10, 5)->by($request->ip())
+        );
+
+        // 5 phone consultation booking submissions per 10 minutes per IP
+        RateLimiter::for('phone-consultation', fn (Request $request) =>
+            Limit::perMinutes(10, 5)->by($request->ip())
+        );
     }
 }

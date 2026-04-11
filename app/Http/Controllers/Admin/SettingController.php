@@ -28,6 +28,8 @@ class SettingController extends Controller
             'facebook_url'    => ['nullable', 'url', 'max:255'],
             'instagram_url'   => ['nullable', 'url', 'max:255'],
             'linkedin_url'    => ['nullable', 'url', 'max:255'],
+            'consultation_phone_number' => ['nullable', 'string', 'max:50'],
+            'consultation_viber_number' => ['nullable', 'string', 'max:50'],
         ]);
 
         foreach ($validated as $key => $value) {

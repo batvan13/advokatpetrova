@@ -81,6 +81,38 @@
                 Консултации
             </a>
 
+            <a href="{{ route('admin.written-consultations.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.written-consultations.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Писмени конс.
+            </a>
+
+            <a href="{{ route('admin.phone-bookings.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.phone-bookings.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Тел. консултации
+            </a>
+
+            <a href="{{ route('admin.working-hours.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.working-hours.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Работно време
+            </a>
+
+            <a href="{{ route('admin.closures.index') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
+                      {{ request()->routeIs('admin.closures.*')
+                          ? 'bg-gray-900 text-white font-medium'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                Затворени периоди
+            </a>
+
             <a href="{{ route('admin.inquiries.index') }}"
                class="flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors
                       {{ request()->routeIs('admin.inquiries.*')

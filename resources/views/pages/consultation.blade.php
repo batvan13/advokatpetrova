@@ -19,7 +19,7 @@
 
         {{-- Dark overlay --}}
         <div
-            class="absolute inset-0 bg-gradient-to-b from-petrova-deep/90 via-petrova-deep/80 to-petrova-main/95"
+            class="absolute inset-0 bg-gradient-to-b from-petrova-deep/98 via-petrova-deep/95 to-petrova-main"
             aria-hidden="true"
         ></div>
 
@@ -104,7 +104,7 @@
                     </div>
 
                     <div class="mt-5">
-                        <a href="{{ route('contacts') }}"
+                        <a href="{{ route('phone-consultation.show') }}"
                            class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
                             Запазете час
                         </a>
@@ -185,14 +185,14 @@
                         @endif
                     </div>
 
-                    <div class="mt-5">
-                        <a href="{{ route('contacts') }}"
-                           class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
-                            Изпратете запитване
-                        </a>
-                    </div>
+                        <div class="mt-5">
+                            <a href="{{ route('written-consultation.show') }}"
+                               class="block w-full rounded bg-petrova-gold px-4 py-2.5 text-center text-sm font-semibold text-petrova-deep transition hover:bg-petrova-gold-hover">
+                                Изпратете запитване
+                            </a>
+                        </div>
 
-                </article>
+                    </article>
 
                 {{-- VIDEO --}}
                 @php $video = $consultationPricing['video'] ?? null; @endphp

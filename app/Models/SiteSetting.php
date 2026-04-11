@@ -18,6 +18,8 @@ class SiteSetting extends Model
         'facebook_url',
         'instagram_url',
         'linkedin_url',
+        'consultation_phone_number',
+        'consultation_viber_number',
     ];
 
     public static function get(string $key, $default = null)

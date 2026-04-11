@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\ConsultationClosureController;
 use App\Http\Controllers\Admin\ConsultationServiceController;
+use App\Http\Controllers\Admin\ConsultationWorkingHoursController;
+use App\Http\Controllers\Admin\PhoneBookingController;
+use App\Http\Controllers\Admin\WrittenConsultationRequestController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -16,6 +20,8 @@ use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PhoneConsultationController;
+use App\Http\Controllers\WrittenConsultationController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +49,13 @@ Route::get('/politika-za-biskvitki', [PageController::class, 'cookiePolicy'])->n
 Route::get('/politika-za-poveritelnost', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/consultation/success', [PageController::class, 'consultationSuccess'])->name('consultation.success');
 Route::get('/consultation', [PageController::class, 'consultation'])->name('consultation');
+Route::get('/consultation/phone', [PhoneConsultationController::class, 'show'])->name('phone-consultation.show');
+Route::get('/consultation/phone/slots', [PhoneConsultationController::class, 'slots'])->name('phone-consultation.slots')->middleware('throttle:60,1');
+Route::post('/consultation/phone', [PhoneConsultationController::class, 'submit'])->name('phone-consultation.submit')->middleware('throttle:phone-consultation');
+Route::get('/consultation/phone/success/{token}', [PhoneConsultationController::class, 'success'])->name('phone-consultation.success');
+Route::get('/consultation/written', [WrittenConsultationController::class, 'show'])->name('written-consultation.show');
+Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
+Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
 Route::post('/contact', [InquiryController::class, 'submit'])->name('inquiry.submit')->middleware('throttle:contact-form');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', function () {
@@ -112,5 +125,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('consultation-services', ConsultationServiceController::class)
             ->only(['index', 'edit', 'update'])
             ->parameters(['consultation-services' => 'consultationService']);
+
+        Route::resource('working-hours', ConsultationWorkingHoursController::class)
+            ->only(['index', 'edit', 'update'])
+            ->parameters(['working-hours' => 'workingHour']);
+
+        Route::resource('closures', ConsultationClosureController::class)
+            ->except(['show']);
+
+        Route::get('phone-bookings', [PhoneBookingController::class, 'index'])->name('phone-bookings.index');
+        Route::get('phone-bookings/{phoneBooking}', [PhoneBookingController::class, 'show'])->name('phone-bookings.show');
+
+        Route::get('written-consultations', [WrittenConsultationRequestController::class, 'index'])->name('written-consultations.index');
+        Route::get('written-consultations/{writtenConsultationRequest}', [WrittenConsultationRequestController::class, 'show'])->name('written-consultations.show');
+        Route::patch('written-consultations/{writtenConsultationRequest}/mark-answered', [WrittenConsultationRequestController::class, 'markAnswered'])->name('written-consultations.mark-answered');
+        Route::get('written-consultations/{writtenConsultationRequest}/attachments/{attachment}', [WrittenConsultationRequestController::class, 'download'])->name('written-consultations.download');
     });
 });
