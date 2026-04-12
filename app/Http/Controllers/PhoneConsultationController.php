@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BookingConfirmationMail;
+use App\Mail\BookingNotificationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
+use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
 use Carbon\Carbon;
@@ -12,6 +15,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class PhoneConsultationController extends Controller
@@ -225,6 +230,8 @@ class PhoneConsultationController extends Controller
             throw $e; // re-throw unrelated DB errors
         }
 
+        $this->sendBookingEmails($booking);
+
         return redirect()->route('phone-consultation.success', [
             'token' => $booking->public_token,
         ]);
@@ -245,5 +252,39 @@ class PhoneConsultationController extends Controller
         }
 
         return view('pages.phone-consultation-success', compact('booking'));
+    }
+
+    // ── Mail ──────────────────────────────────────────────────────────
+
+    private function sendBookingEmails(PhoneConsultationBooking $booking): void
+    {
+        $contactNumber = SiteSetting::get('consultation_phone_number');
+        $contactEmail  = SiteSetting::get('contact_email');
+        $successUrl    = route('phone-consultation.success', ['token' => $booking->public_token]);
+        $adminUrl      = route('admin.phone-bookings.show', $booking);
+
+        try {
+            Mail::to($booking->email)->send(
+                new BookingConfirmationMail($booking, 'phone', $contactNumber, $successUrl, $contactEmail)
+            );
+        } catch (\Throwable $e) {
+            Log::error('Phone booking client mail failed', [
+                'booking_id' => $booking->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
+        if ($contactEmail) {
+            try {
+                Mail::to($contactEmail)->send(
+                    new BookingNotificationMail($booking, 'phone', $adminUrl)
+                );
+            } catch (\Throwable $e) {
+                Log::error('Phone booking admin mail failed', [
+                    'booking_id' => $booking->id,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }

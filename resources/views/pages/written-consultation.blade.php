@@ -127,14 +127,14 @@
                                 <svg class="mx-auto h-9 w-9 text-petrova-gold/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                                 </svg>
-                                <p class="mt-3 text-sm italic font-medium text-petrova-secondary">Изберете файл или го пуснете тук</p>
+                                <p class="mt-3 text-sm italic font-medium text-petrova-secondary">Изберете файлове или ги пуснете тук</p>
                                 <p class="mt-1 text-xs text-petrova-secondary/60">JPEG, PNG, PDF, DOC, DOCX формати, до 5 файла / 10MB всеки</p>
                                 <button
                                     type="button"
                                     id="wcf-pick-btn"
                                     class="mt-4 inline-flex items-center rounded bg-petrova-gold px-5 py-2 text-sm font-semibold text-petrova-deep hover:bg-petrova-gold-hover transition-colors"
                                 >
-                                    Изберете файл
+                                    Изберете файлове
                                 </button>
                                 <input
                                     type="file"
@@ -589,10 +589,45 @@
     });
 
     // ── File upload ──────────────────────────────────────────────────
+    // Uses a DataTransfer accumulator so multiple pick/drop sessions
+    // merge into one list (up to 5 files) instead of replacing it.
     var pickBtn   = document.getElementById('wcf-pick-btn');
     var fileInput = document.getElementById('wcf-file-input');
     var dropZone  = document.getElementById('wcf-drop-zone');
     var fileList  = document.getElementById('wcf-file-list');
+
+    // Accumulated FileList maintained via DataTransfer.
+    var accumulated = new DataTransfer();
+
+    function mergeFiles(newFiles) {
+        for (var i = 0; i < newFiles.length; i++) {
+            // Skip duplicates by name + size (best-effort dedup).
+            var duplicate = false;
+            for (var j = 0; j < accumulated.files.length; j++) {
+                if (accumulated.files[j].name === newFiles[i].name &&
+                    accumulated.files[j].size === newFiles[i].size) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate && accumulated.files.length < 5) {
+                accumulated.items.add(newFiles[i]);
+            }
+        }
+        // Push the merged set back into the real input so it submits correctly.
+        fileInput.files = accumulated.files;
+        renderFileList(accumulated.files);
+    }
+
+    function removeFile(index) {
+        var fresh = new DataTransfer();
+        for (var i = 0; i < accumulated.files.length; i++) {
+            if (i !== index) fresh.items.add(accumulated.files[i]);
+        }
+        accumulated = fresh;
+        fileInput.files = accumulated.files;
+        renderFileList(accumulated.files);
+    }
 
     pickBtn.addEventListener('click', function () {
         fileInput.click();
@@ -614,16 +649,15 @@
     dropZone.addEventListener('drop', function (e) {
         e.preventDefault();
         dropZone.classList.remove('border-petrova-gold/70');
-
-        var dt = e.dataTransfer;
-        if (dt && dt.files.length) {
-            fileInput.files = dt.files;
-            renderFileList(dt.files);
+        if (e.dataTransfer && e.dataTransfer.files.length) {
+            mergeFiles(e.dataTransfer.files);
         }
     });
 
+    // On each native picker open, merge the new selection into the accumulator.
+    // Reset the input value first so the same file can be re-added after removal.
     fileInput.addEventListener('change', function () {
-        renderFileList(fileInput.files);
+        mergeFiles(fileInput.files);
     });
 
     function renderFileList(files) {
@@ -634,11 +668,26 @@
         }
         fileList.classList.remove('hidden');
         for (var i = 0; i < files.length; i++) {
-            var li = document.createElement('li');
-            li.className = 'flex items-center gap-2 text-petrova-secondary/80';
-            li.innerHTML = '<svg class="h-4 w-4 text-petrova-gold/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>'
-                + files[i].name;
-            fileList.appendChild(li);
+            (function (idx) {
+                var li = document.createElement('li');
+                li.className = 'flex items-center justify-between gap-2 text-petrova-secondary/80';
+
+                var nameSpan = document.createElement('span');
+                nameSpan.className = 'flex items-center gap-2 truncate';
+                nameSpan.innerHTML = '<svg class="h-4 w-4 text-petrova-gold/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>'
+                    + '<span class="truncate">' + files[idx].name + '</span>';
+
+                var removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'flex-shrink-0 text-petrova-secondary/40 hover:text-red-400 transition-colors';
+                removeBtn.setAttribute('aria-label', 'Премахни файл');
+                removeBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+                removeBtn.addEventListener('click', function () { removeFile(idx); });
+
+                li.appendChild(nameSpan);
+                li.appendChild(removeBtn);
+                fileList.appendChild(li);
+            }(i));
         }
     }
 

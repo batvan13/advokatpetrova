@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BookingConfirmationMail;
+use App\Mail\BookingNotificationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ChatSession;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
+use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
 use Carbon\Carbon;
@@ -13,6 +16,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class ChatConsultationController extends Controller
@@ -240,6 +245,8 @@ class ChatConsultationController extends Controller
             throw $e;
         }
 
+        $this->sendBookingEmails($booking);
+
         return redirect()->route('chat-consultation.success', [
             'token' => $booking->public_token,
         ]);
@@ -262,5 +269,38 @@ class ChatConsultationController extends Controller
         }
 
         return view('pages.chat-consultation-success', compact('booking'));
+    }
+
+    // ── Mail ──────────────────────────────────────────────────────────
+
+    private function sendBookingEmails(ChatConsultationBooking $booking): void
+    {
+        $contactEmail = SiteSetting::get('contact_email');
+        $successUrl   = route('chat-consultation.success', ['token' => $booking->public_token]);
+        $adminUrl     = route('admin.chat-bookings.show', $booking);
+
+        try {
+            Mail::to($booking->email)->send(
+                new BookingConfirmationMail($booking, 'chat', null, $successUrl, $contactEmail)
+            );
+        } catch (\Throwable $e) {
+            Log::error('Chat booking client mail failed', [
+                'booking_id' => $booking->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
+        if ($contactEmail) {
+            try {
+                Mail::to($contactEmail)->send(
+                    new BookingNotificationMail($booking, 'chat', $adminUrl)
+                );
+            } catch (\Throwable $e) {
+                Log::error('Chat booking admin mail failed', [
+                    'booking_id' => $booking->id,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }

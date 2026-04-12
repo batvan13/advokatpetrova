@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WrittenRequestConfirmationMail;
+use App\Mail\WrittenRequestNotificationMail;
 use App\Models\ConsultationService;
+use App\Models\SiteSetting;
 use App\Models\WrittenConsultationAttachment;
 use App\Models\WrittenConsultationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class WrittenConsultationController extends Controller
@@ -110,6 +115,8 @@ class WrittenConsultationController extends Controller
             }
         }
 
+        $this->sendRequestEmails($consultationRequest);
+
         return redirect()->route('written-consultation.success', [
             'ref' => $consultationRequest->public_token,
         ]);
@@ -134,5 +141,41 @@ class WrittenConsultationController extends Controller
         return view('pages.written-consultation-success', [
             'consultationRequest' => $consultationRequest,
         ]);
+    }
+
+    // ── Mail ──────────────────────────────────────────────────────────
+
+    private function sendRequestEmails(WrittenConsultationRequest $consultationRequest): void
+    {
+        $contactEmail = SiteSetting::get('contact_email');
+        $successUrl   = route('written-consultation.success', ['ref' => $consultationRequest->public_token]);
+        $adminUrl     = route('admin.written-consultations.show', $consultationRequest);
+
+        // Eager-load attachments so the template can count them without an extra query.
+        $consultationRequest->loadMissing('attachments');
+
+        try {
+            Mail::to($consultationRequest->email)->send(
+                new WrittenRequestConfirmationMail($consultationRequest, $successUrl, $contactEmail)
+            );
+        } catch (\Throwable $e) {
+            Log::error('Written consultation client mail failed', [
+                'request_id' => $consultationRequest->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
+        if ($contactEmail) {
+            try {
+                Mail::to($contactEmail)->send(
+                    new WrittenRequestNotificationMail($consultationRequest, $adminUrl)
+                );
+            } catch (\Throwable $e) {
+                Log::error('Written consultation admin mail failed', [
+                    'request_id' => $consultationRequest->id,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }

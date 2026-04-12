@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BookingConfirmationMail;
+use App\Mail\BookingNotificationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
+use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
 use Carbon\Carbon;
@@ -12,6 +15,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class ViberConsultationController extends Controller
@@ -251,6 +256,8 @@ class ViberConsultationController extends Controller
             throw $e;
         }
 
+        $this->sendBookingEmails($booking);
+
         return redirect()->route('viber-consultation.success', [
             'token' => $booking->public_token,
         ]);
@@ -271,5 +278,39 @@ class ViberConsultationController extends Controller
         }
 
         return view('pages.viber-consultation-success', compact('booking'));
+    }
+
+    // ── Mail ──────────────────────────────────────────────────────────
+
+    private function sendBookingEmails(ViberConsultationBooking $booking): void
+    {
+        $contactNumber = SiteSetting::get('consultation_viber_number');
+        $contactEmail  = SiteSetting::get('contact_email');
+        $successUrl    = route('viber-consultation.success', ['token' => $booking->public_token]);
+        $adminUrl      = route('admin.viber-bookings.show', $booking);
+
+        try {
+            Mail::to($booking->email)->send(
+                new BookingConfirmationMail($booking, 'viber', $contactNumber, $successUrl, $contactEmail)
+            );
+        } catch (\Throwable $e) {
+            Log::error('Viber booking client mail failed', [
+                'booking_id' => $booking->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
+        if ($contactEmail) {
+            try {
+                Mail::to($contactEmail)->send(
+                    new BookingNotificationMail($booking, 'viber', $adminUrl)
+                );
+            } catch (\Throwable $e) {
+                Log::error('Viber booking admin mail failed', [
+                    'booking_id' => $booking->id,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }

@@ -160,3 +160,51 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('written-consultations/{writtenConsultationRequest}/attachments/{attachment}', [WrittenConsultationRequestController::class, 'download'])->name('written-consultations.download');
     });
 });
+
+// ── TEMPORARY: SMTP transport smoke-test ─────────────────────────────────────
+// REMOVE THIS ROUTE before going to production.
+// Only active when APP_ENV != production.
+if (app()->environment() !== 'production') {
+    Route::get('/_test/mail', function () {
+        if (! request()->hasValidSignature() && ! app()->isLocal()) {
+            abort(403);
+        }
+
+        $to      = request()->query('to', config('mail.from.address'));
+        $subject = 'PETROVA — SMTP smoke test ' . now()->format('Y-m-d H:i:s');
+        $body    = implode("\n", [
+            'This is an automated SMTP transport smoke-test.',
+            '',
+            'Sent at : ' . now('Europe/Sofia')->toDateTimeString(),
+            'Mailer  : ' . config('mail.default'),
+            'Host    : ' . config('mail.mailers.smtp.host'),
+            'Port    : ' . config('mail.mailers.smtp.port'),
+            'From    : ' . config('mail.from.address'),
+            'To      : ' . $to,
+            '',
+            'If you see this in Mailtrap, the SMTP transport is working correctly.',
+        ]);
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw($body, function ($message) use ($to, $subject) {
+                $message->to($to)->subject($subject);
+            });
+
+            return response()->json([
+                'status'  => 'ok',
+                'message' => 'Mail dispatched successfully.',
+                'to'      => $to,
+                'subject' => $subject,
+                'mailer'  => config('mail.default'),
+                'host'    => config('mail.mailers.smtp.host'),
+                'port'    => config('mail.mailers.smtp.port'),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'class'   => get_class($e),
+            ], 500);
+        }
+    });
+}
