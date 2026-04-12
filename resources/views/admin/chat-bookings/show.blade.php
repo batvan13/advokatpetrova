@@ -93,6 +93,19 @@
                     <span class="text-gray-700">{{ $chatBooking->created_at->setTimezone('Europe/Sofia')->format('d.m.Y H:i') }}</span>
                 </div>
 
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Google Calendar</span>
+                    <span>
+                        @if ($chatBooking->google_event_id)
+                            <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">Синхронизиран</span>
+                        @elseif ($chatBooking->google_sync_status === 'failed')
+                            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">Неуспешна синхронизация</span>
+                        @else
+                            <span class="text-gray-400">—</span>
+                        @endif
+                    </span>
+                </div>
+
             </div>
 
         </div>

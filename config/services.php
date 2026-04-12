@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'google_calendar' => [
+        'calendar_id'      => env('GOOGLE_CALENDAR_ID', ''),
+        'credentials_path' => env('GOOGLE_SERVICE_ACCOUNT_JSON', ''),
+    ],
+
 ];

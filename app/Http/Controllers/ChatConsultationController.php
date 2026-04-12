@@ -11,6 +11,7 @@ use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
+use App\Support\GoogleCalendarService;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +24,8 @@ use Illuminate\Validation\ValidationException;
 class ChatConsultationController extends Controller
 {
     public function __construct(
-        private readonly ConsultationAvailabilityService $availability
+        private readonly ConsultationAvailabilityService $availability,
+        private readonly GoogleCalendarService           $calendar,
     ) {}
 
     // ── Page ─────────────────────────────────────────────────────────
@@ -246,6 +248,7 @@ class ChatConsultationController extends Controller
         }
 
         $this->sendBookingEmails($booking);
+        $this->syncToGoogleCalendar($booking);
 
         return redirect()->route('chat-consultation.success', [
             'token' => $booking->public_token,
@@ -269,6 +272,37 @@ class ChatConsultationController extends Controller
         }
 
         return view('pages.chat-consultation-success', compact('booking'));
+    }
+
+    // ── Google Calendar ───────────────────────────────────────────────
+
+    private function syncToGoogleCalendar(ChatConsultationBooking $booking): void
+    {
+        if (! empty($booking->google_event_id)) {
+            return;
+        }
+
+        try {
+            $eventId = $this->calendar->createEvent($booking, 'chat');
+
+            $booking->update([
+                'google_event_id'    => $eventId,
+                'google_sync_status' => ChatConsultationBooking::GOOGLE_SYNC_SYNCED,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Google Calendar sync failed — chat booking', [
+                'booking_id' => $booking->id,
+                'starts_at'  => $booking->starts_at->toIso8601String(),
+                'error'      => $e->getMessage(),
+                'error_class'=> get_class($e),
+            ]);
+
+            try {
+                $booking->update(['google_sync_status' => ChatConsultationBooking::GOOGLE_SYNC_FAILED]);
+            } catch (\Throwable) {
+                // Status update failure must not propagate.
+            }
+        }
     }
 
     // ── Mail ──────────────────────────────────────────────────────────

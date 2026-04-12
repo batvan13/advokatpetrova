@@ -21,6 +21,8 @@ class PhoneConsultationBooking extends Model
         'price_eur',
         'price_bgn',
         'show_bgn_price',
+        'google_event_id',
+        'google_sync_status',
     ];
 
     protected $casts = [
@@ -33,6 +35,9 @@ class PhoneConsultationBooking extends Model
 
     public const STATUS_BOOKED    = 'booked';
     public const STATUS_COMPLETED = 'completed';
+
+    public const GOOGLE_SYNC_SYNCED = 'synced';
+    public const GOOGLE_SYNC_FAILED = 'failed';
 
     /**
      * Statuses that occupy a slot and must be considered when checking availability.
