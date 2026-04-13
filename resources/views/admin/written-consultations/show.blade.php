@@ -6,7 +6,12 @@
 
     <div class="mb-8 flex items-center justify-between">
         <div>
-            <h1 class="text-xl font-semibold text-gray-900">Заявка #{{ $request->id }}</h1>
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-semibold text-gray-900">Заявка #{{ $request->id }}</h1>
+                @if ($request->archived_at)
+                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">Архивирана</span>
+                @endif
+            </div>
             <p class="mt-1 text-sm text-gray-600">
                 {{ $request->fullName() }} —
                 {{ ($request->submitted_at ?? $request->created_at)->format('d.m.Y, H:i') }}
@@ -21,6 +26,16 @@
     @if (session('success'))
         <div class="mb-6 px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-700">
             {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-6 px-4 py-3 bg-white border border-red-200 rounded-lg text-sm text-red-700">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if (session('info'))
+        <div class="mb-6 px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-500">
+            {{ session('info') }}
         </div>
     @endif
 
@@ -150,5 +165,19 @@
         </div>
 
     </div>
+
+    @if (! $request->archived_at && $request->status === \App\Models\WrittenConsultationRequest::STATUS_ANSWERED)
+        <div class="mt-6 flex justify-end">
+            <form action="{{ route('admin.written-consultations.archive', $request) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded hover:border-gray-400 hover:text-gray-700 transition-colors"
+                        onclick="return confirm('Архивирай тази заявка? Тя ще изчезне от активния списък.')">
+                    Архивирай
+                </button>
+            </form>
+        </div>
+    @endif
 
 @endsection

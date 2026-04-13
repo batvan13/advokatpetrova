@@ -147,16 +147,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('phone-bookings', [PhoneBookingController::class, 'index'])->name('phone-bookings.index');
         Route::get('phone-bookings/{phoneBooking}', [PhoneBookingController::class, 'show'])->name('phone-bookings.show');
+        Route::patch('phone-bookings/{phoneBooking}/complete', [PhoneBookingController::class, 'complete'])->name('phone-bookings.complete');
+        Route::patch('phone-bookings/{phoneBooking}/archive', [PhoneBookingController::class, 'archive'])->name('phone-bookings.archive');
 
         Route::get('viber-bookings', [ViberBookingController::class, 'index'])->name('viber-bookings.index');
         Route::get('viber-bookings/{viberBooking}', [ViberBookingController::class, 'show'])->name('viber-bookings.show');
+        Route::patch('viber-bookings/{viberBooking}/complete', [ViberBookingController::class, 'complete'])->name('viber-bookings.complete');
+        Route::patch('viber-bookings/{viberBooking}/archive', [ViberBookingController::class, 'archive'])->name('viber-bookings.archive');
 
         Route::get('chat-bookings', [ChatBookingController::class, 'index'])->name('chat-bookings.index');
         Route::get('chat-bookings/{chatBooking}', [ChatBookingController::class, 'show'])->name('chat-bookings.show');
+        Route::patch('chat-bookings/{chatBooking}/complete', [ChatBookingController::class, 'complete'])->name('chat-bookings.complete');
+        Route::patch('chat-bookings/{chatBooking}/archive', [ChatBookingController::class, 'archive'])->name('chat-bookings.archive');
 
         Route::get('written-consultations', [WrittenConsultationRequestController::class, 'index'])->name('written-consultations.index');
         Route::get('written-consultations/{writtenConsultationRequest}', [WrittenConsultationRequestController::class, 'show'])->name('written-consultations.show');
         Route::patch('written-consultations/{writtenConsultationRequest}/mark-answered', [WrittenConsultationRequestController::class, 'markAnswered'])->name('written-consultations.mark-answered');
+        Route::patch('written-consultations/{writtenConsultationRequest}/archive', [WrittenConsultationRequestController::class, 'archive'])->name('written-consultations.archive');
         Route::get('written-consultations/{writtenConsultationRequest}/attachments/{attachment}', [WrittenConsultationRequestController::class, 'download'])->name('written-consultations.download');
     });
 });

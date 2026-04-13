@@ -23,6 +23,7 @@ class PhoneConsultationBooking extends Model
         'show_bgn_price',
         'google_event_id',
         'google_sync_status',
+        'archived_at',
     ];
 
     protected $casts = [
@@ -31,6 +32,7 @@ class PhoneConsultationBooking extends Model
         'price_eur'      => 'decimal:2',
         'price_bgn'      => 'decimal:2',
         'show_bgn_price' => 'boolean',
+        'archived_at'    => 'datetime',
     ];
 
     public const STATUS_BOOKED    = 'booked';

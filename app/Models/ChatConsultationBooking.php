@@ -24,6 +24,7 @@ class ChatConsultationBooking extends Model
         'show_bgn_price',
         'google_event_id',
         'google_sync_status',
+        'archived_at',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class ChatConsultationBooking extends Model
         'price_eur'      => 'decimal:2',
         'price_bgn'      => 'decimal:2',
         'show_bgn_price' => 'boolean',
+        'archived_at'    => 'datetime',
     ];
 
     /** Chat is always 30 minutes. */

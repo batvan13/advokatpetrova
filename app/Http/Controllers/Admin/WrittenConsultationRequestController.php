@@ -13,6 +13,7 @@ class WrittenConsultationRequestController extends Controller
     public function index()
     {
         $requests = WrittenConsultationRequest::query()
+            ->whereNull('archived_at')
             ->orderByDesc('submitted_at')
             ->orderByDesc('id')
             ->paginate(20)
@@ -39,6 +40,27 @@ class WrittenConsultationRequestController extends Controller
         return redirect()
             ->route('admin.written-consultations.show', $writtenConsultationRequest)
             ->with('success', 'Заявката е маркирана като отговорена.');
+    }
+
+    public function archive(WrittenConsultationRequest $writtenConsultationRequest)
+    {
+        if ($writtenConsultationRequest->archived_at !== null) {
+            return redirect()
+                ->route('admin.written-consultations.show', $writtenConsultationRequest)
+                ->with('info', 'Заявката е вече архивирана.');
+        }
+
+        if ($writtenConsultationRequest->status !== WrittenConsultationRequest::STATUS_ANSWERED) {
+            return redirect()
+                ->route('admin.written-consultations.show', $writtenConsultationRequest)
+                ->with('error', 'Само отговорени заявки могат да бъдат архивирани.');
+        }
+
+        $writtenConsultationRequest->update(['archived_at' => now()]);
+
+        return redirect()
+            ->route('admin.written-consultations.show', $writtenConsultationRequest)
+            ->with('success', 'Заявката е архивирана успешно.');
     }
 
     public function download(WrittenConsultationRequest $writtenConsultationRequest, int $attachmentId): StreamedResponse

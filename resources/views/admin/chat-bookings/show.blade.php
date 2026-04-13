@@ -6,7 +6,12 @@
 
     <div class="mb-8 flex items-center justify-between">
         <div>
-            <h1 class="text-xl font-semibold text-gray-900">Чат консултация #{{ $chatBooking->id }}</h1>
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-semibold text-gray-900">Чат консултация #{{ $chatBooking->id }}</h1>
+                @if ($chatBooking->archived_at)
+                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">Архивиран</span>
+                @endif
+            </div>
             <p class="mt-1 text-sm text-gray-500">
                 {{ $chatBooking->starts_at->setTimezone('Europe/Sofia')->format('d.m.Y') }}
                 &mdash;
@@ -21,6 +26,22 @@
             ← Назад
         </a>
     </div>
+
+    @if (session('success'))
+        <div class="mb-6 px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-700">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-6 px-4 py-3 bg-white border border-red-200 rounded-lg text-sm text-red-700">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if (session('info'))
+        <div class="mb-6 px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-500">
+            {{ session('info') }}
+        </div>
+    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -200,5 +221,31 @@
         </div>
 
     </div>
+
+    @if (! $chatBooking->archived_at)
+        <div class="mt-6 flex justify-end">
+            @if ($chatBooking->status === \App\Models\ChatConsultationBooking::STATUS_BOOKED)
+                <form action="{{ route('admin.chat-bookings.complete', $chatBooking) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:border-gray-500 hover:text-gray-900 transition-colors"
+                            onclick="return confirm('Маркирай консултацията като проведена?')">
+                        Маркирай като проведена
+                    </button>
+                </form>
+            @elseif ($chatBooking->status === \App\Models\ChatConsultationBooking::STATUS_COMPLETED)
+                <form action="{{ route('admin.chat-bookings.archive', $chatBooking) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded hover:border-gray-400 hover:text-gray-700 transition-colors"
+                            onclick="return confirm('Архивирай това записване? То ще изчезне от активния списък.')">
+                        Архивирай
+                    </button>
+                </form>
+            @endif
+        </div>
+    @endif
 
 @endsection

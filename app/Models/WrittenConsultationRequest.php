@@ -22,6 +22,7 @@ class WrittenConsultationRequest extends Model
         'show_bgn_price',
         'submitted_at',
         'public_token',
+        'archived_at',
     ];
 
     protected static function booted(): void
@@ -38,6 +39,7 @@ class WrittenConsultationRequest extends Model
         'price_bgn'      => 'decimal:2',
         'show_bgn_price' => 'boolean',
         'submitted_at'   => 'datetime',
+        'archived_at'    => 'datetime',
     ];
 
     public const STATUS_SUBMITTED = 'submitted';
