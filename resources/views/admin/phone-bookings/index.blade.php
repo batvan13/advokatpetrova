@@ -4,9 +4,15 @@
 
 @section('content')
 
-    <div class="mb-8">
-        <h1 class="text-xl font-semibold text-gray-900">Телефонни консултации</h1>
-        <p class="mt-1 text-sm text-gray-500">Записани телефонни консултации.</p>
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-semibold text-gray-900">Телефонни консултации</h1>
+            <p class="mt-1 text-sm text-gray-500">Записани телефонни консултации.</p>
+        </div>
+        <a href="{{ route('admin.phone-bookings.archived') }}"
+           class="text-sm text-gray-400 hover:text-gray-900 transition-colors">
+            Архив →
+        </a>
     </div>
 
     @if ($bookings->isEmpty())

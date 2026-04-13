@@ -17,6 +17,16 @@ class ChatBookingController extends Controller
         return view('admin.chat-bookings.index', compact('bookings'));
     }
 
+    public function archiveIndex()
+    {
+        $bookings = ChatConsultationBooking::with('session')
+            ->whereNotNull('archived_at')
+            ->orderByDesc('archived_at')
+            ->paginate(25);
+
+        return view('admin.chat-bookings.archive', compact('bookings'));
+    }
+
     public function show(ChatConsultationBooking $chatBooking)
     {
         $chatBooking->load('session');
@@ -43,6 +53,22 @@ class ChatBookingController extends Controller
         return redirect()
             ->route('admin.chat-bookings.show', $chatBooking)
             ->with('success', 'Консултацията е маркирана като проведена.');
+    }
+
+    public function destroy(ChatConsultationBooking $chatBooking)
+    {
+        if ($chatBooking->archived_at === null) {
+            return redirect()
+                ->route('admin.chat-bookings.archived')
+                ->with('error', 'Само архивирани записвания могат да бъдат изтрити.');
+        }
+
+        $chatBooking->session?->delete();
+        $chatBooking->delete();
+
+        return redirect()
+            ->route('admin.chat-bookings.archived')
+            ->with('success', 'Записването е изтрито.');
     }
 
     public function archive(ChatConsultationBooking $chatBooking)

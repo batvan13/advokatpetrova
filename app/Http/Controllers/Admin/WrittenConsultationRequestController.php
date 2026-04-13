@@ -22,6 +22,18 @@ class WrittenConsultationRequestController extends Controller
         return view('admin.written-consultations.index', compact('requests'));
     }
 
+    public function archiveIndex()
+    {
+        $requests = WrittenConsultationRequest::query()
+            ->whereNotNull('archived_at')
+            ->orderByDesc('archived_at')
+            ->orderByDesc('id')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.written-consultations.archive', compact('requests'));
+    }
+
     public function show(WrittenConsultationRequest $writtenConsultationRequest)
     {
         $writtenConsultationRequest->load('attachments');
@@ -40,6 +52,27 @@ class WrittenConsultationRequestController extends Controller
         return redirect()
             ->route('admin.written-consultations.show', $writtenConsultationRequest)
             ->with('success', 'Заявката е маркирана като отговорена.');
+    }
+
+    public function destroy(WrittenConsultationRequest $writtenConsultationRequest)
+    {
+        if ($writtenConsultationRequest->archived_at === null) {
+            return redirect()
+                ->route('admin.written-consultations.archived')
+                ->with('error', 'Само архивирани заявки могат да бъдат изтрити.');
+        }
+
+        $writtenConsultationRequest->load('attachments');
+
+        foreach ($writtenConsultationRequest->attachments as $attachment) {
+            Storage::disk('local')->delete($attachment->path);
+        }
+
+        $writtenConsultationRequest->delete();
+
+        return redirect()
+            ->route('admin.written-consultations.archived')
+            ->with('success', 'Заявката е изтрита.');
     }
 
     public function archive(WrittenConsultationRequest $writtenConsultationRequest)

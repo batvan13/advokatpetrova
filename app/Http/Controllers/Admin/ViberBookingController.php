@@ -16,6 +16,15 @@ class ViberBookingController extends Controller
         return view('admin.viber-bookings.index', compact('bookings'));
     }
 
+    public function archiveIndex()
+    {
+        $bookings = ViberConsultationBooking::whereNotNull('archived_at')
+            ->orderByDesc('archived_at')
+            ->paginate(25);
+
+        return view('admin.viber-bookings.archive', compact('bookings'));
+    }
+
     public function show(ViberConsultationBooking $viberBooking)
     {
         return view('admin.viber-bookings.show', compact('viberBooking'));
@@ -40,6 +49,21 @@ class ViberBookingController extends Controller
         return redirect()
             ->route('admin.viber-bookings.show', $viberBooking)
             ->with('success', 'Консултацията е маркирана като проведена.');
+    }
+
+    public function destroy(ViberConsultationBooking $viberBooking)
+    {
+        if ($viberBooking->archived_at === null) {
+            return redirect()
+                ->route('admin.viber-bookings.archived')
+                ->with('error', 'Само архивирани записвания могат да бъдат изтрити.');
+        }
+
+        $viberBooking->delete();
+
+        return redirect()
+            ->route('admin.viber-bookings.archived')
+            ->with('success', 'Записването е изтрито.');
     }
 
     public function archive(ViberConsultationBooking $viberBooking)
