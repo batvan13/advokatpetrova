@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\ConsultationClosureController;
 use App\Http\Controllers\Admin\ConsultationServiceController;
@@ -159,6 +160,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('chat-bookings/{chatBooking}', [ChatBookingController::class, 'show'])->name('chat-bookings.show');
         Route::patch('chat-bookings/{chatBooking}/complete', [ChatBookingController::class, 'complete'])->name('chat-bookings.complete');
         Route::patch('chat-bookings/{chatBooking}/archive', [ChatBookingController::class, 'archive'])->name('chat-bookings.archive');
+
+        Route::get('admins', [AdminUserController::class, 'index'])->name('admins.index');
+        Route::get('admins/create', [AdminUserController::class, 'create'])->name('admins.create');
+        Route::post('admins', [AdminUserController::class, 'store'])->name('admins.store');
+        Route::get('admins/{admin}/edit', [AdminUserController::class, 'edit'])->name('admins.edit');
+        Route::put('admins/{admin}', [AdminUserController::class, 'update'])->name('admins.update');
+        Route::delete('admins/{admin}', [AdminUserController::class, 'destroy'])->name('admins.destroy');
 
         Route::get('written-consultations', [WrittenConsultationRequestController::class, 'index'])->name('written-consultations.index');
         Route::get('written-consultations/{writtenConsultationRequest}', [WrittenConsultationRequestController::class, 'show'])->name('written-consultations.show');

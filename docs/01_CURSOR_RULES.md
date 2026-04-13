@@ -84,3 +84,19 @@ Violation examples:
 - adding new dependency
 - changing data structure
 - modifying existing flow outside task
+
+## PAYMENT IMPLEMENTATION
+
+Before implementing any payment logic:
+
+1. Read:
+   → docs/07_PAYMENT_RULES.md
+
+2. DO NOT:
+   - invent rules
+   - change policies
+   - assume behavior
+
+3. MUST:
+   - follow rules exactly
+   - implement constraints as defined

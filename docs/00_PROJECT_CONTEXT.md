@@ -134,3 +134,10 @@ Changes NOT allowed without explicit approval:
 - new core models
 - changing relationships
 - altering data flow
+
+## PAYMENT SYSTEM
+
+Payment logic is defined in:
+→ docs/07_PAYMENT_RULES.md
+
+This document MUST be followed for all payment-related implementation.
