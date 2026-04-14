@@ -20,7 +20,7 @@
 
             {{-- Left: section text + optional CMS button --}}
             <div>
-                <h2 class="font-playfair text-3xl font-bold tracking-tight text-petrova-primary">
+                <h2 class="font-cormorant text-3xl font-bold tracking-tight text-petrova-primary">
                     {{ $section?->title ?? 'Контакти' }}
                 </h2>
 

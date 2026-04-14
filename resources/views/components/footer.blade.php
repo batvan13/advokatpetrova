@@ -11,7 +11,7 @@
     $footerServices = \App\Models\Service::active()->ordered()->get();
 @endphp
 
-<footer class="border-t border-white/10 bg-petrova-main font-playfair">
+<footer class="border-t border-white/10 bg-petrova-main">
     <div class="relative mx-auto max-w-6xl px-4 py-14 text-sm text-petrova-secondary">
 
         <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">

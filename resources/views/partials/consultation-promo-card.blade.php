@@ -4,8 +4,8 @@
         <div class="rounded-xl border border-petrova-gold/35 bg-white p-6 shadow-sm md:p-8">
 
             <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
-                <div class="min-w-0 max-w-2xl font-playfair">
-                    <h2 class="text-2xl font-bold tracking-tight text-petrova-deep sm:text-3xl">
+                <div class="min-w-0 max-w-2xl">
+                    <h2 class="font-cormorant text-2xl font-bold tracking-tight text-petrova-deep sm:text-3xl">
                         Бързо решение на конкретен правен въпрос
                     </h2>
                     <p class="mt-4 text-base leading-relaxed text-petrova-mid">

@@ -57,7 +57,7 @@
         ></div>
 
         <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-24 text-left sm:py-28">
-            <h1 class="font-playfair text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
                 {{ $heroTitle !== '' ? $heroTitle : 'Контакти' }}
             </h1>
 
@@ -80,7 +80,7 @@
                 {{-- Left column wrapper: full-height continuous white --}}
                 <div class="flex min-h-full flex-col space-y-8 bg-white px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pb-28 lg:pt-24 lg:pr-8 xl:pl-12 xl:pr-10">
                     <div class="rounded-xl border border-petrova-deep/15 bg-white p-8 shadow-sm">
-                        <h2 class="font-playfair text-2xl font-semibold leading-snug tracking-tight text-petrova-deep">
+                        <h2 class="font-cormorant text-2xl font-semibold leading-snug tracking-tight text-petrova-deep">
                             Екипът на Адвокатска кантора Петрова предоставя:
                         </h2>
                         <ul class="mt-5 list-none space-y-3 pl-0 font-sans text-base leading-relaxed text-petrova-mid">
@@ -157,7 +157,7 @@
 
                     @if($hasSocial)
                         <div class="space-y-4">
-                            <h3 class="font-playfair text-xl font-semibold tracking-tight text-petrova-deep">
+                            <h3 class="font-cormorant text-xl font-semibold tracking-tight text-petrova-deep">
                                 Последвайте ни
                             </h3>
                         <div class="flex flex-wrap items-center gap-4">
@@ -215,7 +215,7 @@
                 <div class="flex min-h-full w-full justify-center bg-[#DFD6C2] px-4 pb-24 pt-0 sm:px-6 lg:justify-end lg:px-10 lg:pb-28 lg:pt-24 lg:pl-10 xl:px-12">
                     <div class="w-full max-w-xl space-y-12 lg:ml-auto">
                         <header class="space-y-5">
-                            <h2 class="font-playfair text-4xl font-bold leading-[1.15] tracking-tight text-petrova-deep sm:text-[2.25rem]">
+                            <h2 class="font-cormorant text-4xl font-bold leading-[1.15] tracking-tight text-petrova-deep sm:text-[2.25rem]">
                                 Свържете се с нас
                             </h2>
                             <p class="max-w-2xl text-[1.0625rem] font-medium leading-relaxed text-petrova-deep sm:text-lg">
@@ -223,7 +223,7 @@
                             </p>
                         </header>
                     <div class="w-full rounded-xl bg-petrova-deep px-8 py-10 text-white shadow-lg ring-1 ring-white/10">
-                    <h2 class="font-playfair text-xl font-semibold tracking-tight text-petrova-primary">
+                    <h2 class="font-cormorant text-xl font-semibold tracking-tight text-petrova-primary">
                         Изпратете запитване
                     </h2>
 

@@ -62,7 +62,7 @@
 <section class="bg-[#E3DBCA] py-16 lg:py-20">
     <div class="mx-auto w-full max-w-[1400px] px-6 lg:px-12">
         <div class="mb-8 flex flex-col gap-5 md:mb-10 md:flex-row md:items-end md:justify-between">
-            <h2 class="max-w-[22rem] font-playfair text-3xl font-normal italic leading-tight text-[#0F172A] md:max-w-[28rem] md:text-4xl lg:max-w-none">
+            <h2 class="max-w-[22rem] font-cormorant text-3xl font-normal italic leading-tight text-[#0F172A] md:max-w-[28rem] md:text-4xl lg:max-w-none">
                 @if ($sectionTitleRaw !== '')
                     {!! nl2br(e($sectionTitleRaw)) !!}
                 @else
@@ -114,7 +114,7 @@
                         </div>
                         <div class="flex flex-col p-4">
                             <div class="mb-2 flex items-start justify-between gap-2">
-                                <h3 class="min-w-0 flex-1 font-playfair text-xl font-normal italic leading-snug text-[#0F172A]">
+                                <h3 class="min-w-0 flex-1 font-cormorant text-xl font-normal italic leading-snug text-[#0F172A]">
                                     {{ $service->title }}
                                 </h3>
                                 <span class="mt-1 shrink-0 text-[#0F172A]" aria-hidden="true">

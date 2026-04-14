@@ -5,7 +5,7 @@
 
 @section('content')
 
-<div class="font-playfair">
+<div>
 
     {{-- ── Hero / Background ──────────────────────────────────────── --}}
     <section class="relative min-h-screen overflow-hidden">
@@ -35,7 +35,7 @@
             </nav>
 
             {{-- Page title --}}
-            <h1 class="mb-8 text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant mb-8 text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
                 Писмена консултация
             </h1>
 
@@ -63,11 +63,11 @@
 
                 {{-- ── Instructions block (visible on all steps) ──────── --}}
                 <div class="mb-5 rounded border border-petrova-gold/20 bg-petrova-deep/60 px-6 py-5">
-                    <h2 class="text-base font-bold italic text-petrova-gold">Инструкции</h2>
+                    <h2 class="font-cormorant text-base font-bold italic text-petrova-gold">Инструкции</h2>
                     <p class="mt-1.5 text-sm leading-relaxed text-petrova-secondary">
                         След изпращане на заявката и успешно плащане ще получите имейл с потвърждение. Вашият казус ще бъде разгледан от адвокат в рамките на посочения срок. Отговорът ще бъде изпратен директно на имейл.
                     </p>
-                    <h2 class="mt-4 text-base font-bold italic text-petrova-gold">Важно</h2>
+                    <h2 class="font-cormorant mt-4 text-base font-bold italic text-petrova-gold">Важно</h2>
                     <p class="mt-1.5 text-sm leading-relaxed text-petrova-secondary">
                         Моля, опишете казуса максимално подробно. Можете да прикачите документи за по-точен правен анализ. Максимален срок за отговор: до 48 часа (освен ако не е указано друго).
                     </p>
@@ -170,7 +170,7 @@
 
                         {{-- Personal data --}}
                         <div>
-                            <h2 class="text-base font-bold italic text-petrova-gold mb-4">Лични данни</h2>
+                            <h2 class="font-cormorant text-base font-bold italic text-petrova-gold mb-4">Лични данни</h2>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -251,7 +251,7 @@
 
                         {{-- Payment method --}}
                         <div>
-                            <h2 class="text-base font-bold italic text-petrova-gold mb-4">Метод на плащане</h2>
+                            <h2 class="font-cormorant text-base font-bold italic text-petrova-gold mb-4">Метод на плащане</h2>
 
                             <div class="space-y-3">
 
@@ -309,13 +309,13 @@
 
                     <div class="rounded border border-petrova-gold/20 bg-petrova-deep/60 px-6 py-6">
 
-                        <h2 class="text-base font-bold italic text-petrova-gold mb-5">Преглед на данните</h2>
+                        <h2 class="font-cormorant text-base font-bold italic text-petrova-gold mb-5">Преглед на данните</h2>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                             {{-- Services summary --}}
                             <div class="rounded bg-petrova-main/70 border border-petrova-gold/15 px-5 py-4">
-                                <h3 class="text-sm font-bold italic text-petrova-primary mb-3">Услуги</h3>
+                                <h3 class="font-cormorant text-sm font-bold italic text-petrova-primary mb-3">Услуги</h3>
                                 <div class="space-y-2 text-sm">
                                     <div class="flex justify-between border-b border-petrova-gold/10 pb-2">
                                         <span class="text-petrova-gold font-medium">Писмена консултация</span>
@@ -330,7 +330,7 @@
 
                             {{-- Personal data summary --}}
                             <div class="rounded bg-petrova-main/70 border border-petrova-gold/15 px-5 py-4">
-                                <h3 class="text-sm font-bold italic text-petrova-primary mb-3">Лични данни</h3>
+                                <h3 class="font-cormorant text-sm font-bold italic text-petrova-primary mb-3">Лични данни</h3>
                                 <div class="space-y-2 text-sm">
                                     <div class="flex justify-between border-b border-petrova-gold/10 pb-2">
                                         <span class="text-petrova-gold font-medium">Име</span>

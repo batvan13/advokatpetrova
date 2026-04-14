@@ -2,7 +2,7 @@
     <div class="mx-auto w-full max-w-[1400px] px-6 lg:px-12">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             <div class="pt-6 lg:pt-10">
-                <h1 class="font-playfair italic text-petrova-gold text-5xl lg:text-6xl xl:text-[64px] leading-[1.1] mb-6">
+                <h1 class="font-cormorant italic text-petrova-gold text-5xl lg:text-6xl xl:text-[64px] leading-[1.1] mb-6">
                     Защитаваме Вашите права.<br>
                     Пазим Вашето бъдеще.
                 </h1>

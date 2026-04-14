@@ -38,9 +38,10 @@
         // ── og:image ─────────────────────────────────────────────────────
         // 1. @section('og_image')       — Blade-level override
         // 2. $seoOgImage                — controller-passed variable
-        // 3. null → tag is omitted entirely
+        // 3. global fallback image
         $ogImage = trim($__env->yieldContent('og_image'))
-                ?: ($seoOgImage ?? null);
+                ?: ($seoOgImage ?? null)
+                ?: asset('images/shared/og-default.jpg');
 
         // ── canonical ────────────────────────────────────────────────────
         // Always the current request URL — no override needed
@@ -61,13 +62,13 @@
     <meta property="og:image"       content="{{ $ogImage }}">
     @endif
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="alternate icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ asset('favicon.ico') }}" sizes="any">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-white text-gray-900 antialiased">
+<body class="bg-white font-sans text-gray-900 antialiased">
 
 @include('components.header')
 

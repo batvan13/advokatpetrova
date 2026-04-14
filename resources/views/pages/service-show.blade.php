@@ -7,7 +7,7 @@
 
     {{-- Hero: back link + title + optional lead (petrova band) --}}
     <section
-        class="border-b border-white/10 bg-gradient-to-b from-petrova-top via-petrova-mid to-petrova-main font-playfair"
+        class="border-b border-white/10 bg-gradient-to-b from-petrova-top via-petrova-mid to-petrova-main"
         aria-labelledby="service-title-heading"
     >
         <div class="mx-auto max-w-6xl px-4 pt-6 pb-14 md:pt-8 md:pb-20">
@@ -25,7 +25,7 @@
                     <div class="min-w-0">
                         <h1
                             id="service-title-heading"
-                            class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl lg:text-[2.75rem] lg:leading-[1.12]"
+                            class="font-cormorant text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl lg:text-[2.75rem] lg:leading-[1.12]"
                         >
                             {{ $service->title }}
                         </h1>
@@ -48,7 +48,7 @@
             @else
                 <h1
                     id="service-title-heading"
-                    class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl lg:text-[2.75rem] lg:leading-[1.12]"
+                    class="font-cormorant text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl lg:text-[2.75rem] lg:leading-[1.12]"
                 >
                     {{ $service->title }}
                 </h1>
@@ -73,7 +73,7 @@
                     <div class="mx-auto max-w-3xl lg:max-w-4xl">
                         <h2
                             id="service-full-desc-heading"
-                            class="font-playfair text-2xl font-semibold tracking-tight text-petrova-deep sm:text-3xl"
+                            class="font-cormorant text-2xl font-semibold tracking-tight text-petrova-deep sm:text-3xl"
                         >
                             Описание
                         </h2>
@@ -103,7 +103,7 @@
                 <div class="mx-auto max-w-6xl px-4 sm:px-6">
                     <h2
                         id="service-faq-heading"
-                        class="font-playfair text-2xl font-bold tracking-tight text-petrova-primary sm:text-3xl"
+                            class="font-cormorant text-2xl font-bold tracking-tight text-petrova-primary sm:text-3xl"
                     >
                         Често задавани въпроси
                     </h2>
@@ -130,7 +130,7 @@
             <div class="mx-auto max-w-6xl px-4 sm:px-6">
                 <h2
                     id="service-cta-heading"
-                    class="font-playfair text-2xl font-bold tracking-tight text-petrova-primary sm:text-3xl"
+                    class="font-cormorant text-2xl font-bold tracking-tight text-petrova-primary sm:text-3xl"
                 >
                     Запитване
                 </h2>

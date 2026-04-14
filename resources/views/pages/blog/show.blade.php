@@ -24,7 +24,7 @@
         <div class="bg-white py-12">
             <div class="mx-auto max-w-3xl px-4 text-center">
 
-                <h1 class="font-playfair text-3xl text-petrova-deep md:text-4xl">
+                <h1 class="font-cormorant text-3xl text-petrova-deep md:text-4xl">
                     {{ $post->title }}
                 </h1>
 
@@ -113,8 +113,8 @@
                 @if ($blogBodyIsHtml)
                     <div class="py-8 text-base leading-relaxed text-petrova-deep/90
                         [&_p]:mt-4 [&_p:first-child]:mt-0
-                        [&_h2]:mt-8 [&_h2]:font-playfair [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-petrova-deep
-                        [&_h3]:mt-6 [&_h3]:font-playfair [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-petrova-deep
+                        [&_h2]:mt-8 [&_h2]:font-cormorant [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-petrova-deep
+                        [&_h3]:mt-6 [&_h3]:font-cormorant [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-petrova-deep
                         [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5
                         [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5
                         [&_li]:mt-1
@@ -141,7 +141,7 @@
         @if ($relatedPosts->isNotEmpty())
             <section class="border-t border-petrova-deep/10 bg-white pt-16 pb-20" aria-labelledby="blog-related-heading">
                 <div class="mx-auto max-w-6xl px-4">
-                    <h2 id="blog-related-heading" class="font-playfair text-3xl italic text-petrova-deep md:text-4xl">
+                    <h2 id="blog-related-heading" class="font-cormorant text-3xl italic text-petrova-deep md:text-4xl">
                         Още от блога
                     </h2>
                     <div class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

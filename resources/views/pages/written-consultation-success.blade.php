@@ -5,7 +5,7 @@
 
 @section('content')
 
-<div class="font-playfair min-h-screen bg-petrova-deep flex flex-col items-center justify-center px-4 py-20">
+<div class="min-h-screen bg-petrova-deep flex flex-col items-center justify-center px-4 py-20">
 
     {{-- Logo --}}
     <div class="mb-8">
@@ -16,7 +16,7 @@
 
     {{-- Heading --}}
     <p class="text-sm text-petrova-secondary/70 mb-2 tracking-wide">Благодарим Ви за доверието!</p>
-    <h1 class="text-3xl font-bold italic text-petrova-primary text-center sm:text-4xl mb-4">
+    <h1 class="font-cormorant text-3xl font-bold italic text-petrova-primary text-center sm:text-4xl mb-4">
         Вашето запитване е получено успешно!
     </h1>
     <p class="max-w-xl text-center text-sm leading-relaxed text-petrova-secondary mb-10">
@@ -75,7 +75,7 @@
 
             {{-- Services --}}
             <div class="rounded border border-petrova-gold/20 bg-petrova-main/60 px-5 py-5">
-                <h2 class="text-sm font-bold italic text-petrova-primary mb-4">Услуги</h2>
+                <h2 class="font-cormorant text-sm font-bold italic text-petrova-primary mb-4">Услуги</h2>
                 <div class="space-y-2.5 text-sm">
                     <div class="flex justify-between border-b border-petrova-gold/10 pb-2">
                         <span class="text-petrova-gold font-medium">Писмена консултация</span>
@@ -99,7 +99,7 @@
 
             {{-- Personal data --}}
             <div class="rounded border border-petrova-gold/20 bg-petrova-main/60 px-5 py-5">
-                <h2 class="text-sm font-bold italic text-petrova-primary mb-4">Лични данни</h2>
+                <h2 class="font-cormorant text-sm font-bold italic text-petrova-primary mb-4">Лични данни</h2>
                 <div class="space-y-2.5 text-sm">
                     <div class="flex justify-between border-b border-petrova-gold/10 pb-2">
                         <span class="text-petrova-gold font-medium">Име</span>

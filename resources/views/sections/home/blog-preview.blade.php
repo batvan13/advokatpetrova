@@ -11,7 +11,7 @@
 <section class="bg-[#1E2A3B] py-20 lg:py-24">
     <div class="mx-auto w-full max-w-[1400px] px-6 lg:px-12">
 
-        <h2 class="mb-12 text-center font-playfair text-3xl font-normal italic text-petrova-gold lg:text-4xl xl:text-[2.5rem]">
+        <h2 class="mb-12 text-center font-cormorant text-3xl font-normal italic text-petrova-gold lg:text-4xl xl:text-[2.5rem]">
             Последно от нашия блог
         </h2>
 

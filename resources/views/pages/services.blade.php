@@ -8,7 +8,7 @@
     {{-- Hero: same structure as About (static banner + overlay + breadcrumb) --}}
     <section
         id="services-top"
-        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden font-playfair md:scroll-mt-28"
+        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden md:scroll-mt-28"
     >
         <div
             class="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -21,7 +21,7 @@
         ></div>
 
         <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-20 text-left">
-            <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
                 Услуги
             </h1>
 
@@ -36,12 +36,12 @@
         </div>
     </section>
 
-    <section class="border-t border-petrova-gold/25 bg-petrova-main py-20 font-playfair">
+    <section class="border-t border-petrova-gold/25 bg-petrova-main py-20">
         <div class="mx-auto max-w-6xl px-4">
 
             {{-- Page heading (CMS) — h2 so hero keeps sole h1 --}}
             <div class="max-w-2xl">
-                <h2 class="text-3xl font-bold tracking-tight text-petrova-primary">
+                <h2 class="font-cormorant text-3xl font-bold tracking-tight text-petrova-primary">
                     {{ $page?->title ?? 'Нашите услуги' }}
                 </h2>
 

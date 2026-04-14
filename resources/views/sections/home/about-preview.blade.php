@@ -49,11 +49,11 @@
                 @endif
 
                 @if ($sectionTitle !== '')
-                    <h2 class="font-playfair text-4xl font-normal italic leading-tight text-[#0D1A30] lg:text-[2.75rem] lg:leading-[1.15] mb-8">
+                    <h2 class="font-cormorant text-4xl font-normal italic leading-tight text-[#0D1A30] lg:text-[2.75rem] lg:leading-[1.15] mb-8">
                         {!! nl2br(e($sectionTitle)) !!}
                     </h2>
                 @else
-                    <h2 class="font-playfair text-4xl font-normal italic leading-tight text-[#0D1A30] lg:text-[2.75rem] lg:leading-[1.15] mb-8">
+                    <h2 class="font-cormorant text-4xl font-normal italic leading-tight text-[#0D1A30] lg:text-[2.75rem] lg:leading-[1.15] mb-8">
                         Основни принципи,<br>които определят нашата<br>практика
                     </h2>
                 @endif
@@ -119,7 +119,7 @@
                             aria-hidden="true"
                             loading="lazy"
                         >
-                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                        <h3 class="font-cormorant text-sm font-normal italic text-[#0D1A30] mb-1.5">
                             Изграждане на взаимоотношения
                         </h3>
                         <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
@@ -136,7 +136,7 @@
                             aria-hidden="true"
                             loading="lazy"
                         >
-                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                        <h3 class="font-cormorant text-sm font-normal italic text-[#0D1A30] mb-1.5">
                             Уважение
                         </h3>
                         <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
@@ -153,7 +153,7 @@
                             aria-hidden="true"
                             loading="lazy"
                         >
-                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                        <h3 class="font-cormorant text-sm font-normal italic text-[#0D1A30] mb-1.5">
                             Постигане на резултати
                         </h3>
                         <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">
@@ -170,7 +170,7 @@
                             aria-hidden="true"
                             loading="lazy"
                         >
-                        <h3 class="font-playfair text-sm font-normal italic text-[#0D1A30] mb-1.5">
+                        <h3 class="font-cormorant text-sm font-normal italic text-[#0D1A30] mb-1.5">
                             Резултати
                         </h3>
                         <p class="font-sans text-xs leading-relaxed text-[#0D1A30]/60">

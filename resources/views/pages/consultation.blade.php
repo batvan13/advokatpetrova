@@ -5,7 +5,7 @@
 
 @section('content')
 
-<div class="consultation-page font-playfair">
+<div class="consultation-page">
 
     {{-- ── Hero ──────────────────────────────────────────────────── --}}
     <section class="relative overflow-hidden">
@@ -38,7 +38,7 @@
             </nav>
 
             {{-- Page title --}}
-            <h1 class="text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
                 Онлайн консултация
             </h1>
 
@@ -77,7 +77,7 @@
 
                     <div class="flex items-start gap-3">
                         <img src="{{ asset('images/consultation/icon_phone.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
-                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                        <h2 class="font-cormorant text-lg font-bold italic leading-tight text-petrova-main">
                             Телефонна<br>консултация
                         </h2>
                     </div>
@@ -118,7 +118,7 @@
 
                     <div class="flex items-start gap-3">
                         <img src="{{ asset('images/consultation/icon_chat.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
-                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                        <h2 class="font-cormorant text-lg font-bold italic leading-tight text-petrova-main">
                             Онлайн чат<br>консултация
                         </h2>
                     </div>
@@ -159,7 +159,7 @@
 
                     <div class="flex items-start gap-3">
                         <img src="{{ asset('images/consultation/icon_written.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
-                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                        <h2 class="font-cormorant text-lg font-bold italic leading-tight text-petrova-main">
                             Писмена<br>консултация
                         </h2>
                     </div>
@@ -200,7 +200,7 @@
 
                     <div class="flex items-start gap-3">
                         <img src="{{ asset('images/consultation/icon_video_viber.svg') }}" alt="" class="h-12 w-12 flex-shrink-0" aria-hidden="true">
-                        <h2 class="text-lg font-bold italic leading-tight text-petrova-main">
+                        <h2 class="font-cormorant text-lg font-bold italic leading-tight text-petrova-main">
                             (Viber) Видео<br>консултация
                         </h2>
                     </div>

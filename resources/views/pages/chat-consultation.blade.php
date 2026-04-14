@@ -5,7 +5,7 @@
 
 @section('content')
 
-<div class="consultation-page font-playfair">
+<div class="consultation-page">
 
     {{-- ── Hero ──────────────────────────────────────────────────── --}}
     <section class="relative overflow-hidden">
@@ -38,7 +38,7 @@
             </nav>
 
             {{-- Page title --}}
-            <h1 class="text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant text-4xl font-bold italic tracking-tight text-petrova-primary sm:text-5xl">
                 Онлайн чат консултация
             </h1>
 

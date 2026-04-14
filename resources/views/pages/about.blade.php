@@ -33,7 +33,7 @@
     {{-- ── Hero: first /about implementation baseline + left align, subtle subtitle, no body/CTA ── --}}
     <section
         id="about-top"
-        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden font-playfair md:scroll-mt-28"
+        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden md:scroll-mt-28"
     >
         <div
             class="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -46,7 +46,7 @@
         ></div>
 
         <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-20 text-left">
-            <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
                 {{ $heroTitle !== '' ? $heroTitle : 'За нас' }}
             </h1>
 
@@ -95,7 +95,7 @@
 
                         @if (filled($content?->title))
                             <h2
-                                class="mt-2.5 font-playfair text-3xl font-bold leading-[1.15] tracking-tight text-petrova-deep sm:text-4xl lg:text-[2.35rem]"
+                                class="mt-2.5 font-cormorant text-3xl font-bold leading-[1.15] tracking-tight text-petrova-deep sm:text-4xl lg:text-[2.35rem]"
                             >
                                 {{ $content->title }}
                             </h2>
@@ -166,10 +166,10 @@
         {{-- ── Team: CMS intro (PageSection) + TeamMember cards ─────────────── --}}
         <section
             id="about-team"
-            class="scroll-mt-24 border-t border-white/10 bg-petrova-main py-16 lg:py-24 font-playfair md:scroll-mt-28"
+            class="scroll-mt-24 border-t border-white/10 bg-petrova-main py-16 lg:py-24 md:scroll-mt-28"
         >
             <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                <h2 class="text-center text-3xl font-bold tracking-tight text-petrova-primary sm:text-4xl">
+                <h2 class="font-cormorant text-center text-3xl font-bold tracking-tight text-petrova-primary sm:text-4xl">
                     {{ $teamTitle !== '' ? $teamTitle : 'Екип' }}
                 </h2>
 

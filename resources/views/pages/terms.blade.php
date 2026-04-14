@@ -9,7 +9,7 @@
         <div class="mx-auto max-w-6xl px-4 py-16">
             <div class="max-w-2xl text-left">
 
-                <h1 class="font-playfair text-3xl font-bold tracking-tight text-petrova-deep">
+                <h1 class="font-cormorant text-3xl font-bold tracking-tight text-petrova-deep">
                     {{ filled($contentSection?->title) ? $contentSection->title : 'Общи условия' }}
                 </h1>
 

@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="consultation-page font-playfair">
+<div class="consultation-page">
 
     <section class="relative overflow-hidden min-h-screen">
 
@@ -31,7 +31,7 @@
                 Благодарим Ви за доверието!
             </p>
 
-            <h1 class="text-3xl sm:text-4xl font-bold italic tracking-tight text-petrova-primary mb-6">
+            <h1 class="font-cormorant text-3xl sm:text-4xl font-bold italic tracking-tight text-petrova-primary mb-6">
                 Вашата заявка е получена успешно!
             </h1>
 

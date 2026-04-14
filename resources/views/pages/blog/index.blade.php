@@ -8,7 +8,7 @@
     {{-- Hero: same structure as About (static banner + overlay + breadcrumb) --}}
     <section
         id="blog-top"
-        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden font-playfair md:scroll-mt-28"
+        class="scroll-mt-24 relative flex min-h-[min(55vh,520px)] items-center overflow-hidden md:scroll-mt-28"
     >
         <div
             class="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -21,7 +21,7 @@
         ></div>
 
         <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-20 text-left">
-            <h1 class="text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
+            <h1 class="font-cormorant text-4xl font-bold tracking-tight text-petrova-primary sm:text-5xl">
                 Блог
             </h1>
 

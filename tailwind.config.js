@@ -24,7 +24,8 @@ export default {
                     'linear-gradient(to bottom, #3D4A63 0%, #2A3550 40%, #141C2E 100%)',
             },
             fontFamily: {
-                playfair: ['"Playfair Display"', 'serif'],
+                sans:      ['"Sofia Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                cormorant: ['"Cormorant Infant"', 'serif'],
             },
         },
     },

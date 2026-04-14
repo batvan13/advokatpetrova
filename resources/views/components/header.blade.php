@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-50 border-b border-white/10 bg-petrova-main font-playfair">
+<header class="sticky top-0 z-50 border-b border-white/10 bg-petrova-main">
 
     {{-- ── Top bar (mobile: logo + hamburger | desktop: 3-zone grid) ── --}}
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
