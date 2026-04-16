@@ -297,6 +297,7 @@
                             <p class="text-base font-semibold italic text-petrova-gold mb-3">Метод на плащане</p>
                             <div class="space-y-2">
                                 @foreach (\App\Models\ViberConsultationBooking::PAYMENT_METHODS as $value => $label)
+                                    @if ($value !== 'card')
                                     <label class="flex items-center gap-3 cursor-pointer select-none group">
                                         <input
                                             type="radio"
@@ -309,6 +310,7 @@
                                             {{ $label }}
                                         </span>
                                     </label>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>
@@ -485,7 +487,6 @@
     var MONTH_NAMES = ['Януари','Февруари','Март','Април','Май','Юни',
                        'Юли','Август','Септември','Октомври','Ноември','Декември'];
     var PAYMENT_LABELS = {
-        card:    'Плащане с дебитна/кредитна карта',
         easypay: 'Плащане с Easy Pay',
         epay:    'Плащане с ePay',
     };

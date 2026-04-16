@@ -255,7 +255,7 @@
 
                             <div class="space-y-3">
 
-                                @foreach (['card' => 'Плащане с дебитна/кредитна карта', 'easypay' => 'Плащане с Easy Pay', 'epay' => 'Плащане с ePay'] as $value => $label)
+                                @foreach (['easypay' => 'Плащане с Easy Pay', 'epay' => 'Плащане с ePay'] as $value => $label)
                                     <label class="flex items-center gap-3 cursor-pointer">
                                         <input
                                             type="radio"
@@ -438,7 +438,6 @@
 
     // ── Payment method labels ────────────────────────────────────────
     var paymentLabels = {
-        'card':    'Плащане с дебитна/кредитна карта',
         'easypay': 'Плащане с Easy Pay',
         'epay':    'Плащане с ePay',
     };
