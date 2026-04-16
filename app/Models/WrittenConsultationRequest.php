@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
 
 class WrittenConsultationRequest extends Model
@@ -42,14 +44,21 @@ class WrittenConsultationRequest extends Model
         'archived_at'    => 'datetime',
     ];
 
-    public const STATUS_SUBMITTED = 'submitted';
-    public const STATUS_ANSWERED  = 'answered';
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
+    public const STATUS_SUBMITTED       = 'submitted';
+    public const STATUS_ANSWERED        = 'answered';
+    public const STATUS_EXPIRED         = 'expired';
 
     public const PAYMENT_METHODS = [
         'card'    => 'Плащане с дебитна/кредитна карта',
         'easypay' => 'Плащане с Easy Pay',
         'epay'    => 'Плащане с ePay',
     ];
+
+    public function payment(): MorphOne
+    {
+        return $this->morphOne(Payment::class, 'payable');
+    }
 
     public function attachments(): HasMany
     {

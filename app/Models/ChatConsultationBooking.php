@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
 
 class ChatConsultationBooking extends Model
@@ -39,18 +41,21 @@ class ChatConsultationBooking extends Model
     /** Chat is always 30 minutes. */
     public const DURATION_MINUTES = 30;
 
-    public const STATUS_BOOKED    = 'booked';
-    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
+    public const STATUS_CONFIRMED       = 'confirmed';
+    public const STATUS_COMPLETED       = 'completed';
+    public const STATUS_EXPIRED         = 'expired';
 
     public const GOOGLE_SYNC_SYNCED = 'synced';
     public const GOOGLE_SYNC_FAILED = 'failed';
 
     /**
-     * Statuses that occupy a slot and must block availability.
-     * Mirrors the same pattern as Phone/Viber booking models.
+     * Statuses that occupy a slot and block availability.
+     * expired is intentionally excluded — expired bookings free the slot.
      */
     public const BLOCKING_STATUSES = [
-        self::STATUS_BOOKED,
+        self::STATUS_PENDING_PAYMENT,
+        self::STATUS_CONFIRMED,
         self::STATUS_COMPLETED,
     ];
 
@@ -67,6 +72,11 @@ class ChatConsultationBooking extends Model
                 $model->public_token = Str::random(48);
             }
         });
+    }
+
+    public function payment(): MorphOne
+    {
+        return $this->morphOne(Payment::class, 'payable');
     }
 
     public function session(): HasOne

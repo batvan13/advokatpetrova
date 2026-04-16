@@ -38,10 +38,10 @@ class ViberBookingController extends Controller
                 ->with('info', 'Архивираните записвания не могат да бъдат променяни.');
         }
 
-        if ($viberBooking->status !== ViberConsultationBooking::STATUS_BOOKED) {
+        if ($viberBooking->status !== ViberConsultationBooking::STATUS_CONFIRMED) {
             return redirect()
                 ->route('admin.viber-bookings.show', $viberBooking)
-                ->with('info', 'Консултацията е вече маркирана като проведена.');
+                ->with('info', 'Консултацията е вече маркирана като проведена или не е потвърдена.');
         }
 
         $viberBooking->update(['status' => ViberConsultationBooking::STATUS_COMPLETED]);

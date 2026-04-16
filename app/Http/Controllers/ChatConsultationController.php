@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Mail\BookingConfirmationMail;
-use App\Mail\BookingNotificationMail;
 use App\Models\ChatConsultationBooking;
-use App\Models\ChatSession;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
-use App\Support\GoogleCalendarService;
+use App\Support\PaymentService;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -25,7 +23,7 @@ class ChatConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability,
-        private readonly GoogleCalendarService           $calendar,
+        private readonly PaymentService                  $paymentService,
     ) {}
 
     // ── Page ─────────────────────────────────────────────────────────
@@ -41,8 +39,6 @@ class ChatConsultationController extends Controller
 
     /**
      * GET /consultation/chat/slots?date=YYYY-MM-DD
-     *
-     * Chat is always 30 minutes — no duration parameter needed.
      */
     public function slots(Request $request): JsonResponse
     {
@@ -64,13 +60,11 @@ class ChatConsultationController extends Controller
         $slots   = $this->availability->slotsForDate($date);
         $dateStr = $date->toDateString();
 
-        // Collect blocked 30-min grid positions from all three booking tables.
         $phoneBlocked = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
             ->map(fn ($s) => Carbon::parse($s, 'Europe/Sofia')->format('H:i'));
 
-        // Viber bookings may span 30 or 60 min — expand to grid blocks.
         $viberBlocked = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->get(['starts_at', 'ends_at'])
@@ -132,7 +126,6 @@ class ChatConsultationController extends Controller
             'consent.accepted'          => 'Трябва да се съгласите с Политиката за поверителност.',
         ]);
 
-        // ── Build slot datetimes ─────────────────────────────────────
         $startsAt = Carbon::createFromFormat(
             'Y-m-d H:i',
             $data['selected_date'] . ' ' . $data['selected_slot'],
@@ -140,14 +133,12 @@ class ChatConsultationController extends Controller
         );
         $endsAt = $startsAt->copy()->addMinutes(ChatConsultationBooking::DURATION_MINUTES);
 
-        // ── Guard: slot must not be in the past ──────────────────────
         if ($startsAt->isPast()) {
             throw ValidationException::withMessages([
                 'selected_slot' => 'Избраният час е вече в миналото.',
             ]);
         }
 
-        // ── Guard: slot must be a valid generated slot ───────────────
         $validSlots = $this->availability->slotsForDate($startsAt->copy()->startOfDay());
         $validTimes = array_map(fn (Carbon $s) => $s->format('H:i'), $validSlots);
 
@@ -157,34 +148,13 @@ class ChatConsultationController extends Controller
             ]);
         }
 
-        // ── Snapshot pricing (outside transaction — read-only) ───────
         $pricing = ConsultationService::where('type', 'chat')->first();
 
-        // ── Fail-fast: pricing row must exist and have a positive price ─
-        // A missing or zero-price row means the admin has not configured
-        // the chat consultation service. Proceeding would create a booking
-        // with price = 0, which is a silent business logic error.
-        // Abort with a controlled 503-style abort rather than a 500 or a
-        // silent €0 booking. No user-facing form error is appropriate here
-        // because this is a configuration problem, not a user input problem.
         if (! $pricing || $pricing->price_eur <= 0) {
             abort(503, 'Chat consultation pricing is not configured.');
         }
 
-        // ── Atomic conflict check + create booking + bootstrap session ─
-        // Three-layer defence against double-booking:
-        //
-        // Layer 1 — lockForUpdate inside a transaction: serialises concurrent
-        //   requests that find existing overlapping rows (common case).
-        //
-        // Layer 2 — UNIQUE index on starts_at (ccb_unique_starts_at): the
-        //   database-level hard stop. Fires when two requests race on an
-        //   empty result set (no prior booking for this slot), where
-        //   lockForUpdate cannot acquire a gap lock.
-        //
-        // Layer 3 — QueryException catch: converts the duplicate-key
-        //   IntegrityConstraintViolation (SQLSTATE 23000) into the same
-        //   user-facing validation error instead of a 500.
+        // ChatSession is NOT created here — it is created after successful payment.
         try {
             $booking = DB::transaction(function () use ($data, $startsAt, $endsAt, $pricing) {
 
@@ -212,7 +182,7 @@ class ChatConsultationController extends Controller
                     ]);
                 }
 
-                $booking = ChatConsultationBooking::create([
+                return ChatConsultationBooking::create([
                     'first_name'     => $data['first_name'],
                     'last_name'      => $data['last_name'],
                     'email'          => $data['email'],
@@ -221,22 +191,11 @@ class ChatConsultationController extends Controller
                     'starts_at'      => $startsAt,
                     'ends_at'        => $endsAt,
                     'payment_method' => $data['payment_method'],
-                    'status'         => ChatConsultationBooking::STATUS_BOOKED,
+                    'status'         => ChatConsultationBooking::STATUS_PENDING_PAYMENT,
                     'price_eur'      => $pricing->price_eur,
                     'price_bgn'      => $pricing->price_bgn,
                     'show_bgn_price' => $pricing->show_bgn_price,
                 ]);
-
-                // Bootstrap session record atomically with the booking.
-                // Phase starts as 'waiting'; no session transitions in Phase 3A.
-                ChatSession::create([
-                    'booking_id' => $booking->id,
-                    'phase'      => ChatSession::DEFAULT_PHASE,
-                    'started_at' => null,
-                    'ended_at'   => null,
-                ]);
-
-                return $booking;
             });
         } catch (QueryException $e) {
             if ($e->getCode() === '23000') {
@@ -247,15 +206,20 @@ class ChatConsultationController extends Controller
             throw $e;
         }
 
-        $this->sendBookingEmails($booking);
-        $this->syncToGoogleCalendar($booking);
+        $payment = $this->paymentService->createPendingPayment(
+            payable:       $booking,
+            amount:        (float) $pricing->price_eur,
+            currency:      'EUR',
+            paymentMethod: $data['payment_method'],
+            description:   'Чат консултация — ' . $booking->fullName(),
+        );
 
-        return redirect()->route('chat-consultation.success', [
-            'token' => $booking->public_token,
-        ]);
+        $this->sendAcknowledgementEmail($booking);
+
+        return redirect()->route('payment.simulate', ['invoice' => $payment->invoice_number]);
     }
 
-    // ── Success page ─────────────────────────────────────────────────
+    // ── Success / status page ─────────────────────────────────────────
 
     public function success(string $token)
     {
@@ -263,7 +227,7 @@ class ChatConsultationController extends Controller
             abort(404);
         }
 
-        $booking = ChatConsultationBooking::with('session')
+        $booking = ChatConsultationBooking::with(['session', 'payment'])
             ->where('public_token', $token)
             ->first();
 
@@ -274,67 +238,22 @@ class ChatConsultationController extends Controller
         return view('pages.chat-consultation-success', compact('booking'));
     }
 
-    // ── Google Calendar ───────────────────────────────────────────────
+    // ── Initial acknowledgement email ─────────────────────────────────
 
-    private function syncToGoogleCalendar(ChatConsultationBooking $booking): void
-    {
-        if (! empty($booking->google_event_id)) {
-            return;
-        }
-
-        try {
-            $eventId = $this->calendar->createEvent($booking, 'chat');
-
-            $booking->update([
-                'google_event_id'    => $eventId,
-                'google_sync_status' => ChatConsultationBooking::GOOGLE_SYNC_SYNCED,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Google Calendar sync failed — chat booking', [
-                'booking_id' => $booking->id,
-                'starts_at'  => $booking->starts_at->toIso8601String(),
-                'error'      => $e->getMessage(),
-                'error_class'=> get_class($e),
-            ]);
-
-            try {
-                $booking->update(['google_sync_status' => ChatConsultationBooking::GOOGLE_SYNC_FAILED]);
-            } catch (\Throwable) {
-                // Status update failure must not propagate.
-            }
-        }
-    }
-
-    // ── Mail ──────────────────────────────────────────────────────────
-
-    private function sendBookingEmails(ChatConsultationBooking $booking): void
+    private function sendAcknowledgementEmail(ChatConsultationBooking $booking): void
     {
         $contactEmail = SiteSetting::get('contact_email');
         $successUrl   = route('chat-consultation.success', ['token' => $booking->public_token]);
-        $adminUrl     = route('admin.chat-bookings.show', $booking);
 
         try {
             Mail::to($booking->email)->send(
                 new BookingConfirmationMail($booking, 'chat', null, $successUrl, $contactEmail)
             );
         } catch (\Throwable $e) {
-            Log::error('Chat booking client mail failed', [
+            Log::error('Chat booking acknowledgement mail failed', [
                 'booking_id' => $booking->id,
                 'error'      => $e->getMessage(),
             ]);
-        }
-
-        if ($contactEmail) {
-            try {
-                Mail::to($contactEmail)->send(
-                    new BookingNotificationMail($booking, 'chat', $adminUrl)
-                );
-            } catch (\Throwable $e) {
-                Log::error('Chat booking admin mail failed', [
-                    'booking_id' => $booking->id,
-                    'error'      => $e->getMessage(),
-                ]);
-            }
         }
     }
 }

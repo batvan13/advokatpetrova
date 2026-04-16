@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Mail\BookingConfirmationMail;
-use App\Mail\BookingNotificationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
-use App\Support\GoogleCalendarService;
+use App\Support\PaymentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +23,7 @@ class PhoneConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability,
-        private readonly GoogleCalendarService           $calendar,
+        private readonly PaymentService                  $paymentService,
     ) {}
 
     // ── Page ─────────────────────────────────────────────────────────
@@ -60,8 +59,6 @@ class PhoneConsultationController extends Controller
 
         $slots = $this->availability->slotsForDate($date);
 
-        // Filter out slots occupied by any blocking-status booking in EITHER table.
-        // Phone and Viber share the same time resource.
         $dateStr = $date->toDateString();
 
         $phoneBlocked = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
@@ -69,8 +66,6 @@ class PhoneConsultationController extends Controller
             ->pluck('starts_at')
             ->map(fn ($s) => Carbon::parse($s, 'Europe/Sofia')->format('H:i'));
 
-        // A 60-minute Viber booking occupies two consecutive 30-min blocks.
-        // We collect all 30-min grid times covered by each Viber booking.
         $viberBlocked = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->get(['starts_at', 'ends_at'])
@@ -85,7 +80,6 @@ class PhoneConsultationController extends Controller
                 return $times;
             });
 
-        // Chat bookings are always 30 min — each occupies exactly one grid block.
         $chatBlocked = ChatConsultationBooking::whereIn('status', ChatConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
@@ -108,7 +102,6 @@ class PhoneConsultationController extends Controller
      */
     public function submit(Request $request)
     {
-        // ── Validate all fields ──────────────────────────────────────
         $data = $request->validate([
             'selected_date'  => ['required', 'date_format:Y-m-d'],
             'selected_slot'  => ['required', 'date_format:H:i'],
@@ -120,21 +113,20 @@ class PhoneConsultationController extends Controller
             'payment_method' => ['required', 'in:card,easypay,epay'],
             'consent'        => ['accepted'],
         ], [
-            'selected_date.required'  => 'Моля, изберете ден.',
+            'selected_date.required'    => 'Моля, изберете ден.',
             'selected_date.date_format' => 'Невалидна дата.',
-            'selected_slot.required'  => 'Моля, изберете час.',
+            'selected_slot.required'    => 'Моля, изберете час.',
             'selected_slot.date_format' => 'Невалиден час.',
-            'first_name.required'     => 'Моля, въведете Вашето име.',
-            'last_name.required'      => 'Моля, въведете Вашата фамилия.',
-            'email.required'          => 'Моля, въведете имейл адрес.',
-            'email.email'             => 'Моля, въведете валиден имейл адрес.',
-            'phone.required'          => 'Моля, въведете телефонен номер.',
-            'payment_method.required' => 'Моля, изберете метод на плащане.',
-            'payment_method.in'       => 'Невалиден метод на плащане.',
-            'consent.accepted'        => 'Трябва да се съгласите с Политиката за поверителност.',
+            'first_name.required'       => 'Моля, въведете Вашето име.',
+            'last_name.required'        => 'Моля, въведете Вашата фамилия.',
+            'email.required'            => 'Моля, въведете имейл адрес.',
+            'email.email'               => 'Моля, въведете валиден имейл адрес.',
+            'phone.required'            => 'Моля, въведете телефонен номер.',
+            'payment_method.required'   => 'Моля, изберете метод на плащане.',
+            'payment_method.in'         => 'Невалиден метод на плащане.',
+            'consent.accepted'          => 'Трябва да се съгласите с Политиката за поверителност.',
         ]);
 
-        // ── Build slot datetimes ─────────────────────────────────────
         $startsAt = Carbon::createFromFormat(
             'Y-m-d H:i',
             $data['selected_date'] . ' ' . $data['selected_slot'],
@@ -142,14 +134,12 @@ class PhoneConsultationController extends Controller
         );
         $endsAt = $startsAt->copy()->addMinutes(30);
 
-        // ── Guard: slot must not be in the past ──────────────────────
         if ($startsAt->isPast()) {
             throw ValidationException::withMessages([
                 'selected_slot' => 'Избраният час е вече в миналото.',
             ]);
         }
 
-        // ── Guard: slot must be a valid generated slot ───────────────
         $validSlots = $this->availability->slotsForDate($startsAt->copy()->startOfDay());
         $validTimes = array_map(fn (Carbon $s) => $s->format('H:i'), $validSlots);
 
@@ -159,27 +149,11 @@ class PhoneConsultationController extends Controller
             ]);
         }
 
-        // ── Snapshot pricing (outside transaction — read-only, safe) ─
         $pricing = ConsultationService::where('type', 'phone')->first();
 
-        // ── Atomic conflict check + create ───────────────────────────
-        // Defence-in-depth: three layers against double-booking.
-        //
-        // Layer 1 — lockForUpdate inside a transaction: serialises concurrent
-        //   requests that find existing overlapping rows (common case).
-        //
-        // Layer 2 — UNIQUE index on starts_at (pcb_unique_starts_at): the
-        //   database-level hard stop. Fires when two requests race on an
-        //   empty result set (no prior booking for this slot), where
-        //   lockForUpdate cannot acquire a gap lock.
-        //
-        // Layer 3 — QueryException catch: converts the duplicate-key
-        //   IntegrityConstraintViolation (SQLSTATE 23000) into the same
-        //   user-facing validation error instead of a 500.
         try {
             $booking = DB::transaction(function () use ($data, $startsAt, $endsAt, $pricing) {
 
-                // Check conflict against BOTH phone and viber bookings (shared resource).
                 $phoneConflict = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
@@ -192,7 +166,6 @@ class PhoneConsultationController extends Controller
                     ->lockForUpdate()
                     ->exists();
 
-                // Check chat bookings for overlap (shared resource).
                 $chatConflict = ChatConsultationBooking::whereIn('status', ChatConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
@@ -214,33 +187,35 @@ class PhoneConsultationController extends Controller
                     'starts_at'      => $startsAt,
                     'ends_at'        => $endsAt,
                     'payment_method' => $data['payment_method'],
-                    'status'         => PhoneConsultationBooking::STATUS_BOOKED,
+                    'status'         => PhoneConsultationBooking::STATUS_PENDING_PAYMENT,
                     'price_eur'      => $pricing?->price_eur ?? 0,
                     'price_bgn'      => $pricing?->price_bgn,
                     'show_bgn_price' => $pricing?->show_bgn_price ?? false,
                 ]);
             });
         } catch (QueryException $e) {
-            // SQLSTATE 23000 = Integrity constraint violation (duplicate key).
-            // Triggered by the UNIQUE index on starts_at when two concurrent
-            // requests both pass the lockForUpdate check on an empty result set.
             if ($e->getCode() === '23000') {
                 throw ValidationException::withMessages([
                     'selected_slot' => 'Избраният час вече е зает. Моля, изберете друг.',
                 ]);
             }
-            throw $e; // re-throw unrelated DB errors
+            throw $e;
         }
 
-        $this->sendBookingEmails($booking);
-        $this->syncToGoogleCalendar($booking);
+        $payment = $this->paymentService->createPendingPayment(
+            payable:       $booking,
+            amount:        (float) ($pricing?->price_eur ?? 0),
+            currency:      'EUR',
+            paymentMethod: $data['payment_method'],
+            description:   'Телефонна консултация — ' . $booking->fullName(),
+        );
 
-        return redirect()->route('phone-consultation.success', [
-            'token' => $booking->public_token,
-        ]);
+        $this->sendAcknowledgementEmail($booking);
+
+        return redirect()->route('payment.simulate', ['invoice' => $payment->invoice_number]);
     }
 
-    // ── Success page ─────────────────────────────────────────────────
+    // ── Success / status page ─────────────────────────────────────────
 
     public function success(string $token)
     {
@@ -248,7 +223,9 @@ class PhoneConsultationController extends Controller
             abort(404);
         }
 
-        $booking = PhoneConsultationBooking::where('public_token', $token)->first();
+        $booking = PhoneConsultationBooking::with('payment')
+            ->where('public_token', $token)
+            ->first();
 
         if (! $booking) {
             abort(404);
@@ -257,68 +234,23 @@ class PhoneConsultationController extends Controller
         return view('pages.phone-consultation-success', compact('booking'));
     }
 
-    // ── Google Calendar ───────────────────────────────────────────────
+    // ── Initial acknowledgement email ─────────────────────────────────
 
-    private function syncToGoogleCalendar(PhoneConsultationBooking $booking): void
-    {
-        if (! empty($booking->google_event_id)) {
-            return;
-        }
-
-        try {
-            $eventId = $this->calendar->createEvent($booking, 'phone');
-
-            $booking->update([
-                'google_event_id'    => $eventId,
-                'google_sync_status' => PhoneConsultationBooking::GOOGLE_SYNC_SYNCED,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Google Calendar sync failed — phone booking', [
-                'booking_id' => $booking->id,
-                'starts_at'  => $booking->starts_at->toIso8601String(),
-                'error'      => $e->getMessage(),
-                'error_class'=> get_class($e),
-            ]);
-
-            try {
-                $booking->update(['google_sync_status' => PhoneConsultationBooking::GOOGLE_SYNC_FAILED]);
-            } catch (\Throwable) {
-                // Status update failure must not propagate.
-            }
-        }
-    }
-
-    // ── Mail ──────────────────────────────────────────────────────────
-
-    private function sendBookingEmails(PhoneConsultationBooking $booking): void
+    private function sendAcknowledgementEmail(PhoneConsultationBooking $booking): void
     {
         $contactNumber = SiteSetting::get('consultation_phone_number');
         $contactEmail  = SiteSetting::get('contact_email');
         $successUrl    = route('phone-consultation.success', ['token' => $booking->public_token]);
-        $adminUrl      = route('admin.phone-bookings.show', $booking);
 
         try {
             Mail::to($booking->email)->send(
                 new BookingConfirmationMail($booking, 'phone', $contactNumber, $successUrl, $contactEmail)
             );
         } catch (\Throwable $e) {
-            Log::error('Phone booking client mail failed', [
+            Log::error('Phone booking acknowledgement mail failed', [
                 'booking_id' => $booking->id,
                 'error'      => $e->getMessage(),
             ]);
-        }
-
-        if ($contactEmail) {
-            try {
-                Mail::to($contactEmail)->send(
-                    new BookingNotificationMail($booking, 'phone', $adminUrl)
-                );
-            } catch (\Throwable $e) {
-                Log::error('Phone booking admin mail failed', [
-                    'booking_id' => $booking->id,
-                    'error'      => $e->getMessage(),
-                ]);
-            }
         }
     }
 }

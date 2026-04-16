@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Mail\WrittenRequestConfirmationMail;
-use App\Mail\WrittenRequestNotificationMail;
 use App\Models\ConsultationService;
 use App\Models\SiteSetting;
 use App\Models\WrittenConsultationAttachment;
 use App\Models\WrittenConsultationRequest;
+use App\Support\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -25,6 +25,8 @@ class WrittenConsultationController extends Controller
 
     private const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
 
+    public function __construct(private readonly PaymentService $paymentService) {}
+
     public function show()
     {
         $pricing = ConsultationService::where('type', 'written')->first();
@@ -36,7 +38,6 @@ class WrittenConsultationController extends Controller
 
     public function submit(Request $request)
     {
-        // ── Step 1 validation ────────────────────────────────────────
         $request->validate([
             'title'       => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
@@ -55,7 +56,6 @@ class WrittenConsultationController extends Controller
             'files.*.mimes'        => 'Позволени формати: PDF, DOC, DOCX, JPG, JPEG, PNG.',
         ]);
 
-        // ── Step 2 validation ────────────────────────────────────────
         $request->validate([
             'first_name'     => ['required', 'string', 'max:255'],
             'last_name'      => ['required', 'string', 'max:255'],
@@ -64,7 +64,7 @@ class WrittenConsultationController extends Controller
             'payment_method' => ['required', 'in:card,easypay,epay'],
             'consent'        => ['accepted'],
         ], [
-            'first_name.required'     => 'Моля, въведете Вашето име.',
+            'first_name.required'     => 'Моля, въведете Вашето ime.',
             'last_name.required'      => 'Моля, въведете Вашата фамилия.',
             'email.required'          => 'Моля, въведете имейл адрес.',
             'email.email'             => 'Моля, въведете валиден имейл адрес.',
@@ -74,10 +74,8 @@ class WrittenConsultationController extends Controller
             'consent.accepted'        => 'Трябва да се съгласите с Политиката за поверителност.',
         ]);
 
-        // ── Snapshot pricing ─────────────────────────────────────────
         $pricing = ConsultationService::where('type', 'written')->first();
 
-        // ── Persist request ──────────────────────────────────────────
         $consultationRequest = WrittenConsultationRequest::create([
             'first_name'     => $request->input('first_name'),
             'last_name'      => $request->input('last_name'),
@@ -86,14 +84,13 @@ class WrittenConsultationController extends Controller
             'title'          => $request->input('title'),
             'description'    => $request->input('description'),
             'payment_method' => $request->input('payment_method'),
-            'status'         => WrittenConsultationRequest::STATUS_SUBMITTED,
+            'status'         => WrittenConsultationRequest::STATUS_PENDING_PAYMENT,
             'price_eur'      => $pricing?->price_eur ?? 0,
             'price_bgn'      => $pricing?->price_bgn,
             'show_bgn_price' => $pricing?->show_bgn_price ?? false,
             'submitted_at'   => now(),
         ]);
 
-        // ── Store attachments ────────────────────────────────────────
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 if (! $file->isValid()) {
@@ -115,11 +112,17 @@ class WrittenConsultationController extends Controller
             }
         }
 
-        $this->sendRequestEmails($consultationRequest);
+        $payment = $this->paymentService->createPendingPayment(
+            payable:       $consultationRequest,
+            amount:        (float) ($pricing?->price_eur ?? 0),
+            currency:      'EUR',
+            paymentMethod: $request->input('payment_method'),
+            description:   'Писмена консултация — ' . $consultationRequest->fullName(),
+        );
 
-        return redirect()->route('written-consultation.success', [
-            'ref' => $consultationRequest->public_token,
-        ]);
+        $this->sendAcknowledgementEmail($consultationRequest);
+
+        return redirect()->route('payment.simulate', ['invoice' => $payment->invoice_number]);
     }
 
     public function success(Request $request)
@@ -130,7 +133,7 @@ class WrittenConsultationController extends Controller
             abort(404);
         }
 
-        $consultationRequest = WrittenConsultationRequest::with('attachments')
+        $consultationRequest = WrittenConsultationRequest::with(['attachments', 'payment'])
             ->where('public_token', $token)
             ->first();
 
@@ -143,15 +146,13 @@ class WrittenConsultationController extends Controller
         ]);
     }
 
-    // ── Mail ──────────────────────────────────────────────────────────
+    // ── Initial acknowledgement email ─────────────────────────────────
 
-    private function sendRequestEmails(WrittenConsultationRequest $consultationRequest): void
+    private function sendAcknowledgementEmail(WrittenConsultationRequest $consultationRequest): void
     {
         $contactEmail = SiteSetting::get('contact_email');
         $successUrl   = route('written-consultation.success', ['ref' => $consultationRequest->public_token]);
-        $adminUrl     = route('admin.written-consultations.show', $consultationRequest);
 
-        // Eager-load attachments so the template can count them without an extra query.
         $consultationRequest->loadMissing('attachments');
 
         try {
@@ -159,23 +160,10 @@ class WrittenConsultationController extends Controller
                 new WrittenRequestConfirmationMail($consultationRequest, $successUrl, $contactEmail)
             );
         } catch (\Throwable $e) {
-            Log::error('Written consultation client mail failed', [
+            Log::error('Written consultation acknowledgement mail failed', [
                 'request_id' => $consultationRequest->id,
                 'error'      => $e->getMessage(),
             ]);
-        }
-
-        if ($contactEmail) {
-            try {
-                Mail::to($contactEmail)->send(
-                    new WrittenRequestNotificationMail($consultationRequest, $adminUrl)
-                );
-            } catch (\Throwable $e) {
-                Log::error('Written consultation admin mail failed', [
-                    'request_id' => $consultationRequest->id,
-                    'error'      => $e->getMessage(),
-                ]);
-            }
         }
     }
 }

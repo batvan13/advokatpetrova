@@ -1,9 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Заявката е получена')
-@section('description', 'Вашата писмена консултация е приета успешно.')
+@section('title', 'Статус на заявка — Писмена консултация')
+@section('description', 'Статус на Вашата заявка за писмена консултация.')
 
 @section('content')
+
+@php
+    $payment   = $consultationRequest?->payment ?? null;
+    $isPending = ! $payment || $payment->isPending();
+    $isPaid    = $payment?->isPaid();
+    $isFailed  = $payment?->isFailed();
+    $isExpired = $payment?->isExpired();
+@endphp
 
 <div class="min-h-screen bg-petrova-deep flex flex-col items-center justify-center px-4 py-20">
 
@@ -17,12 +25,34 @@
     {{-- Heading --}}
     <p class="text-sm text-petrova-secondary/70 mb-2 tracking-wide">Благодарим Ви за доверието!</p>
     <h1 class="font-cormorant text-3xl font-bold italic text-petrova-primary text-center sm:text-4xl mb-4">
-        Вашето запитване е получено успешно!
+        @if ($isPaid) Плащането е потвърдено!
+        @elseif ($isFailed) Плащането е неуспешно.
+        @elseif ($isExpired) Времето за плащане изтече.
+        @else Вашето запитване е получено!
+        @endif
     </h1>
-    <p class="max-w-xl text-center text-sm leading-relaxed text-petrova-secondary mb-10">
-        На посочения от Вас имейл адрес ще получите потвърждение за направената заявка.<br>
-        Вашият казус ще бъде разгледан от адвокат и отговорът ще бъде изпратен директно на имейл в рамките на <strong class="text-petrova-primary">48 часа</strong>.
-    </p>
+
+    {{-- Payment status banner --}}
+    @if ($isPending)
+        <div class="w-full max-w-3xl mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300 text-center">
+            Заявката е регистрирана. Очаква се потвърждение на плащането.
+            @if ($payment)
+                <a href="{{ route('payment.simulate', ['invoice' => $payment->invoice_number]) }}" class="ml-2 underline font-semibold">Към плащане →</a>
+            @endif
+        </div>
+    @elseif ($isPaid)
+        <div class="w-full max-w-3xl mb-6 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300 text-center">
+            Плащането е потвърдено. Заявката е приета за обработка. Ще получите отговор в рамките на <strong>48 часа</strong>.
+        </div>
+    @elseif ($isFailed)
+        <div class="w-full max-w-3xl mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 text-center">
+            Плащането е отказано или неуспешно. Моля, свържете се с нас за съдействие.
+        </div>
+    @elseif ($isExpired)
+        <div class="w-full max-w-3xl mb-6 rounded-lg border border-petrova-gold/20 bg-petrova-deep/60 px-4 py-3 text-sm text-petrova-secondary/70 text-center">
+            Времето за плащане е изтекло. Заявката е отменена.
+        </div>
+    @endif
 
     @if ($consultationRequest)
 
@@ -63,8 +93,12 @@
                 </div>
 
                 <div class="px-4 py-4">
-                    <p class="text-xs text-petrova-secondary/60 mb-1 italic">Статус</p>
-                    <p class="text-sm font-semibold text-green-400">Получено</p>
+                    <p class="text-xs text-petrova-secondary/60 mb-1 italic">Статус плащане</p>
+                    @if ($isPaid) <p class="text-sm font-semibold text-green-400">Платено</p>
+                    @elseif ($isFailed) <p class="text-sm font-semibold text-red-400">Неуспешно</p>
+                    @elseif ($isExpired) <p class="text-sm font-semibold text-petrova-secondary/60">Изтекло</p>
+                    @else <p class="text-sm font-semibold text-amber-400">Очаква плащане</p>
+                    @endif
                 </div>
 
             </div>

@@ -38,10 +38,10 @@ class PhoneBookingController extends Controller
                 ->with('info', 'Архивираните записвания не могат да бъдат променяни.');
         }
 
-        if ($phoneBooking->status !== PhoneConsultationBooking::STATUS_BOOKED) {
+        if ($phoneBooking->status !== PhoneConsultationBooking::STATUS_CONFIRMED) {
             return redirect()
                 ->route('admin.phone-bookings.show', $phoneBooking)
-                ->with('info', 'Консултацията е вече маркирана като проведена.');
+                ->with('info', 'Консултацията е вече маркирана като проведена или не е потвърдена.');
         }
 
         $phoneBooking->update(['status' => PhoneConsultationBooking::STATUS_COMPLETED]);

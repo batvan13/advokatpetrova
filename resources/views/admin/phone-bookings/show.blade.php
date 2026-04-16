@@ -56,10 +56,14 @@
                 <div class="flex justify-between">
                     <span class="text-gray-500">Статус</span>
                     <span>
-                        @if ($phoneBooking->status === \App\Models\PhoneConsultationBooking::STATUS_BOOKED)
-                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Записан</span>
-                        @elseif ($phoneBooking->status === \App\Models\PhoneConsultationBooking::STATUS_COMPLETED)
+                        @if ($phoneBooking->status === 'pending_payment')
+                            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">Очаква плащане</span>
+                        @elseif ($phoneBooking->status === 'confirmed')
+                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Потвърдена</span>
+                        @elseif ($phoneBooking->status === 'completed')
                             <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">Проведена</span>
+                        @elseif ($phoneBooking->status === 'expired')
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-400">Изтекла</span>
                         @else
                             <span class="text-gray-700">{{ $phoneBooking->status }}</span>
                         @endif
@@ -167,7 +171,7 @@
 
     @if (! $phoneBooking->archived_at)
         <div class="mt-6 flex justify-end">
-            @if ($phoneBooking->status === \App\Models\PhoneConsultationBooking::STATUS_BOOKED)
+            @if ($phoneBooking->status === 'confirmed')
                 <form action="{{ route('admin.phone-bookings.complete', $phoneBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -177,7 +181,7 @@
                         Маркирай като проведена
                     </button>
                 </form>
-            @elseif ($phoneBooking->status === \App\Models\PhoneConsultationBooking::STATUS_COMPLETED)
+            @elseif ($phoneBooking->status === 'completed')
                 <form action="{{ route('admin.phone-bookings.archive', $phoneBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')

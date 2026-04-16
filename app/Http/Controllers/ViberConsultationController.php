@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Mail\BookingConfirmationMail;
-use App\Mail\BookingNotificationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
-use App\Support\GoogleCalendarService;
+use App\Support\PaymentService;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +23,7 @@ class ViberConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability,
-        private readonly GoogleCalendarService           $calendar,
+        private readonly PaymentService                  $paymentService,
     ) {}
 
     // ── Page ─────────────────────────────────────────────────────────
@@ -60,18 +59,15 @@ class ViberConsultationController extends Controller
             return response()->json(['slots' => []]);
         }
 
-        // Generate all theoretical start times for the requested duration.
         $slots = $this->availability->slotsForDate($date, $duration);
 
         $dateStr = $date->toDateString();
 
-        // Collect all 30-min grid blocks occupied by phone bookings.
         $phoneBlocked = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
             ->map(fn ($s) => Carbon::parse($s, 'Europe/Sofia')->format('H:i'));
 
-        // Collect all 30-min grid blocks occupied by viber bookings.
         $viberBlocked = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->get(['starts_at', 'ends_at'])
@@ -86,7 +82,6 @@ class ViberConsultationController extends Controller
                 return $times;
             });
 
-        // Chat bookings are always 30 min — each occupies exactly one grid block.
         $chatBlocked = ChatConsultationBooking::whereIn('status', ChatConsultationBooking::BLOCKING_STATUSES)
             ->whereDate('starts_at', $dateStr)
             ->pluck('starts_at')
@@ -94,8 +89,6 @@ class ViberConsultationController extends Controller
 
         $blockedGrid = $phoneBlocked->merge($viberBlocked)->merge($chatBlocked)->flip();
 
-        // For a 60-min slot the start time is only valid if BOTH the start
-        // block AND the next 30-min block are free.
         $available = array_filter(
             array_map(fn (Carbon $s) => $s->format('H:i'), $slots),
             function (string $t) use ($blockedGrid, $duration) {
@@ -103,7 +96,6 @@ class ViberConsultationController extends Controller
                     return false;
                 }
                 if ($duration === 60) {
-                    // Check the second 30-min block as well.
                     $next = Carbon::createFromFormat('H:i', $t)->addMinutes(30)->format('H:i');
                     if (isset($blockedGrid[$next])) {
                         return false;
@@ -135,25 +127,24 @@ class ViberConsultationController extends Controller
             'payment_method' => ['required', 'in:card,easypay,epay'],
             'consent'        => ['accepted'],
         ], [
-            'duration.required'       => 'Моля, изберете продължителност.',
-            'duration.in'             => 'Невалидна продължителност.',
-            'selected_date.required'  => 'Моля, изберете ден.',
+            'duration.required'         => 'Моля, изберете продължителност.',
+            'duration.in'               => 'Невалидна продължителност.',
+            'selected_date.required'    => 'Моля, изберете ден.',
             'selected_date.date_format' => 'Невалидна дата.',
-            'selected_slot.required'  => 'Моля, изберете час.',
+            'selected_slot.required'    => 'Моля, изберете час.',
             'selected_slot.date_format' => 'Невалиден час.',
-            'first_name.required'     => 'Моля, въведете Вашето име.',
-            'last_name.required'      => 'Моля, въведете Вашата фамилия.',
-            'email.required'          => 'Моля, въведете имейл адрес.',
-            'email.email'             => 'Моля, въведете валиден имейл адрес.',
-            'phone.required'          => 'Моля, въведете телефонен номер.',
-            'payment_method.required' => 'Моля, изберете метод на плащане.',
-            'payment_method.in'       => 'Невалиден метод на плащане.',
-            'consent.accepted'        => 'Трябва да се съгласите с Политиката за поверителност.',
+            'first_name.required'       => 'Моля, въведете Вашето име.',
+            'last_name.required'        => 'Моля, въведете Вашата фамилия.',
+            'email.required'            => 'Моля, въведете имейл адрес.',
+            'email.email'               => 'Моля, въведете валиден имейл адрес.',
+            'phone.required'            => 'Моля, въведете телефонен номер.',
+            'payment_method.required'   => 'Моля, изберете метод на плащане.',
+            'payment_method.in'         => 'Невалиден метод на плащане.',
+            'consent.accepted'          => 'Трябва да се съгласите с Политиката за поверителност.',
         ]);
 
         $duration = (int) $data['duration'];
 
-        // ── Build slot datetimes ─────────────────────────────────────
         $startsAt = Carbon::createFromFormat(
             'Y-m-d H:i',
             $data['selected_date'] . ' ' . $data['selected_slot'],
@@ -161,14 +152,12 @@ class ViberConsultationController extends Controller
         );
         $endsAt = $startsAt->copy()->addMinutes($duration);
 
-        // ── Guard: slot must not be in the past ──────────────────────
         if ($startsAt->isPast()) {
             throw ValidationException::withMessages([
                 'selected_slot' => 'Избраният час е вече в миналото.',
             ]);
         }
 
-        // ── Guard: slot must be a valid generated slot ───────────────
         $validSlots = $this->availability->slotsForDate($startsAt->copy()->startOfDay(), $duration);
         $validTimes = array_map(fn (Carbon $s) => $s->format('H:i'), $validSlots);
 
@@ -178,11 +167,8 @@ class ViberConsultationController extends Controller
             ]);
         }
 
-        // ── Snapshot pricing (outside transaction — read-only) ───────
-        // Viber uses the 'video' consultation service pricing.
         $pricing = ConsultationService::where('type', 'video')->first();
 
-        // Pick the correct price based on duration.
         $priceEur = $duration === 60
             ? ($pricing?->price_eur_60 ?? $pricing?->price_eur ?? 0)
             : ($pricing?->price_eur ?? 0);
@@ -191,36 +177,21 @@ class ViberConsultationController extends Controller
             ? ($pricing?->price_bgn_60 ?? $pricing?->price_bgn)
             : ($pricing?->price_bgn);
 
-        // ── Atomic conflict check + create ───────────────────────────
-        // Three-layer defence identical to phone booking:
-        // Layer 1: lockForUpdate inside transaction (serialises concurrent requests with existing rows).
-        // Layer 2: No UNIQUE index on starts_at here because Viber can have 30 or 60 min durations
-        //          and a 60-min booking occupies two 30-min blocks — a simple starts_at unique
-        //          index would not prevent a phone 30-min booking at the same starts_at.
-        //          Cross-table uniqueness is enforced by the overlap query below.
-        // Layer 3: QueryException catch for any unexpected DB integrity error.
-        //
-        // Remaining pragmatic risk: two concurrent Viber submits for the same slot on an empty
-        // result set may both pass lockForUpdate (gap lock not guaranteed in InnoDB REPEATABLE READ).
-        // This is documented in the output section I) REMAINING RISKS.
         try {
             $booking = DB::transaction(function () use ($data, $duration, $startsAt, $endsAt, $pricing, $priceEur, $priceBgn) {
 
-                // Check phone bookings for overlap.
                 $phoneConflict = PhoneConsultationBooking::whereIn('status', PhoneConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
                     ->lockForUpdate()
                     ->exists();
 
-                // Check viber bookings for overlap.
                 $viberConflict = ViberConsultationBooking::whereIn('status', ViberConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
                     ->lockForUpdate()
                     ->exists();
 
-                // Check chat bookings for overlap (shared resource).
                 $chatConflict = ChatConsultationBooking::whereIn('status', ChatConsultationBooking::BLOCKING_STATUSES)
                     ->where('starts_at', '<', $endsAt)
                     ->where('ends_at', '>', $startsAt)
@@ -243,7 +214,7 @@ class ViberConsultationController extends Controller
                     'starts_at'        => $startsAt,
                     'ends_at'          => $endsAt,
                     'payment_method'   => $data['payment_method'],
-                    'status'           => ViberConsultationBooking::STATUS_BOOKED,
+                    'status'           => ViberConsultationBooking::STATUS_PENDING_PAYMENT,
                     'price_eur'        => $priceEur,
                     'price_bgn'        => $priceBgn,
                     'show_bgn_price'   => $pricing?->show_bgn_price ?? false,
@@ -258,15 +229,20 @@ class ViberConsultationController extends Controller
             throw $e;
         }
 
-        $this->sendBookingEmails($booking);
-        $this->syncToGoogleCalendar($booking);
+        $payment = $this->paymentService->createPendingPayment(
+            payable:       $booking,
+            amount:        (float) $priceEur,
+            currency:      'EUR',
+            paymentMethod: $data['payment_method'],
+            description:   'Viber консултация (' . $duration . ' мин.) — ' . $booking->fullName(),
+        );
 
-        return redirect()->route('viber-consultation.success', [
-            'token' => $booking->public_token,
-        ]);
+        $this->sendAcknowledgementEmail($booking);
+
+        return redirect()->route('payment.simulate', ['invoice' => $payment->invoice_number]);
     }
 
-    // ── Success page ─────────────────────────────────────────────────
+    // ── Success / status page ─────────────────────────────────────────
 
     public function success(string $token)
     {
@@ -274,7 +250,9 @@ class ViberConsultationController extends Controller
             abort(404);
         }
 
-        $booking = ViberConsultationBooking::where('public_token', $token)->first();
+        $booking = ViberConsultationBooking::with('payment')
+            ->where('public_token', $token)
+            ->first();
 
         if (! $booking) {
             abort(404);
@@ -283,68 +261,23 @@ class ViberConsultationController extends Controller
         return view('pages.viber-consultation-success', compact('booking'));
     }
 
-    // ── Google Calendar ───────────────────────────────────────────────
+    // ── Initial acknowledgement email ─────────────────────────────────
 
-    private function syncToGoogleCalendar(ViberConsultationBooking $booking): void
-    {
-        if (! empty($booking->google_event_id)) {
-            return;
-        }
-
-        try {
-            $eventId = $this->calendar->createEvent($booking, 'viber');
-
-            $booking->update([
-                'google_event_id'    => $eventId,
-                'google_sync_status' => ViberConsultationBooking::GOOGLE_SYNC_SYNCED,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Google Calendar sync failed — viber booking', [
-                'booking_id' => $booking->id,
-                'starts_at'  => $booking->starts_at->toIso8601String(),
-                'error'      => $e->getMessage(),
-                'error_class'=> get_class($e),
-            ]);
-
-            try {
-                $booking->update(['google_sync_status' => ViberConsultationBooking::GOOGLE_SYNC_FAILED]);
-            } catch (\Throwable) {
-                // Status update failure must not propagate.
-            }
-        }
-    }
-
-    // ── Mail ──────────────────────────────────────────────────────────
-
-    private function sendBookingEmails(ViberConsultationBooking $booking): void
+    private function sendAcknowledgementEmail(ViberConsultationBooking $booking): void
     {
         $contactNumber = SiteSetting::get('consultation_viber_number');
         $contactEmail  = SiteSetting::get('contact_email');
         $successUrl    = route('viber-consultation.success', ['token' => $booking->public_token]);
-        $adminUrl      = route('admin.viber-bookings.show', $booking);
 
         try {
             Mail::to($booking->email)->send(
                 new BookingConfirmationMail($booking, 'viber', $contactNumber, $successUrl, $contactEmail)
             );
         } catch (\Throwable $e) {
-            Log::error('Viber booking client mail failed', [
+            Log::error('Viber booking acknowledgement mail failed', [
                 'booking_id' => $booking->id,
                 'error'      => $e->getMessage(),
             ]);
-        }
-
-        if ($contactEmail) {
-            try {
-                Mail::to($contactEmail)->send(
-                    new BookingNotificationMail($booking, 'viber', $adminUrl)
-                );
-            } catch (\Throwable $e) {
-                Log::error('Viber booking admin mail failed', [
-                    'booking_id' => $booking->id,
-                    'error'      => $e->getMessage(),
-                ]);
-            }
         }
     }
 }

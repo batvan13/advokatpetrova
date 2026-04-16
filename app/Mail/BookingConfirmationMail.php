@@ -46,7 +46,7 @@ class BookingConfirmationMail extends Mailable
         $label = $typeLabels[$this->type] ?? 'Консултация';
 
         return $this
-            ->subject('Потвърждение на заявка — ' . $label)
+            ->subject('Заявката е получена — ' . $label)
             ->view('mail.booking-confirmation');
     }
 }

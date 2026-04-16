@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
 
 class ViberConsultationBooking extends Model
@@ -41,18 +43,21 @@ class ViberConsultationBooking extends Model
     public const DURATION_60 = 60;
     public const ALLOWED_DURATIONS = [self::DURATION_30, self::DURATION_60];
 
-    public const STATUS_BOOKED    = 'booked';
-    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
+    public const STATUS_CONFIRMED       = 'confirmed';
+    public const STATUS_COMPLETED       = 'completed';
+    public const STATUS_EXPIRED         = 'expired';
 
     public const GOOGLE_SYNC_SYNCED = 'synced';
     public const GOOGLE_SYNC_FAILED = 'failed';
 
     /**
-     * Statuses that occupy a time slot and must block availability.
-     * Mirrors the same pattern as PhoneConsultationBooking::BLOCKING_STATUSES.
+     * Statuses that occupy a slot and block availability.
+     * expired is intentionally excluded — expired bookings free the slot.
      */
     public const BLOCKING_STATUSES = [
-        self::STATUS_BOOKED,
+        self::STATUS_PENDING_PAYMENT,
+        self::STATUS_CONFIRMED,
         self::STATUS_COMPLETED,
     ];
 
@@ -69,6 +74,11 @@ class ViberConsultationBooking extends Model
                 $model->public_token = Str::random(48);
             }
         });
+    }
+
+    public function payment(): MorphOne
+    {
+        return $this->morphOne(Payment::class, 'payable');
     }
 
     public function fullName(): string

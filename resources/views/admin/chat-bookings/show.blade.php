@@ -57,10 +57,14 @@
                 <div class="flex justify-between">
                     <span class="text-gray-500">Статус</span>
                     <span>
-                        @if ($chatBooking->status === \App\Models\ChatConsultationBooking::STATUS_BOOKED)
-                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Записан</span>
-                        @elseif ($chatBooking->status === \App\Models\ChatConsultationBooking::STATUS_COMPLETED)
+                        @if ($chatBooking->status === 'pending_payment')
+                            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">Очаква плащане</span>
+                        @elseif ($chatBooking->status === 'confirmed')
+                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Потвърдена</span>
+                        @elseif ($chatBooking->status === 'completed')
                             <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">Проведена</span>
+                        @elseif ($chatBooking->status === 'expired')
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-400">Изтекла</span>
                         @else
                             <span class="text-gray-700">{{ $chatBooking->status }}</span>
                         @endif
@@ -224,7 +228,7 @@
 
     @if (! $chatBooking->archived_at)
         <div class="mt-6 flex justify-end">
-            @if ($chatBooking->status === \App\Models\ChatConsultationBooking::STATUS_BOOKED)
+            @if ($chatBooking->status === 'confirmed')
                 <form action="{{ route('admin.chat-bookings.complete', $chatBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -234,7 +238,7 @@
                         Маркирай като проведена
                     </button>
                 </form>
-            @elseif ($chatBooking->status === \App\Models\ChatConsultationBooking::STATUS_COMPLETED)
+            @elseif ($chatBooking->status === 'completed')
                 <form action="{{ route('admin.chat-bookings.archive', $chatBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')

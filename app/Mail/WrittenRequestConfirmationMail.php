@@ -23,7 +23,7 @@ class WrittenRequestConfirmationMail extends Mailable
     public function build(): static
     {
         return $this
-            ->subject('Потвърждение на заявка — Писмена консултация')
+            ->subject('Заявката е получена — Писмена консултация')
             ->view('mail.written-confirmation');
     }
 }

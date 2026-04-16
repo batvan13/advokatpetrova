@@ -50,10 +50,14 @@
                             <td class="px-5 py-4 text-gray-600 text-xs">{{ $booking->email }}</td>
                             <td class="px-5 py-4 text-gray-600 text-xs">{{ $booking->paymentMethodLabel() }}</td>
                             <td class="px-5 py-4">
-                                @if ($booking->status === \App\Models\PhoneConsultationBooking::STATUS_BOOKED)
-                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Записан</span>
-                                @elseif ($booking->status === \App\Models\PhoneConsultationBooking::STATUS_COMPLETED)
+                                @if ($booking->status === 'pending_payment')
+                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">Очаква плащане</span>
+                                @elseif ($booking->status === 'confirmed')
+                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Потвърдена</span>
+                                @elseif ($booking->status === 'completed')
                                     <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">Проведена</span>
+                                @elseif ($booking->status === 'expired')
+                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-400">Изтекла</span>
                                 @else
                                     <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">{{ $booking->status }}</span>
                                 @endif

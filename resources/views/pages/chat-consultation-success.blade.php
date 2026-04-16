@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Заявката е получена — Онлайн чат консултация')
+@section('title', 'Статус на заявка — Онлайн чат консултация')
 
 @section('content')
 
@@ -19,6 +19,14 @@
             aria-hidden="true"
         ></div>
 
+        @php
+            $payment   = $booking->payment;
+            $isPending = ! $payment || $payment->isPending();
+            $isPaid    = $payment?->isPaid();
+            $isFailed  = $payment?->isFailed();
+            $isExpired = $payment?->isExpired();
+        @endphp
+
         <div class="relative z-10 mx-auto max-w-4xl px-4 pt-20 pb-20 text-center">
 
             {{-- Logo / brand mark --}}
@@ -26,20 +34,38 @@
                 <img src="{{ asset('images/logo-gold.svg') }}" alt="Адвокатска кантора Петрова" class="mx-auto h-16">
             </div>
 
-            {{-- Thank you --}}
             <p class="text-sm tracking-widest uppercase text-petrova-secondary/60 mb-3">
                 Благодарим Ви за доверието!
             </p>
 
             <h1 class="font-cormorant text-3xl sm:text-4xl font-bold italic tracking-tight text-petrova-primary mb-6">
-                Вашата заявка е получена успешно!
+                @if ($isPaid) Плащането е потвърдено!
+                @elseif ($isFailed) Плащането е неуспешно.
+                @elseif ($isExpired) Времето за плащане изтече.
+                @else Вашата заявка е получена!
+                @endif
             </h1>
 
-            <p class="text-sm text-petrova-secondary/70 leading-relaxed max-w-xl mx-auto mb-10">
-                На посочения от Вас имейл адрес ще получите потвърждение за направената заявка и инструкции
-                за плащане. Достъпът до чат стаята ще бъде предоставен след потвърждение на плащането.
-                Ще се свържем с Вас в най-кратък срок.
-            </p>
+            @if ($isPending)
+                <div class="max-w-xl mx-auto mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+                    Заявката е регистрирана. Достъпът до чат стаята ще бъде предоставен след потвърждение на плащането.
+                    @if ($payment)
+                        <a href="{{ route('payment.simulate', ['invoice' => $payment->invoice_number]) }}" class="ml-2 underline font-semibold">Към плащане →</a>
+                    @endif
+                </div>
+            @elseif ($isPaid)
+                <div class="max-w-xl mx-auto mb-6 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300">
+                    Плащането е потвърдено. Консултацията е резервирана. Ще получите инструкции за достъп до чат стаята по имейл.
+                </div>
+            @elseif ($isFailed)
+                <div class="max-w-xl mx-auto mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                    Плащането е отказано или неуспешно. Моля, свържете се с нас за съдействие.
+                </div>
+            @elseif ($isExpired)
+                <div class="max-w-xl mx-auto mb-6 rounded-lg border border-petrova-gold/20 bg-petrova-deep/60 px-4 py-3 text-sm text-petrova-secondary/70">
+                    Времето за плащане е изтекло. Резервацията е освободена.
+                </div>
+            @endif
 
             {{-- Summary strip --}}
             <div class="rounded-xl border border-petrova-gold/20 bg-petrova-deep/60 px-4 py-4 mb-8 text-left">
@@ -78,8 +104,12 @@
                     </div>
 
                     <div class="py-2 sm:py-0 sm:px-3">
-                        <p class="text-xs text-petrova-secondary/50 mb-1 italic">Статус</p>
-                        <p class="text-petrova-gold font-semibold">Очаква потвърждение</p>
+                        <p class="text-xs text-petrova-secondary/50 mb-1 italic">Статус плащане</p>
+                        @if ($isPaid) <p class="text-green-400 font-semibold">Платено</p>
+                        @elseif ($isFailed) <p class="text-red-400 font-semibold">Неуспешно</p>
+                        @elseif ($isExpired) <p class="text-petrova-secondary/60 font-semibold">Изтекло</p>
+                        @else <p class="text-amber-400 font-semibold">Очаква плащане</p>
+                        @endif
                     </div>
 
                 </div>

@@ -24,6 +24,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ChatConsultationController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhoneConsultationController;
 use App\Http\Controllers\ViberConsultationController;
 use App\Http\Controllers\WrittenConsultationController;
@@ -70,6 +71,12 @@ Route::get('/consultation/written', [WrittenConsultationController::class, 'show
 Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
 Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
 Route::post('/contact', [InquiryController::class, 'submit'])->name('inquiry.submit')->middleware('throttle:contact-form');
+
+// ── Fake payment layer ────────────────────────────────────────────────────────
+// GET  /payment/{invoice}/simulate — shows the fake payment terminal
+// POST /payment/notify/fake-epay   — ONLY endpoint that finalizes payment state
+Route::get('/payment/{invoice}/simulate', [PaymentController::class, 'simulate'])->name('payment.simulate');
+Route::post('/payment/notify/fake-epay', [PaymentController::class, 'notify'])->name('payment.notify');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', function () {
     $lines = [

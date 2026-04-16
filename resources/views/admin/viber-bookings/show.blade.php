@@ -57,10 +57,14 @@
                 <div class="flex justify-between">
                     <span class="text-gray-500">Статус</span>
                     <span>
-                        @if ($viberBooking->status === \App\Models\ViberConsultationBooking::STATUS_BOOKED)
-                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Записан</span>
-                        @elseif ($viberBooking->status === \App\Models\ViberConsultationBooking::STATUS_COMPLETED)
+                        @if ($viberBooking->status === 'pending_payment')
+                            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">Очаква плащане</span>
+                        @elseif ($viberBooking->status === 'confirmed')
+                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Потвърдена</span>
+                        @elseif ($viberBooking->status === 'completed')
                             <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">Проведена</span>
+                        @elseif ($viberBooking->status === 'expired')
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-400">Изтекла</span>
                         @else
                             <span class="text-gray-700">{{ $viberBooking->status }}</span>
                         @endif
@@ -173,17 +177,17 @@
 
     @if (! $viberBooking->archived_at)
         <div class="mt-6 flex justify-end">
-            @if ($viberBooking->status === \App\Models\ViberConsultationBooking::STATUS_BOOKED)
+            @if ($viberBooking->status === 'confirmed')
                 <form action="{{ route('admin.viber-bookings.complete', $viberBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')
                     <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:border-gray-500 hover:text-gray-900 transition-colors"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-500 hover:text-gray-900 transition-colors"
                             onclick="return confirm('Маркирай консултацията като проведена?')">
                         Маркирай като проведена
                     </button>
                 </form>
-            @elseif ($viberBooking->status === \App\Models\ViberConsultationBooking::STATUS_COMPLETED)
+            @elseif ($viberBooking->status === 'completed')
                 <form action="{{ route('admin.viber-bookings.archive', $viberBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')

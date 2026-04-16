@@ -42,10 +42,10 @@ class ChatBookingController extends Controller
                 ->with('info', 'Архивираните записвания не могат да бъдат променяни.');
         }
 
-        if ($chatBooking->status !== ChatConsultationBooking::STATUS_BOOKED) {
+        if ($chatBooking->status !== ChatConsultationBooking::STATUS_CONFIRMED) {
             return redirect()
                 ->route('admin.chat-bookings.show', $chatBooking)
-                ->with('info', 'Консултацията е вече маркирана като проведена.');
+                ->with('info', 'Консултацията е вече маркирана като проведена или не е потвърдена.');
         }
 
         $chatBooking->update(['status' => ChatConsultationBooking::STATUS_COMPLETED]);
