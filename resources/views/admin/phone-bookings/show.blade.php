@@ -191,6 +191,16 @@
                         Архивирай
                     </button>
                 </form>
+            @elseif ($phoneBooking->status === 'pending_payment' || $phoneBooking->status === 'expired')
+                <form action="{{ route('admin.phone-bookings.archive', $phoneBooking) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded hover:border-gray-400 hover:text-gray-700 transition-colors"
+                            onclick="return confirm('Архивирай това записване? То ще изчезне от активния списък.')">
+                        Архивирай
+                    </button>
+                </form>
             @endif
         </div>
     @endif

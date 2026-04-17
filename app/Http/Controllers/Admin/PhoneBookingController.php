@@ -74,10 +74,16 @@ class PhoneBookingController extends Controller
                 ->with('info', 'Записването е вече архивирано.');
         }
 
-        if ($phoneBooking->status !== PhoneConsultationBooking::STATUS_COMPLETED) {
+        $archivable = [
+            PhoneConsultationBooking::STATUS_COMPLETED,
+            PhoneConsultationBooking::STATUS_PENDING_PAYMENT,
+            PhoneConsultationBooking::STATUS_EXPIRED,
+        ];
+
+        if (! in_array($phoneBooking->status, $archivable, true)) {
             return redirect()
                 ->route('admin.phone-bookings.show', $phoneBooking)
-                ->with('error', 'Само проведени консултации могат да бъдат архивирани.');
+                ->with('error', 'Тази консултация не може да бъде архивирана в текущия си статус.');
         }
 
         $phoneBooking->update(['archived_at' => now()]);

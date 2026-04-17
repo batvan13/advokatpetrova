@@ -45,6 +45,18 @@ class WrittenConsultationRequestController extends Controller
 
     public function markAnswered(WrittenConsultationRequest $writtenConsultationRequest)
     {
+        if ($writtenConsultationRequest->archived_at !== null) {
+            return redirect()
+                ->route('admin.written-consultations.show', $writtenConsultationRequest)
+                ->with('info', 'Архивираните заявки не могат да бъдат променяни.');
+        }
+
+        if ($writtenConsultationRequest->status !== WrittenConsultationRequest::STATUS_SUBMITTED) {
+            return redirect()
+                ->route('admin.written-consultations.show', $writtenConsultationRequest)
+                ->with('info', 'Само подадени заявки могат да бъдат маркирани като отговорени.');
+        }
+
         $writtenConsultationRequest->update([
             'status' => WrittenConsultationRequest::STATUS_ANSWERED,
         ]);
@@ -83,10 +95,16 @@ class WrittenConsultationRequestController extends Controller
                 ->with('info', 'Заявката е вече архивирана.');
         }
 
-        if ($writtenConsultationRequest->status !== WrittenConsultationRequest::STATUS_ANSWERED) {
+        $archivable = [
+            WrittenConsultationRequest::STATUS_ANSWERED,
+            WrittenConsultationRequest::STATUS_PENDING_PAYMENT,
+            WrittenConsultationRequest::STATUS_EXPIRED,
+        ];
+
+        if (! in_array($writtenConsultationRequest->status, $archivable, true)) {
             return redirect()
                 ->route('admin.written-consultations.show', $writtenConsultationRequest)
-                ->with('error', 'Само отговорени заявки могат да бъдат архивирани.');
+                ->with('error', 'Тази заявка не може да бъде архивирана в текущия си статус.');
         }
 
         $writtenConsultationRequest->update(['archived_at' => now()]);

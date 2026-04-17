@@ -74,10 +74,16 @@ class ViberBookingController extends Controller
                 ->with('info', 'Записването е вече архивирано.');
         }
 
-        if ($viberBooking->status !== ViberConsultationBooking::STATUS_COMPLETED) {
+        $archivable = [
+            ViberConsultationBooking::STATUS_COMPLETED,
+            ViberConsultationBooking::STATUS_PENDING_PAYMENT,
+            ViberConsultationBooking::STATUS_EXPIRED,
+        ];
+
+        if (! in_array($viberBooking->status, $archivable, true)) {
             return redirect()
                 ->route('admin.viber-bookings.show', $viberBooking)
-                ->with('error', 'Само проведени консултации могат да бъдат архивирани.');
+                ->with('error', 'Тази консултация не може да бъде архивирана в текущия си статус.');
         }
 
         $viberBooking->update(['archived_at' => now()]);

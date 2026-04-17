@@ -52,7 +52,7 @@
                 @endif
             </div>
 
-            @if ($request->status !== 'answered')
+            @if ($request->status === \App\Models\WrittenConsultationRequest::STATUS_SUBMITTED)
                 <form action="{{ route('admin.written-consultations.mark-answered', $request) }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -166,7 +166,15 @@
 
     </div>
 
-    @if (! $request->archived_at && $request->status === \App\Models\WrittenConsultationRequest::STATUS_ANSWERED)
+    @php
+        $archivableStatuses = [
+            \App\Models\WrittenConsultationRequest::STATUS_ANSWERED,
+            \App\Models\WrittenConsultationRequest::STATUS_PENDING_PAYMENT,
+            \App\Models\WrittenConsultationRequest::STATUS_EXPIRED,
+        ];
+    @endphp
+
+    @if (! $request->archived_at && in_array($request->status, $archivableStatuses))
         <div class="mt-6 flex justify-end">
             <form action="{{ route('admin.written-consultations.archive', $request) }}" method="POST">
                 @csrf

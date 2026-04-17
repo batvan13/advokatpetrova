@@ -79,10 +79,16 @@ class ChatBookingController extends Controller
                 ->with('info', 'Записването е вече архивирано.');
         }
 
-        if ($chatBooking->status !== ChatConsultationBooking::STATUS_COMPLETED) {
+        $archivable = [
+            ChatConsultationBooking::STATUS_COMPLETED,
+            ChatConsultationBooking::STATUS_PENDING_PAYMENT,
+            ChatConsultationBooking::STATUS_EXPIRED,
+        ];
+
+        if (! in_array($chatBooking->status, $archivable, true)) {
             return redirect()
                 ->route('admin.chat-bookings.show', $chatBooking)
-                ->with('error', 'Само проведени консултации могат да бъдат архивирани.');
+                ->with('error', 'Тази консултация не може да бъде архивирана в текущия си статус.');
         }
 
         $chatBooking->update(['archived_at' => now()]);
