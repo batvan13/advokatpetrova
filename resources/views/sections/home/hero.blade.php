@@ -4,9 +4,16 @@
             <div class="pt-6 lg:pt-10">
                 <p class="font-cormorant text-white text-[21px] tracking-wide mb-3">Адвокатска кантора Петрова</p>
                 <h1 class="font-cormorant italic text-petrova-gold text-5xl lg:text-6xl xl:text-[56px] leading-[1.1]">
-                    Защитаваме Вашите права.<br>
+                    Защитаваме Вашите права.
                     Пазим Вашето бъдеще.
                 </h1>
+                <a href="{{ route('contacts') }}"
+                   class="inline-flex items-center gap-3 mt-6 px-7 py-3.5 rounded-md text-sm font-medium tracking-wide bg-petrova-gold text-petrova-deep hover:opacity-90 transition">
+                    Свържете се с нас
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 12L12 4M12 4H5M12 4V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
             </div>
             <div class="w-full">
                 <div class="overflow-hidden rounded-tl-[10px] rounded-tr-[220px] rounded-br-[10px] rounded-bl-[10px]">
@@ -34,13 +41,6 @@
                     <p class="text-white/60 text-xs max-w-[280px] text-right">
                         Ние уважаваме и изслушваме внимателно нашите клиенти, подхождаме с ангажираност и искрена грижа.
                     </p>
-                    <a href="#">
-                        <img
-                            src="{{ asset('images/shared/Back to TOP - Button.svg') }}"
-                            alt="Back to top"
-                            class="w-12 h-12 flex-shrink-0"
-                        >
-                    </a>
                 </div>
             </div>
         </div>
