@@ -62,8 +62,9 @@
     <meta property="og:image"       content="{{ $ogImage }}">
     @endif
 
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="alternate icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
