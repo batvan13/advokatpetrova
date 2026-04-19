@@ -37,7 +37,7 @@
 
                             {{-- Image item --}}
                             <img
-                                src="{{ asset('storage/' . $item->image_path) }}"
+                                src="{{ upload_url($item->image_path) }}"
                                 alt="{{ $item->title ?? '' }}"
                                 class="h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-90"
                                 loading="lazy"

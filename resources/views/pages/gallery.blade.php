@@ -84,13 +84,13 @@
                                     Снимка
                                 </span>
                                 <a
-                                    href="{{ asset('storage/' . $item->image_path) }}"
+                                    href="{{ upload_url($item->image_path) }}"
                                     data-fancybox="gallery"
                                     @if($item->title) data-caption="{{ $item->title }}" @endif
                                     class="aspect-square block overflow-hidden rounded-xl border border-gray-100 bg-gray-50 cursor-zoom-in"
                                 >
                                     <img
-                                        src="{{ asset('storage/' . $item->image_path) }}"
+                                        src="{{ upload_url($item->image_path) }}"
                                         alt="{{ $item->title ?? '' }}"
                                         class="h-full w-full object-cover transition-opacity hover:opacity-90"
                                         loading="lazy"

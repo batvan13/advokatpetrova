@@ -11,7 +11,7 @@
     @if(filled($service->image))
         <div class="aspect-[16/10] w-full overflow-hidden bg-petrova-deep/50">
             <img
-                src="{{ asset('storage/' . $service->image) }}"
+                src="{{ upload_url($service->image) }}"
                 alt="{{ $service->title }}"
                 class="h-full w-full object-cover"
                 loading="lazy"

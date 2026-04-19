@@ -87,7 +87,7 @@
         @if(isset($item) && $item->image_path)
             <div>
                 <img
-                    src="{{ asset('storage/' . $item->image_path) }}"
+                    src="{{ upload_url($item->image_path) }}"
                     alt="{{ $item->title ?? 'Текущо изображение' }}"
                     class="h-28 w-auto rounded border border-gray-200 object-cover"
                 >

@@ -204,7 +204,7 @@
                             >
                                 @if ($member->image_path)
                                     <img
-                                        src="{{ asset('storage/' . $member->image_path) }}"
+                                        src="{{ upload_url($member->image_path) }}"
                                         alt="{{ $member->name }}"
                                         class="mb-5 aspect-[4/5] w-full rounded-xl object-cover"
                                         loading="lazy"

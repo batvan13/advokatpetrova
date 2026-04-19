@@ -98,7 +98,7 @@
                             {{-- Preview --}}
                             <td class="px-6 py-4">
                                 @if($item->isImage() && $item->image_path)
-                                    <img src="{{ asset('storage/' . $item->image_path) }}"
+                                    <img src="{{ upload_url($item->image_path) }}"
                                          alt="{{ $item->title ?? '' }}"
                                          class="h-10 w-10 rounded object-cover border border-gray-100">
                                 @elseif($item->isVideo() && $item->video_url)

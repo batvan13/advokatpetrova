@@ -93,7 +93,7 @@
                         }
                         $cardExcerpt = filled($description) ? trim((string) $description) : '';
                         $cardImage = filled($service->image)
-                            ? asset('storage/' . $service->image)
+                            ? upload_url($service->image)
                             : $homeServiceFallbackImage($service);
                     @endphp
                     <a

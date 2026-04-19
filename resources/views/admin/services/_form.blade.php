@@ -147,7 +147,7 @@
                 <div class="rounded-lg border border-gray-200 p-4 space-y-3">
                     <p class="text-xs text-gray-500">Текущо изображение</p>
                     <img
-                        src="{{ asset('storage/' . $service->image) }}"
+                        src="{{ upload_url($service->image) }}"
                         alt=""
                         class="max-h-40 rounded border border-gray-100 object-contain"
                     >

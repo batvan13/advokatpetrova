@@ -95,7 +95,7 @@
         @if (isset($member) && $member->image_path)
             <div>
                 <img
-                    src="{{ asset('storage/' . $member->image_path) }}"
+                    src="{{ upload_url($member->image_path) }}"
                     alt=""
                     class="h-32 w-auto max-w-full rounded border border-gray-200 object-cover"
                 >

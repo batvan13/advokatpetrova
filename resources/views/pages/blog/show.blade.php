@@ -11,7 +11,7 @@
             <div class="mx-auto max-w-6xl px-4">
                 @if ($post->featured_image)
                     <img
-                        src="{{ asset('storage/'.$post->featured_image) }}"
+                        src="{{ upload_url($post->featured_image) }}"
                         alt="{{ $post->title }}"
                         class="h-72 w-full rounded-xl object-cover md:h-96"
                     >

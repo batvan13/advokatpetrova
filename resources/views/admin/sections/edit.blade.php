@@ -196,7 +196,7 @@
                         @if ($pageSection->image_path)
                             <div>
                                 <img
-                                    src="{{ asset('storage/' . $pageSection->image_path) }}"
+                                    src="{{ upload_url($pageSection->image_path) }}"
                                     alt="Текуща снимка"
                                     class="h-28 w-auto rounded border border-gray-200 object-cover"
                                 >
@@ -353,7 +353,7 @@
                         @if ($pageSection->image_path)
                             <div>
                                 <img
-                                    src="{{ asset('storage/' . $pageSection->image_path) }}"
+                                    src="{{ upload_url($pageSection->image_path) }}"
                                     alt="Текуща снимка"
                                     class="h-28 w-auto rounded border border-gray-200 object-cover"
                                 >

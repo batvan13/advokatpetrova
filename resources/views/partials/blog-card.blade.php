@@ -2,7 +2,7 @@
 
     @if (filled($post->featured_image))
         <img
-            src="{{ asset('storage/'.$post->featured_image) }}"
+            src="{{ upload_url($post->featured_image) }}"
             alt="{{ $post->title }}"
             class="h-56 w-full object-cover"
             loading="lazy"

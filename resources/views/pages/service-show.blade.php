@@ -38,7 +38,7 @@
                     </div>
                     <div class="min-w-0">
                         <img
-                            src="{{ asset('storage/' . $service->image) }}"
+                            src="{{ upload_url($service->image) }}"
                             alt="{{ $service->title }}"
                             class="w-full rounded-2xl object-cover shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)] ring-1 ring-white/10 aspect-[4/3] lg:aspect-[5/4] lg:max-h-[min(420px,50vh)] lg:mx-auto lg:max-w-xl"
                             loading="eager"
