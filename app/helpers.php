@@ -5,6 +5,23 @@ use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
+if (! function_exists('upload_url')) {
+
+    /**
+     * Return the public URL for a file stored by GalleryImageProcessor.
+     *
+     * Locally falls back to the standard Storage public disk URL (/storage/...).
+     * On production, reads UPLOAD_PUBLIC_URL from .env so no symlink is required.
+     *
+     * Usage in Blade: {{ upload_url($model->image_field) }}
+     */
+    function upload_url(?string $path): ?string
+    {
+        return \App\Support\GalleryImageProcessor::url($path);
+    }
+
+}
+
 if (! function_exists('setting')) {
 
     /**

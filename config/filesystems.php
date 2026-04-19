@@ -17,6 +17,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Public Upload Path Overrides (production, symlink-free)
+    |--------------------------------------------------------------------------
+    |
+    | These two values work as a pair and must be set together in production
+    | when the standard public/storage symlink cannot be served.
+    |
+    | UPLOAD_PUBLIC_ROOT — absolute filesystem path of the web-accessible
+    |   uploads directory (e.g. /home/user/public_html/uploads).
+    |   GalleryImageProcessor::process() writes files here instead of the
+    |   default storage/app/public location.
+    |
+    | UPLOAD_PUBLIC_URL — the corresponding public URL base
+    |   (e.g. https://example.com/uploads).
+    |   GalleryImageProcessor::url() uses this to build image URLs.
+    |
+    | Leave both empty on local dev — standard public disk behaviour is used.
+    |
+    */
+    'upload_public_root' => env('UPLOAD_PUBLIC_ROOT'),
+    'upload_public_url'  => env('UPLOAD_PUBLIC_URL'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BlogController extends Controller
@@ -26,8 +25,9 @@ class BlogController extends Controller
         $seoDescription = $this->buildSeoDescription($post);
 
         $seoOgImage = null;
-        if ($post->featured_image) {
-            $seoOgImage = url(Storage::disk('public')->url($post->featured_image));
+        $uploadedImageUrl = upload_url($post->featured_image);
+        if ($uploadedImageUrl) {
+            $seoOgImage = url($uploadedImageUrl);
         }
 
         $relatedPosts = Post::published()
