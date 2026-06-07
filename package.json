@@ -3,7 +3,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "postbuild": "node -e \"const f=require('fs');f.cpSync('public/build','build',{recursive:true,force:true})\""
     },
     "devDependencies": {
         "autoprefixer": "^10.4.27",
