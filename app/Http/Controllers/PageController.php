@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConsultationService;
 use App\Models\GalleryItem;
+use App\Models\Review;
 use App\Models\Service;
 use App\Models\TeamMember;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class PageController extends Controller
             'homeServices' => Service::active()->ordered()->limit(3)->get(),
             'homeFaqSection' => $homeFaqSection,
             'homeFaqItems' => $this->filteredHomeFaqItems($homeFaqSection?->faq),
+            'publishedReviews' => Review::published()->ordered()->get(),
         ]);
     }
 

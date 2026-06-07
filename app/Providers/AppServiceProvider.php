@@ -65,5 +65,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('chat-consultation', fn (Request $request) =>
             Limit::perMinutes(10, 5)->by($request->ip())
         );
+
+        // 5 review submissions per 10 minutes per IP
+        RateLimiter::for('reviews', fn (Request $request) =>
+            Limit::perMinutes(10, 5)->by($request->ip())
+        );
     }
 }

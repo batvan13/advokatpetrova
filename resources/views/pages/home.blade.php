@@ -8,6 +8,7 @@
     @include('sections.home.services-preview')
     @include('sections.home.banner')
     @include('sections.home.about-preview')
+    @include('sections.home.reviews')
     @include('sections.home.blog-preview')
     @include('sections.home.faq')
 @endsection

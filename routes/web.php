@@ -17,12 +17,14 @@ use App\Http\Controllers\Admin\PageSectionController;
 use App\Http\Controllers\Admin\PasswordController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ResetPasswordController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatConsultationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhoneConsultationController;
@@ -71,6 +73,10 @@ Route::get('/consultation/written', [WrittenConsultationController::class, 'show
 Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
 Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
 Route::post('/contact', [InquiryController::class, 'submit'])->name('inquiry.submit')->middleware('throttle:contact-form');
+
+Route::get('/otzyvi/dobavi', [ReviewController::class, 'create'])->name('reviews.create');
+Route::post('/otzyvi', [ReviewController::class, 'submit'])->name('reviews.submit')->middleware('throttle:reviews');
+Route::get('/otzyvi/blagodarim', [ReviewController::class, 'success'])->name('reviews.success');
 
 // ── Fake payment layer ────────────────────────────────────────────────────────
 // GET  /payment/{invoice}/simulate — shows the fake payment terminal
@@ -141,6 +147,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('inquiries', [AdminInquiryController::class, 'index'])->name('inquiries.index');
         Route::get('inquiries/{inquiry}', [AdminInquiryController::class, 'show'])->name('inquiries.show');
         Route::post('inquiries/{inquiry}/resend', [AdminInquiryController::class, 'resend'])->name('inquiries.resend');
+
+        Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::get('reviews/{review}', [AdminReviewController::class, 'show'])->name('reviews.show');
+        Route::patch('reviews/{review}/publish', [AdminReviewController::class, 'publish'])->name('reviews.publish');
+        Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
         Route::resource('consultation-services', ConsultationServiceController::class)
             ->only(['index', 'edit', 'update'])
