@@ -124,8 +124,9 @@
                         @endif
 
                         <div class="mt-10">
-                            <span
-                                class="inline-flex cursor-default select-none items-center gap-2 rounded-lg border border-petrova-gold/50 bg-petrova-deep px-8 py-3 text-sm font-medium tracking-normal text-petrova-primary shadow-[0_12px_28px_-10px_rgba(20,28,46,0.55)] pointer-events-none"
+                            <a
+                                href="{{ route('consultation') }}"
+                                class="inline-flex items-center gap-2 rounded-lg border border-petrova-gold/50 bg-petrova-deep px-8 py-3 text-sm font-medium tracking-normal text-petrova-primary shadow-[0_12px_28px_-10px_rgba(20,28,46,0.55)] transition hover:bg-petrova-deep/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-petrova-gold focus-visible:ring-offset-2 focus-visible:ring-offset-petrova-primary"
                             >
                                 Онлайн консултация
                                 <svg
@@ -143,7 +144,7 @@
                                         d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                                     />
                                 </svg>
-                            </span>
+                            </a>
                         </div>
 
                         @if ($contentHasCta)
