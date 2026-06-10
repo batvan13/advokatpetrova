@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\GoogleCalendarUnavailableException;
 use App\Mail\BookingConfirmationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ConsultationService;
@@ -9,6 +10,7 @@ use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
+use App\Support\GoogleCalendarBusyService;
 use App\Support\PaymentService;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -23,6 +25,7 @@ class ViberConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability,
+        private readonly GoogleCalendarBusyService     $googleBusy,
         private readonly PaymentService                  $paymentService,
     ) {}
 
@@ -89,21 +92,33 @@ class ViberConsultationController extends Controller
 
         $blockedGrid = $phoneBlocked->merge($viberBlocked)->merge($chatBlocked)->flip();
 
-        $available = array_filter(
-            array_map(fn (Carbon $s) => $s->format('H:i'), $slots),
-            function (string $t) use ($blockedGrid, $duration) {
-                if (isset($blockedGrid[$t])) {
-                    return false;
-                }
-                if ($duration === 60) {
-                    $next = Carbon::createFromFormat('H:i', $t)->addMinutes(30)->format('H:i');
-                    if (isset($blockedGrid[$next])) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        );
+        $blockedGridTimes = $this->blockedGridTimesForDuration($slots, $blockedGrid, $duration);
+
+        try {
+            $busyPeriods = $this->googleBusy->busyPeriodsForDate($date, useCache: true);
+
+            $available = $this->availability->filterAvailableSlotTimes(
+                $slots,
+                $blockedGridTimes,
+                $busyPeriods,
+                $duration,
+            );
+        } catch (GoogleCalendarUnavailableException $e) {
+            Log::error('Google Calendar FreeBusy check failed', [
+                'context'     => 'viber_slots',
+                'date'        => $date->toDateString(),
+                'starts_at'   => null,
+                'ends_at'     => null,
+                'calendar_id' => config('services.google_calendar.calendar_id'),
+                'error'       => $e->getMessage(),
+                'class'       => get_class($e),
+            ]);
+
+            return response()->json([
+                'slots'                => [],
+                'calendar_unavailable' => true,
+            ]);
+        }
 
         return response()->json(['slots' => array_values($available)]);
     }
@@ -164,6 +179,28 @@ class ViberConsultationController extends Controller
         if (! in_array($data['selected_slot'], $validTimes, true)) {
             throw ValidationException::withMessages([
                 'selected_slot' => 'Избраният час не е наличен за тази дата.',
+            ]);
+        }
+
+        try {
+            if ($this->googleBusy->intervalIsBusy($startsAt, $endsAt, useCache: false)) {
+                throw ValidationException::withMessages([
+                    'selected_slot' => 'Избраният час вече е зает. Моля, изберете друг.',
+                ]);
+            }
+        } catch (GoogleCalendarUnavailableException $e) {
+            Log::error('Google Calendar FreeBusy check failed', [
+                'context'     => 'viber_submit',
+                'date'        => $startsAt->toDateString(),
+                'starts_at'   => $startsAt->toIso8601String(),
+                'ends_at'     => $endsAt->toIso8601String(),
+                'calendar_id' => config('services.google_calendar.calendar_id'),
+                'error'       => $e->getMessage(),
+                'class'       => get_class($e),
+            ]);
+
+            throw ValidationException::withMessages([
+                'selected_slot' => 'Временно не можем да проверим календара. Моля, опитайте отново след малко.',
             ]);
         }
 
@@ -279,5 +316,31 @@ class ViberConsultationController extends Controller
                 'error'      => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * @param  Carbon[]  $slots
+     * @param  \Illuminate\Support\Collection<string, int>  $blockedGrid
+     * @return string[]
+     */
+    private function blockedGridTimesForDuration(array $slots, $blockedGrid, int $duration): array
+    {
+        if ($duration !== 60) {
+            return array_keys($blockedGrid->all());
+        }
+
+        $blockedLookup = $blockedGrid->all();
+        $times         = [];
+
+        foreach ($slots as $slot) {
+            $time = $slot->format('H:i');
+            $next = $slot->copy()->addMinutes(30)->format('H:i');
+
+            if (isset($blockedLookup[$time]) || isset($blockedLookup[$next])) {
+                $times[] = $time;
+            }
+        }
+
+        return $times;
     }
 }
