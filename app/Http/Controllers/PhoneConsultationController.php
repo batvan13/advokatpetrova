@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\GoogleCalendarUnavailableException;
 use App\Mail\BookingConfirmationMail;
 use App\Models\ChatConsultationBooking;
 use App\Models\ConsultationService;
@@ -9,6 +10,7 @@ use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
 use App\Support\ConsultationAvailabilityService;
+use App\Support\GoogleCalendarBusyService;
 use App\Support\PaymentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +25,7 @@ class PhoneConsultationController extends Controller
 {
     public function __construct(
         private readonly ConsultationAvailabilityService $availability,
+        private readonly GoogleCalendarBusyService     $googleBusy,
         private readonly PaymentService                  $paymentService,
     ) {}
 
@@ -87,10 +90,31 @@ class PhoneConsultationController extends Controller
 
         $blockedStarts = $phoneBlocked->merge($viberBlocked)->merge($chatBlocked)->flip();
 
-        $available = array_filter(
-            array_map(fn (Carbon $s) => $s->format('H:i'), $slots),
-            fn (string $t) => ! isset($blockedStarts[$t])
-        );
+        try {
+            $busyPeriods = $this->googleBusy->busyPeriodsForDate($date, useCache: true);
+
+            $available = $this->availability->filterAvailableSlotTimes(
+                $slots,
+                array_keys($blockedStarts->all()),
+                $busyPeriods,
+                30,
+            );
+        } catch (GoogleCalendarUnavailableException $e) {
+            Log::error('Google Calendar FreeBusy check failed', [
+                'context'     => 'phone_slots',
+                'date'        => $date->toDateString(),
+                'starts_at'   => null,
+                'ends_at'     => null,
+                'calendar_id' => config('services.google_calendar.calendar_id'),
+                'error'       => $e->getMessage(),
+                'class'       => get_class($e),
+            ]);
+
+            return response()->json([
+                'slots'                => [],
+                'calendar_unavailable' => true,
+            ]);
+        }
 
         return response()->json(['slots' => array_values($available)]);
     }
@@ -146,6 +170,28 @@ class PhoneConsultationController extends Controller
         if (! in_array($data['selected_slot'], $validTimes, true)) {
             throw ValidationException::withMessages([
                 'selected_slot' => 'Избраният час не е наличен за тази дата.',
+            ]);
+        }
+
+        try {
+            if ($this->googleBusy->intervalIsBusy($startsAt, $endsAt, useCache: false)) {
+                throw ValidationException::withMessages([
+                    'selected_slot' => 'Избраният час вече е зает. Моля, изберете друг.',
+                ]);
+            }
+        } catch (GoogleCalendarUnavailableException $e) {
+            Log::error('Google Calendar FreeBusy check failed', [
+                'context'     => 'phone_submit',
+                'date'        => $startsAt->toDateString(),
+                'starts_at'   => $startsAt->toIso8601String(),
+                'ends_at'     => $endsAt->toIso8601String(),
+                'calendar_id' => config('services.google_calendar.calendar_id'),
+                'error'       => $e->getMessage(),
+                'class'       => get_class($e),
+            ]);
+
+            throw ValidationException::withMessages([
+                'selected_slot' => 'Временно не можем да проверим календара. Моля, опитайте отново след малко.',
             ]);
         }
 

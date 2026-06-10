@@ -96,4 +96,70 @@ class ConsultationAvailabilityService
 
         return $slots;
     }
+
+    /**
+     * Filter theoretical slot starts against DB blocked grid times and external busy periods.
+     *
+     * Uses half-open interval logic [start, end) for overlap checks.
+     *
+     * @param  Carbon[]  $slotStarts
+     * @param  string[]  $blockedGridTimes
+     * @param  array<int, array{start: CarbonInterface, end: CarbonInterface}>  $externalBusyPeriods
+     * @return string[]  Available slot times as H:i
+     */
+    public function filterAvailableSlotTimes(
+        array $slotStarts,
+        array $blockedGridTimes,
+        array $externalBusyPeriods,
+        int $durationMinutes = self::SLOT_MINUTES,
+    ): array {
+        $blockedLookup = array_fill_keys($blockedGridTimes, true);
+        $available     = [];
+
+        foreach ($slotStarts as $slotStart) {
+            $start = Carbon::parse($slotStart)->setTimezone(self::TIMEZONE);
+            $time  = $start->format('H:i');
+
+            if (isset($blockedLookup[$time])) {
+                continue;
+            }
+
+            $slotEnd = $start->copy()->addMinutes($durationMinutes);
+
+            if ($this->intervalOverlapsBusyPeriods($start, $slotEnd, $externalBusyPeriods)) {
+                continue;
+            }
+
+            $available[] = $time;
+        }
+
+        return $available;
+    }
+
+    /**
+     * Half-open overlap test: [startsAt, endsAt) against external busy periods.
+     *
+     * Adjacent intervals do not overlap (e.g. busy until 11:00, slot from 11:00 is free).
+     *
+     * @param  array<int, array{start: CarbonInterface, end: CarbonInterface}>  $externalBusyPeriods
+     */
+    public function intervalOverlapsBusyPeriods(
+        CarbonInterface $startsAt,
+        CarbonInterface $endsAt,
+        array $externalBusyPeriods,
+    ): bool {
+        $startsAt = Carbon::parse($startsAt)->setTimezone(self::TIMEZONE);
+        $endsAt   = Carbon::parse($endsAt)->setTimezone(self::TIMEZONE);
+
+        foreach ($externalBusyPeriods as $period) {
+            $busyStart = Carbon::parse($period['start'])->setTimezone(self::TIMEZONE);
+            $busyEnd   = Carbon::parse($period['end'])->setTimezone(self::TIMEZONE);
+
+            if ($startsAt->lt($busyEnd) && $endsAt->gt($busyStart)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

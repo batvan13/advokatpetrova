@@ -32,8 +32,12 @@ return [
     ],
 
     'google_calendar' => [
-        'calendar_id'      => env('GOOGLE_CALENDAR_ID', ''),
-        'credentials_path' => env('GOOGLE_SERVICE_ACCOUNT_JSON', ''),
+        'calendar_id'        => env('GOOGLE_CALENDAR_ID', ''),
+        'credentials_path'   => env('GOOGLE_SERVICE_ACCOUNT_JSON', ''),
+        'busy_check_enabled' => env('GOOGLE_CALENDAR_BUSY_CHECK_ENABLED', false),
+        'busy_cache_seconds' => (int) env('GOOGLE_CALENDAR_BUSY_CACHE_SECONDS', 120),
+        'busy_calendar_ids'  => env('GOOGLE_CALENDAR_BUSY_CALENDAR_IDS', ''),
+        'timezone'           => env('GOOGLE_CALENDAR_TIMEZONE', 'Europe/Sofia'),
     ],
 
 ];
