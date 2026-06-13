@@ -270,6 +270,250 @@ class ChatConsultationWaitingRoomTest extends TestCase
         $this->assertCount(0, $messagePostRoutes);
     }
 
+    public function test_status_invalid_short_token_returns_404(): void
+    {
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => 'short']))
+            ->assertNotFound();
+    }
+
+    public function test_status_unknown_token_returns_404(): void
+    {
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => Str::random(48)]))
+            ->assertNotFound();
+    }
+
+    public function test_status_public_token_returns_404(): void
+    {
+        [$booking] = $this->createPaidBookingWithSession();
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $booking->public_token]))
+            ->assertNotFound();
+    }
+
+    public function test_status_ineligible_booking_returns_404(): void
+    {
+        $startsAt = Carbon::parse('2026-06-15 15:00:00');
+
+        $booking = ChatConsultationBooking::create([
+            'first_name'     => 'Ivan',
+            'last_name'      => 'Petrov',
+            'email'          => 'ivan@example.com',
+            'phone'          => '+359888000000',
+            'starts_at'      => $startsAt,
+            'ends_at'        => $startsAt->copy()->addMinutes(30),
+            'payment_method' => 'epay',
+            'status'         => ChatConsultationBooking::STATUS_PENDING_PAYMENT,
+            'price_eur'      => 50.00,
+            'price_bgn'      => null,
+            'show_bgn_price' => false,
+        ]);
+
+        $session = ChatSession::create([
+            'booking_id' => $booking->id,
+            'phase'      => ChatSession::PHASE_WAITING,
+        ]);
+
+        Carbon::setTestNow($startsAt->copy()->subMinutes(5));
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]))
+            ->assertNotFound();
+    }
+
+    public function test_status_waiting_phase_json(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession();
+
+        Carbon::setTestNow($booking->starts_at->copy()->subMinutes(5));
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertJson([
+                'session_phase'  => ChatSession::PHASE_WAITING,
+                'booking_status' => ChatConsultationBooking::STATUS_CONFIRMED,
+                'can_send'       => false,
+            ])
+            ->assertJsonStructure(['server_time', 'ends_at']);
+    }
+
+    public function test_status_active_phase_json(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'      => ChatSession::PHASE_ACTIVE,
+            'started_at' => Carbon::parse('2026-06-15 15:01:00'),
+        ]);
+
+        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(5));
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertJson([
+                'session_phase'  => ChatSession::PHASE_ACTIVE,
+                'booking_status' => ChatConsultationBooking::STATUS_CONFIRMED,
+                'can_send'       => false,
+            ]);
+    }
+
+    public function test_status_ending_phase_json(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'      => ChatSession::PHASE_ENDING,
+            'started_at' => Carbon::parse('2026-06-15 15:00:00'),
+        ]);
+
+        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(25));
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertJson([
+                'session_phase'  => ChatSession::PHASE_ENDING,
+                'can_send'       => false,
+            ]);
+    }
+
+    public function test_status_completed_phase_json(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'    => ChatSession::PHASE_COMPLETED,
+            'ended_at' => Carbon::parse('2026-06-15 15:30:00'),
+        ]);
+        $booking->update(['status' => ChatConsultationBooking::STATUS_COMPLETED]);
+
+        Carbon::setTestNow($booking->ends_at->copy()->addMinutes(5));
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertJson([
+                'session_phase'  => ChatSession::PHASE_COMPLETED,
+                'booking_status' => ChatConsultationBooking::STATUS_COMPLETED,
+                'can_send'       => false,
+            ]);
+    }
+
+    public function test_status_at_ends_at_triggers_completion(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession();
+
+        Carbon::setTestNow($booking->ends_at->copy());
+
+        $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertJson([
+                'session_phase'  => ChatSession::PHASE_COMPLETED,
+                'booking_status' => ChatConsultationBooking::STATUS_COMPLETED,
+            ]);
+
+        $session->refresh();
+        $booking->refresh();
+
+        $this->assertSame(ChatSession::PHASE_COMPLETED, $session->phase);
+        $this->assertSame(ChatConsultationBooking::STATUS_COMPLETED, $booking->status);
+    }
+
+    public function test_status_response_contains_no_messages_or_personal_data(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'      => ChatSession::PHASE_ACTIVE,
+            'started_at' => Carbon::parse('2026-06-15 15:01:00'),
+        ]);
+
+        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(5));
+
+        $response = $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]));
+
+        $response->assertOk();
+        $content = $response->getContent();
+
+        $this->assertStringNotContainsString('"messages"', $content);
+        $this->assertStringNotContainsString($booking->email, $content);
+        $this->assertStringNotContainsString($booking->phone, $content);
+        $this->assertStringNotContainsString($booking->public_token, $content);
+        $this->assertStringNotContainsString('"id"', $content);
+    }
+
+    public function test_status_route_is_get_only(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession();
+
+        Carbon::setTestNow($booking->starts_at->copy()->subMinutes(5));
+
+        $url = route('chat-consultation.status', ['client_access_token' => $session->client_access_token]);
+
+        $this->postJson($url)->assertMethodNotAllowed();
+    }
+
+    public function test_waiting_room_page_includes_status_polling_reference(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession();
+
+        Carbon::setTestNow($booking->starts_at->copy()->subMinutes(10));
+
+        $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertSee('data-chat-status-url', false)
+            ->assertSee('data-chat-poll-enabled="true"', false)
+            ->assertSee(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]), false);
+    }
+
+    public function test_active_room_page_includes_status_polling_reference(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'      => ChatSession::PHASE_ACTIVE,
+            'started_at' => Carbon::parse('2026-06-15 15:01:00'),
+        ]);
+
+        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(5));
+
+        $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertSee('data-chat-status-url', false)
+            ->assertSee('data-chat-poll-enabled="true"', false);
+    }
+
+    public function test_early_room_page_does_not_poll(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession();
+
+        Carbon::setTestNow($booking->starts_at->copy()->subMinutes(11));
+
+        $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertSee('data-chat-room-state="early"', false)
+            ->assertDontSee('data-chat-poll-enabled', false);
+    }
+
+    public function test_completed_room_page_does_not_poll(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'    => ChatSession::PHASE_COMPLETED,
+            'ended_at' => Carbon::parse('2026-06-15 15:30:00'),
+        ]);
+        $booking->update(['status' => ChatConsultationBooking::STATUS_COMPLETED]);
+
+        Carbon::setTestNow($booking->ends_at->copy()->addDay());
+
+        $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertSee('data-chat-room-state="completed"', false)
+            ->assertDontSee('data-chat-poll-enabled', false);
+    }
+
+    public function test_room_page_has_no_message_form_controls(): void
+    {
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'      => ChatSession::PHASE_ACTIVE,
+            'started_at' => Carbon::parse('2026-06-15 15:01:00'),
+        ]);
+
+        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(5));
+
+        $response = $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]));
+
+        $response->assertOk()
+            ->assertDontSee('<textarea', false)
+            ->assertDontSee('type="submit"', false)
+            ->assertDontSee('Изпрати', false);
+    }
+
     /**
      * @param  array<string, mixed>  $bookingOverrides
      * @param  array<string, mixed>  $sessionOverrides

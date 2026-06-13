@@ -345,6 +345,56 @@ class ChatConsultationController extends Controller
         return $this->roomView($state, $booking, $session, $opensAt);
     }
 
+    /**
+     * GET /consultation/chat/room/{client_access_token}/status
+     */
+    public function status(string $clientAccessToken): JsonResponse
+    {
+        if (strlen($clientAccessToken) < 32) {
+            abort(404);
+        }
+
+        $session = ChatSession::with(['booking.payment'])
+            ->where('client_access_token', $clientAccessToken)
+            ->first();
+
+        if (! $session || ! $session->booking) {
+            abort(404);
+        }
+
+        $booking = $session->booking;
+
+        if (! $this->isRoomEligible($booking)) {
+            abort(404);
+        }
+
+        $now = Carbon::now('Europe/Sofia');
+
+        if ($booking->status === ChatConsultationBooking::STATUS_CONFIRMED
+            && $now->gte($booking->ends_at)) {
+            $this->sessionLifecycle->completeIfExpired($session, $now);
+            $session->refresh();
+            $booking->refresh();
+        }
+
+        if (! in_array($session->phase, [
+            ChatSession::PHASE_WAITING,
+            ChatSession::PHASE_ACTIVE,
+            ChatSession::PHASE_ENDING,
+            ChatSession::PHASE_COMPLETED,
+        ], true)) {
+            abort(404);
+        }
+
+        return response()->json([
+            'session_phase'  => $session->phase,
+            'booking_status' => $booking->status,
+            'server_time'    => $now->toIso8601String(),
+            'ends_at'        => $booking->ends_at->setTimezone('Europe/Sofia')->toIso8601String(),
+            'can_send'       => false,
+        ]);
+    }
+
     private function isRoomEligible(ChatConsultationBooking $booking): bool
     {
         if (! in_array($booking->status, [
@@ -367,10 +417,13 @@ class ChatConsultationController extends Controller
     private function roomView(string $state, ChatConsultationBooking $booking, ChatSession $session, Carbon $opensAt)
     {
         return view('pages.chat-consultation-room', [
-            'booking' => $booking,
-            'session' => $session,
-            'state'   => $state,
-            'opensAt' => $opensAt,
+            'booking'   => $booking,
+            'session'   => $session,
+            'state'     => $state,
+            'opensAt'   => $opensAt,
+            'statusUrl' => in_array($state, ['waiting', 'active'], true)
+                ? route('chat-consultation.status', ['client_access_token' => $session->client_access_token])
+                : null,
         ]);
     }
 

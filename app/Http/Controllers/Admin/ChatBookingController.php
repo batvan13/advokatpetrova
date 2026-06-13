@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exceptions\ChatSessionLifecycleException;
 use App\Http\Controllers\Controller;
 use App\Models\ChatConsultationBooking;
+use App\Models\ChatSession;
 use App\Support\ChatSessionLifecycleService;
 
 class ChatBookingController extends Controller
@@ -38,6 +39,47 @@ class ChatBookingController extends Controller
         $chatBooking->load('session');
 
         return view('admin.chat-bookings.show', compact('chatBooking'));
+    }
+
+    public function start(ChatConsultationBooking $chatBooking)
+    {
+        if ($chatBooking->archived_at !== null) {
+            return redirect()
+                ->route('admin.chat-bookings.show', $chatBooking)
+                ->with('info', 'Архивираните записвания не могат да бъдат променяни.');
+        }
+
+        if ($chatBooking->status !== ChatConsultationBooking::STATUS_CONFIRMED) {
+            return redirect()
+                ->route('admin.chat-bookings.show', $chatBooking)
+                ->with('info', 'Консултацията не може да бъде стартирана в текущия си статус.');
+        }
+
+        $chatBooking->load('session');
+
+        if (! $chatBooking->session) {
+            return redirect()
+                ->route('admin.chat-bookings.show', $chatBooking)
+                ->with('error', 'Чат сесията не е налична.');
+        }
+
+        if ($chatBooking->session->phase !== ChatSession::PHASE_WAITING) {
+            return redirect()
+                ->route('admin.chat-bookings.show', $chatBooking)
+                ->with('error', 'Консултацията не може да бъде стартирана в текущата фаза.');
+        }
+
+        try {
+            $this->sessionLifecycle->start($chatBooking->session);
+        } catch (ChatSessionLifecycleException) {
+            return redirect()
+                ->route('admin.chat-bookings.show', $chatBooking)
+                ->with('error', 'Консултацията не може да бъде стартирана.');
+        }
+
+        return redirect()
+            ->route('admin.chat-bookings.show', $chatBooking)
+            ->with('success', 'Чат консултацията е стартирана успешно.');
     }
 
     public function complete(ChatConsultationBooking $chatBooking)

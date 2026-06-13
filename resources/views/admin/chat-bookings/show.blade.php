@@ -227,8 +227,19 @@
     </div>
 
     @if (! $chatBooking->archived_at)
-        <div class="mt-6 flex justify-end">
+        <div class="mt-6 flex justify-end gap-3">
             @if ($chatBooking->status === 'confirmed')
+                @if ($chatBooking->session && $chatBooking->session->phase === 'waiting')
+                    <form action="{{ route('admin.chat-bookings.start', $chatBooking) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-gray-900 border border-gray-900 rounded hover:bg-gray-800 transition-colors"
+                                onclick="return confirm('Стартирай чат консултацията?')">
+                            Стартирай чат консултацията
+                        </button>
+                    </form>
+                @endif
                 <form action="{{ route('admin.chat-bookings.complete', $chatBooking) }}" method="POST">
                     @csrf
                     @method('PATCH')

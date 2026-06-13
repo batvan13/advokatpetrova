@@ -70,6 +70,7 @@ Route::get('/consultation/chat/slots', [ChatConsultationController::class, 'slot
 Route::post('/consultation/chat', [ChatConsultationController::class, 'submit'])->name('chat-consultation.submit')->middleware('throttle:chat-consultation');
 Route::get('/consultation/chat/success/{token}', [ChatConsultationController::class, 'success'])->name('chat-consultation.success');
 Route::get('/consultation/chat/room/{client_access_token}', [ChatConsultationController::class, 'room'])->name('chat-consultation.room');
+Route::get('/consultation/chat/room/{client_access_token}/status', [ChatConsultationController::class, 'status'])->name('chat-consultation.status')->middleware('throttle:120,1');
 Route::get('/consultation/written', [WrittenConsultationController::class, 'show'])->name('written-consultation.show');
 Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
 Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
@@ -182,6 +183,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('chat-bookings', [ChatBookingController::class, 'index'])->name('chat-bookings.index');
         Route::get('chat-bookings/archived', [ChatBookingController::class, 'archiveIndex'])->name('chat-bookings.archived');
         Route::get('chat-bookings/{chatBooking}', [ChatBookingController::class, 'show'])->name('chat-bookings.show');
+        Route::patch('chat-bookings/{chatBooking}/start', [ChatBookingController::class, 'start'])->name('chat-bookings.start');
         Route::patch('chat-bookings/{chatBooking}/complete', [ChatBookingController::class, 'complete'])->name('chat-bookings.complete');
         Route::patch('chat-bookings/{chatBooking}/archive', [ChatBookingController::class, 'archive'])->name('chat-bookings.archive');
         Route::delete('chat-bookings/{chatBooking}', [ChatBookingController::class, 'destroy'])->name('chat-bookings.destroy');
