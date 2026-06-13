@@ -115,7 +115,7 @@ class ChatConsultationWaitingRoomTest extends TestCase
             ->assertSee('Вие сте в чакалнята', false);
     }
 
-    public function test_active_phase_shows_active_state_without_message_controls(): void
+    public function test_active_phase_shows_active_state_with_message_controls(): void
     {
         [$booking, $session] = $this->createPaidBookingWithSession([], [
             'phase'      => ChatSession::PHASE_ACTIVE,
@@ -129,8 +129,8 @@ class ChatConsultationWaitingRoomTest extends TestCase
         $response->assertOk()
             ->assertSee('data-chat-room-state="active"', false)
             ->assertSee('Консултацията е активна', false)
-            ->assertDontSee('<textarea', false)
-            ->assertDontSee('Изпрати', false);
+            ->assertSee('id="chat-send-form"', false)
+            ->assertSee('Изпрати', false);
     }
 
     public function test_ending_phase_is_treated_as_active_state(): void
@@ -254,20 +254,21 @@ class ChatConsultationWaitingRoomTest extends TestCase
             ->assertDontSee('Отвори чат консултацията', false);
     }
 
-    public function test_slice_2_does_not_introduce_message_post_route(): void
+    public function test_status_endpoint_does_not_include_messages_array(): void
     {
-        $messagePostRoutes = collect(Route::getRoutes())->filter(function ($route) {
-            if (! in_array('POST', $route->methods(), true)) {
-                return false;
-            }
+        [$booking, $session] = $this->createPaidBookingWithSession([], [
+            'phase'      => ChatSession::PHASE_ACTIVE,
+            'started_at' => Carbon::parse('2026-06-15 15:01:00'),
+        ]);
 
-            $uri = $route->uri();
+        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(5));
 
-            return str_contains($uri, 'consultation/chat')
-                && (str_contains($uri, 'message') || str_contains($uri, 'messages'));
-        });
+        $response = $this->getJson(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]));
 
-        $this->assertCount(0, $messagePostRoutes);
+        $response->assertOk();
+        $content = $response->getContent();
+
+        $this->assertStringNotContainsString('"messages"', $content);
     }
 
     public function test_status_invalid_short_token_returns_404(): void
@@ -441,7 +442,7 @@ class ChatConsultationWaitingRoomTest extends TestCase
         $this->postJson($url)->assertMethodNotAllowed();
     }
 
-    public function test_waiting_room_page_includes_status_polling_reference(): void
+    public function test_waiting_room_page_includes_messages_polling_reference(): void
     {
         [$booking, $session] = $this->createPaidBookingWithSession();
 
@@ -449,12 +450,12 @@ class ChatConsultationWaitingRoomTest extends TestCase
 
         $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
             ->assertOk()
-            ->assertSee('data-chat-status-url', false)
+            ->assertSee('data-chat-messages-url', false)
             ->assertSee('data-chat-poll-enabled="true"', false)
-            ->assertSee(route('chat-consultation.status', ['client_access_token' => $session->client_access_token]), false);
+            ->assertSee(route('chat-consultation.messages.index', ['client_access_token' => $session->client_access_token]), false);
     }
 
-    public function test_active_room_page_includes_status_polling_reference(): void
+    public function test_active_room_page_includes_messages_polling_reference(): void
     {
         [$booking, $session] = $this->createPaidBookingWithSession([], [
             'phase'      => ChatSession::PHASE_ACTIVE,
@@ -465,7 +466,7 @@ class ChatConsultationWaitingRoomTest extends TestCase
 
         $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
             ->assertOk()
-            ->assertSee('data-chat-status-url', false)
+            ->assertSee('data-chat-messages-url', false)
             ->assertSee('data-chat-poll-enabled="true"', false);
     }
 
@@ -497,21 +498,23 @@ class ChatConsultationWaitingRoomTest extends TestCase
             ->assertDontSee('data-chat-poll-enabled', false);
     }
 
-    public function test_room_page_has_no_message_form_controls(): void
+    public function test_early_and_waiting_rooms_have_no_enabled_send_form(): void
     {
-        [$booking, $session] = $this->createPaidBookingWithSession([], [
-            'phase'      => ChatSession::PHASE_ACTIVE,
-            'started_at' => Carbon::parse('2026-06-15 15:01:00'),
-        ]);
+        [$booking, $session] = $this->createPaidBookingWithSession();
 
-        Carbon::setTestNow($booking->starts_at->copy()->addMinutes(5));
+        Carbon::setTestNow($booking->starts_at->copy()->subMinutes(11));
+
+        $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]))
+            ->assertOk()
+            ->assertDontSee('id="chat-send-form"', false);
+
+        Carbon::setTestNow($booking->starts_at->copy()->subMinutes(5));
 
         $response = $this->get(route('chat-consultation.room', ['client_access_token' => $session->client_access_token]));
 
         $response->assertOk()
-            ->assertDontSee('<textarea', false)
-            ->assertDontSee('type="submit"', false)
-            ->assertDontSee('Изпрати', false);
+            ->assertSee('id="chat-send-form"', false)
+            ->assertSee('disabled', false);
     }
 
     /**

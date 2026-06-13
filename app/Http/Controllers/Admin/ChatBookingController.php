@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\ChatMessageSendRejectedException;
 use App\Exceptions\ChatSessionLifecycleException;
 use App\Http\Controllers\Controller;
 use App\Models\ChatConsultationBooking;
+use App\Models\ChatMessage;
 use App\Models\ChatSession;
+use App\Support\ChatMessageService;
 use App\Support\ChatSessionLifecycleService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ChatBookingController extends Controller
 {
     public function __construct(
         private readonly ChatSessionLifecycleService $sessionLifecycle,
+        private readonly ChatMessageService $messageService,
     ) {}
 
     public function index()
@@ -150,5 +156,72 @@ class ChatBookingController extends Controller
         return redirect()
             ->route('admin.chat-bookings.show', $chatBooking)
             ->with('success', 'Записването е архивирано успешно.');
+    }
+
+    /**
+     * GET /admin/chat-bookings/{chatBooking}/chat
+     */
+    public function chat(ChatConsultationBooking $chatBooking)
+    {
+        $chatBooking->load('session');
+
+        if (! $chatBooking->session) {
+            abort(404);
+        }
+
+        if (! in_array($chatBooking->session->phase, [
+            ChatSession::PHASE_WAITING,
+            ChatSession::PHASE_ACTIVE,
+            ChatSession::PHASE_ENDING,
+            ChatSession::PHASE_COMPLETED,
+        ], true)) {
+            abort(404);
+        }
+
+        return view('admin.chat-bookings.chat', compact('chatBooking'));
+    }
+
+    /**
+     * GET /admin/chat-bookings/{chatBooking}/messages
+     */
+    public function messagesIndex(Request $request, ChatConsultationBooking $chatBooking): JsonResponse
+    {
+        $session = $this->messageService->resolveAdminSession($chatBooking);
+        $afterId = $this->messageService->parseAfterId($request->query('after_id'));
+
+        return response()->json(
+            $this->messageService->adminFetchPayload($session, $afterId)
+        );
+    }
+
+    /**
+     * POST /admin/chat-bookings/{chatBooking}/messages
+     */
+    public function messagesStore(Request $request, ChatConsultationBooking $chatBooking): JsonResponse
+    {
+        $session = $this->messageService->resolveAdminSession($chatBooking);
+
+        $request->validate([
+            'message' => ['required', 'string', 'max:' . ChatMessageService::MAX_MESSAGE_LENGTH],
+        ]);
+
+        $messageBody = $this->messageService->validateMessageInput($request->input('message', ''));
+
+        try {
+            $message = $this->messageService->sendMessage(
+                $session,
+                ChatMessage::SENDER_LAWYER,
+                $messageBody,
+            );
+        } catch (ChatMessageSendRejectedException) {
+            return response()->json([
+                'message' => 'В момента не можете да изпращате съобщения.',
+            ], 422);
+        }
+
+        return response()->json(
+            $this->messageService->serializeMessage($message),
+            201
+        );
     }
 }

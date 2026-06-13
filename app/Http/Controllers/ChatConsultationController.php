@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\GoogleCalendarUnavailableException;
 use App\Mail\BookingConfirmationMail;
+use App\Exceptions\ChatMessageSendRejectedException;
 use App\Models\ChatConsultationBooking;
+use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
+use App\Support\ChatMessageService;
 use App\Support\ChatSessionLifecycleService;
 use App\Support\ConsultationAvailabilityService;
 use App\Support\GoogleCalendarBusyService;
@@ -30,6 +33,7 @@ class ChatConsultationController extends Controller
         private readonly GoogleCalendarBusyService     $googleBusy,
         private readonly PaymentService                  $paymentService,
         private readonly ChatSessionLifecycleService   $sessionLifecycle,
+        private readonly ChatMessageService            $messageService,
     ) {}
 
     // ── Page ─────────────────────────────────────────────────────────
@@ -395,6 +399,50 @@ class ChatConsultationController extends Controller
         ]);
     }
 
+    /**
+     * GET /consultation/chat/room/{client_access_token}/messages
+     */
+    public function messagesIndex(Request $request, string $clientAccessToken): JsonResponse
+    {
+        $session = $this->messageService->resolveClientSession($clientAccessToken);
+        $afterId = $this->messageService->parseAfterId($request->query('after_id'));
+
+        return response()->json(
+            $this->messageService->clientFetchPayload($session, $afterId)
+        );
+    }
+
+    /**
+     * POST /consultation/chat/room/{client_access_token}/messages
+     */
+    public function messagesStore(Request $request, string $clientAccessToken): JsonResponse
+    {
+        $session = $this->messageService->resolveClientSession($clientAccessToken);
+
+        $request->validate([
+            'message' => ['required', 'string', 'max:' . ChatMessageService::MAX_MESSAGE_LENGTH],
+        ]);
+
+        $messageBody = $this->messageService->validateMessageInput($request->input('message', ''));
+
+        try {
+            $message = $this->messageService->sendMessage(
+                $session,
+                ChatMessage::SENDER_CLIENT,
+                $messageBody,
+            );
+        } catch (ChatMessageSendRejectedException) {
+            return response()->json([
+                'message' => 'В момента не можете да изпращате съобщения.',
+            ], 422);
+        }
+
+        return response()->json(
+            $this->messageService->serializeMessage($message),
+            201
+        );
+    }
+
     private function isRoomEligible(ChatConsultationBooking $booking): bool
     {
         if (! in_array($booking->status, [
@@ -416,13 +464,18 @@ class ChatConsultationController extends Controller
 
     private function roomView(string $state, ChatConsultationBooking $booking, ChatSession $session, Carbon $opensAt)
     {
+        $token = $session->client_access_token;
+
         return view('pages.chat-consultation-room', [
-            'booking'   => $booking,
-            'session'   => $session,
-            'state'     => $state,
-            'opensAt'   => $opensAt,
-            'statusUrl' => in_array($state, ['waiting', 'active'], true)
-                ? route('chat-consultation.status', ['client_access_token' => $session->client_access_token])
+            'booking'          => $booking,
+            'session'          => $session,
+            'state'            => $state,
+            'opensAt'          => $opensAt,
+            'messagesIndexUrl' => in_array($state, ['waiting', 'active'], true)
+                ? route('chat-consultation.messages.index', ['client_access_token' => $token])
+                : null,
+            'messagesStoreUrl' => in_array($state, ['waiting', 'active'], true)
+                ? route('chat-consultation.messages.store', ['client_access_token' => $token])
                 : null,
         ]);
     }

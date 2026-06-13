@@ -71,6 +71,8 @@ Route::post('/consultation/chat', [ChatConsultationController::class, 'submit'])
 Route::get('/consultation/chat/success/{token}', [ChatConsultationController::class, 'success'])->name('chat-consultation.success');
 Route::get('/consultation/chat/room/{client_access_token}', [ChatConsultationController::class, 'room'])->name('chat-consultation.room');
 Route::get('/consultation/chat/room/{client_access_token}/status', [ChatConsultationController::class, 'status'])->name('chat-consultation.status')->middleware('throttle:120,1');
+Route::get('/consultation/chat/room/{client_access_token}/messages', [ChatConsultationController::class, 'messagesIndex'])->name('chat-consultation.messages.index')->middleware('throttle:120,1');
+Route::post('/consultation/chat/room/{client_access_token}/messages', [ChatConsultationController::class, 'messagesStore'])->name('chat-consultation.messages.store')->middleware('throttle:60,1');
 Route::get('/consultation/written', [WrittenConsultationController::class, 'show'])->name('written-consultation.show');
 Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
 Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
@@ -183,6 +185,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('chat-bookings', [ChatBookingController::class, 'index'])->name('chat-bookings.index');
         Route::get('chat-bookings/archived', [ChatBookingController::class, 'archiveIndex'])->name('chat-bookings.archived');
         Route::get('chat-bookings/{chatBooking}', [ChatBookingController::class, 'show'])->name('chat-bookings.show');
+        Route::get('chat-bookings/{chatBooking}/chat', [ChatBookingController::class, 'chat'])->name('chat-bookings.chat');
+        Route::get('chat-bookings/{chatBooking}/messages', [ChatBookingController::class, 'messagesIndex'])->name('chat-bookings.messages.index')->middleware('throttle:120,1');
+        Route::post('chat-bookings/{chatBooking}/messages', [ChatBookingController::class, 'messagesStore'])->name('chat-bookings.messages.store')->middleware('throttle:60,1');
         Route::patch('chat-bookings/{chatBooking}/start', [ChatBookingController::class, 'start'])->name('chat-bookings.start');
         Route::patch('chat-bookings/{chatBooking}/complete', [ChatBookingController::class, 'complete'])->name('chat-bookings.complete');
         Route::patch('chat-bookings/{chatBooking}/archive', [ChatBookingController::class, 'archive'])->name('chat-bookings.archive');

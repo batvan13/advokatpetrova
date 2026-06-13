@@ -226,6 +226,15 @@
 
     </div>
 
+    @if (! $chatBooking->archived_at && $chatBooking->session && in_array($chatBooking->status, ['confirmed', 'completed'], true))
+        <div class="mt-6">
+            <a href="{{ route('admin.chat-bookings.chat', $chatBooking) }}"
+               class="inline-flex px-4 py-2 text-sm font-medium text-white bg-gray-900 border border-gray-900 rounded hover:bg-gray-800 transition-colors">
+                Отвори чат
+            </a>
+        </div>
+    @endif
+
     @if (! $chatBooking->archived_at)
         <div class="mt-6 flex justify-end gap-3">
             @if ($chatBooking->status === 'confirmed')
