@@ -152,7 +152,7 @@
                                 rows="3"
                                 maxlength="2000"
                                 placeholder="Напишете съобщение…"
-                                class="w-full rounded-lg border border-petrova-gold/20 bg-petrova-deep/80 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-petrova-gold focus:ring-2 focus:ring-petrova-gold/40 focus:outline-none resize-y min-h-[4.5rem]"
+                                class="w-full rounded-lg border border-petrova-gold/20 bg-petrova-deep/80 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:border-petrova-gold focus:ring-2 focus:ring-petrova-gold/40 focus:outline-none resize-y min-h-[4.5rem]"
                                 {{ $state === 'active' ? '' : 'disabled' }}
                             ></textarea>
                             <div class="mt-2 flex items-center justify-between gap-3">

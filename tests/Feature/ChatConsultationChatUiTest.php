@@ -152,7 +152,7 @@ class ChatConsultationChatUiTest extends TestCase
             ->assertOk()
             ->assertSee('id="chat-message-input"', false)
             ->assertSee('name="message"', false)
-            ->assertSee('text-gray-900', false)
+            ->assertSee('text-white', false)
             ->assertSee('placeholder:text-gray-400', false)
             ->assertSee('focus:border-petrova-gold', false)
             ->assertSee('focus:ring-2', false)
@@ -160,11 +160,11 @@ class ChatConsultationChatUiTest extends TestCase
             ->getContent();
 
         $this->assertMatchesRegularExpression(
-            '/id="chat-message-input"[^>]*class="[^"]*text-gray-900/',
+            '/id="chat-message-input"[^>]*class="[^"]*text-white/',
             $content
         );
         $this->assertDoesNotMatchRegularExpression(
-            '/id="chat-message-input"[^>]*class="[^"]*text-white/',
+            '/id="chat-message-input"[^>]*class="[^"]*text-gray-900/',
             $content
         );
     }
