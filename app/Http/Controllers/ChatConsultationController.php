@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Exceptions\GoogleCalendarUnavailableException;
 use App\Mail\BookingConfirmationMail;
 use App\Models\ChatConsultationBooking;
+use App\Models\ChatSession;
 use App\Models\ConsultationService;
 use App\Models\PhoneConsultationBooking;
 use App\Models\SiteSetting;
 use App\Models\ViberConsultationBooking;
+use App\Support\ChatSessionLifecycleService;
 use App\Support\ConsultationAvailabilityService;
 use App\Support\GoogleCalendarBusyService;
 use App\Support\PaymentService;
@@ -27,6 +29,7 @@ class ChatConsultationController extends Controller
         private readonly ConsultationAvailabilityService $availability,
         private readonly GoogleCalendarBusyService     $googleBusy,
         private readonly PaymentService                  $paymentService,
+        private readonly ChatSessionLifecycleService   $sessionLifecycle,
     ) {}
 
     // ── Page ─────────────────────────────────────────────────────────
@@ -282,6 +285,93 @@ class ChatConsultationController extends Controller
         }
 
         return view('pages.chat-consultation-success', compact('booking'));
+    }
+
+    // ── Client waiting room (read-only) ───────────────────────────────
+
+    /**
+     * GET /consultation/chat/room/{client_access_token}
+     */
+    public function room(string $clientAccessToken)
+    {
+        if (strlen($clientAccessToken) < 32) {
+            abort(404);
+        }
+
+        $session = ChatSession::with(['booking.payment'])
+            ->where('client_access_token', $clientAccessToken)
+            ->first();
+
+        if (! $session || ! $session->booking) {
+            abort(404);
+        }
+
+        $booking = $session->booking;
+
+        if (! $this->isRoomEligible($booking)) {
+            abort(404);
+        }
+
+        $now     = Carbon::now('Europe/Sofia');
+        $opensAt = $this->roomOpensAt($booking);
+
+        if ($booking->status === ChatConsultationBooking::STATUS_CONFIRMED
+            && $now->gte($booking->ends_at)) {
+            $this->sessionLifecycle->completeIfExpired($session, $now);
+            $session->refresh();
+            $booking->refresh();
+        }
+
+        if ($session->isCompleted() || $booking->status === ChatConsultationBooking::STATUS_COMPLETED) {
+            return $this->roomView('completed', $booking, $session, $opensAt);
+        }
+
+        if ($now->lt($opensAt)) {
+            return $this->roomView('early', $booking, $session, $opensAt);
+        }
+
+        $state = match ($session->phase) {
+            ChatSession::PHASE_WAITING   => 'waiting',
+            ChatSession::PHASE_ACTIVE,
+            ChatSession::PHASE_ENDING    => 'active',
+            ChatSession::PHASE_COMPLETED => 'completed',
+            default                      => null,
+        };
+
+        if ($state === null) {
+            abort(404);
+        }
+
+        return $this->roomView($state, $booking, $session, $opensAt);
+    }
+
+    private function isRoomEligible(ChatConsultationBooking $booking): bool
+    {
+        if (! in_array($booking->status, [
+            ChatConsultationBooking::STATUS_CONFIRMED,
+            ChatConsultationBooking::STATUS_COMPLETED,
+        ], true)) {
+            return false;
+        }
+
+        $payment = $booking->payment;
+
+        return $payment !== null && $payment->isPaid();
+    }
+
+    private function roomOpensAt(ChatConsultationBooking $booking): Carbon
+    {
+        return $booking->starts_at->copy()->subMinutes(10);
+    }
+
+    private function roomView(string $state, ChatConsultationBooking $booking, ChatSession $session, Carbon $opensAt)
+    {
+        return view('pages.chat-consultation-room', [
+            'booking' => $booking,
+            'session' => $session,
+            'state'   => $state,
+            'opensAt' => $opensAt,
+        ]);
     }
 
     // ── Initial acknowledgement email ─────────────────────────────────

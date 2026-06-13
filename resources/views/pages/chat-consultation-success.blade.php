@@ -177,6 +177,23 @@
 
             </div>
 
+            @php
+                $showRoomLink = $isPaid
+                    && in_array($booking->status, ['confirmed', 'completed'], true)
+                    && $booking->session
+                    && $booking->session->client_access_token;
+            @endphp
+
+            @if ($showRoomLink)
+                <div class="mb-4">
+                    <a href="{{ route('chat-consultation.room', ['client_access_token' => $booking->session->client_access_token]) }}"
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded bg-petrova-gold/20 border border-petrova-gold/50
+                              text-petrova-primary text-sm font-semibold hover:bg-petrova-gold/30 transition-colors">
+                        Отвори чат консултацията
+                    </a>
+                </div>
+            @endif
+
             {{-- CTA --}}
             <a href="{{ route('home') }}"
                class="inline-flex items-center gap-2 px-6 py-3 rounded border border-petrova-gold/40

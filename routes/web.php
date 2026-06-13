@@ -69,6 +69,7 @@ Route::get('/consultation/chat', [ChatConsultationController::class, 'show'])->n
 Route::get('/consultation/chat/slots', [ChatConsultationController::class, 'slots'])->name('chat-consultation.slots')->middleware('throttle:60,1');
 Route::post('/consultation/chat', [ChatConsultationController::class, 'submit'])->name('chat-consultation.submit')->middleware('throttle:chat-consultation');
 Route::get('/consultation/chat/success/{token}', [ChatConsultationController::class, 'success'])->name('chat-consultation.success');
+Route::get('/consultation/chat/room/{client_access_token}', [ChatConsultationController::class, 'room'])->name('chat-consultation.room');
 Route::get('/consultation/written', [WrittenConsultationController::class, 'show'])->name('written-consultation.show');
 Route::post('/consultation/written', [WrittenConsultationController::class, 'submit'])->name('written-consultation.submit')->middleware('throttle:written-consultation');
 Route::get('/consultation/written/success', [WrittenConsultationController::class, 'success'])->name('written-consultation.success');
