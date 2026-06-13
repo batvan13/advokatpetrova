@@ -192,7 +192,15 @@ class PaymentService
 
     private function ensureChatSession(ChatConsultationBooking $booking): void
     {
-        if ($booking->session()->exists()) {
+        $session = $booking->session()->first();
+
+        if ($session) {
+            if (empty($session->client_access_token)) {
+                $session->update([
+                    'client_access_token' => ChatSession::generateUniqueClientAccessToken(),
+                ]);
+            }
+
             return;
         }
 

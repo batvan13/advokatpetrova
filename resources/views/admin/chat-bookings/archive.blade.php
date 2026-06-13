@@ -77,7 +77,7 @@
                                         <button type="submit"
                                                 class="text-xs px-3 py-1.5 rounded border border-gray-200
                                                        text-red-500 hover:border-red-300 hover:bg-red-50 transition-colors"
-                                                onclick="return confirm('Изтрий записването на {{ e($booking->fullName()) }} от {{ $booking->starts_at->setTimezone("Europe/Sofia")->format("d.m.Y") }}? Действието е необратимо.')">
+                                                onclick="return confirm('Изтриването е необратимо и ще премахне записването, чат сесията и цялата история на съобщенията. Сигурни ли сте?')">
                                             Изтрий
                                         </button>
                                     </form>

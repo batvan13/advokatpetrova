@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\ChatSessionLifecycleException;
 use App\Http\Controllers\Controller;
 use App\Models\ChatConsultationBooking;
+use App\Support\ChatSessionLifecycleService;
 
 class ChatBookingController extends Controller
 {
+    public function __construct(
+        private readonly ChatSessionLifecycleService $sessionLifecycle,
+    ) {}
+
     public function index()
     {
         $bookings = ChatConsultationBooking::with('session')
@@ -48,7 +54,13 @@ class ChatBookingController extends Controller
                 ->with('info', 'Консултацията е вече маркирана като проведена или не е потвърдена.');
         }
 
-        $chatBooking->update(['status' => ChatConsultationBooking::STATUS_COMPLETED]);
+        try {
+            $this->sessionLifecycle->completeBooking($chatBooking);
+        } catch (ChatSessionLifecycleException) {
+            return redirect()
+                ->route('admin.chat-bookings.show', $chatBooking)
+                ->with('error', 'Консултацията не може да бъде маркирана като проведена.');
+        }
 
         return redirect()
             ->route('admin.chat-bookings.show', $chatBooking)
